@@ -16,7 +16,7 @@ public sealed class ScannerTests
         var expected = new Token.Value(Tag.String, "Name", "Raspite");
 
         // Act
-        var actual = new Scanner(source, Endian.Big).Run() as Token.Value;
+        var actual = new Scanner(source).Run() as Token.Value;
 
         // Assert
         Assert.Equal(expected.Tag.Type, actual?.Tag.Type);

@@ -26,7 +26,7 @@ public sealed class Scanner
     private Token Scan(Tag? tag = null)
     {
         // Take into account for nameless tags.
-        var name = tag?.Type;
+        string? name = null;
 
         if (tag is null)
         {
