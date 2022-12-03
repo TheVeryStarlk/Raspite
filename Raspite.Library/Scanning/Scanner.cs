@@ -2,6 +2,9 @@
 
 namespace Raspite.Library.Scanning;
 
+/// <summary>
+/// Converts a single dimensional sequence of bytes into a hierarchical representation in <see cref="Token"/>. 
+/// </summary>
 public sealed class Scanner
 {
     private int current;
@@ -9,7 +12,7 @@ public sealed class Scanner
     private readonly byte[] source;
     private readonly bool swap;
 
-    public Scanner(byte[] source, Endian endian)
+    public Scanner(byte[] source, Endian endian = Endian.Big)
     {
         this.source = source;
         swap = BitConverter.IsLittleEndian == endian is Endian.Big;
@@ -27,11 +30,7 @@ public sealed class Scanner
 
         if (tag is null)
         {
-            // Get the tag's ID byte.
-            tag = Tag.Resolve(source[current]);
-
-            // We finished eating the tag's ID byte.
-            current++;
+            tag = ReadHeader();
 
             if (tag.Type is nameof(Tag.End))
             {
@@ -59,9 +58,37 @@ public sealed class Scanner
         };
     }
 
+    private Tag ReadHeader()
+    {
+        // Get the tag's ID byte.
+        var tag = Tag.Resolve(source[current]);
+
+        // We finished eating the tag's ID byte.
+        current++;
+
+        return tag;
+    }
+
+    private byte[] ReadPayload(int size, bool numeric = true)
+    {
+        // Start eating the payload's bytes.
+        var bytes = source[current..(current + size)];
+
+        // Sometimes we need to override swapping because endianness is not present in payloads like strings.
+        if (swap && numeric)
+        {
+            Array.Reverse(bytes);
+        }
+
+        // We finished eating the payload's bytes.
+        current += bytes.Length;
+
+        return bytes;
+    }
+
     private byte HandleByte()
     {
-        return ReadPayload(Tag.Byte.Size)[0];
+        return ReadPayload(Tag.Byte.Size).First();
     }
 
     private short HandleShort()
@@ -97,25 +124,13 @@ public sealed class Scanner
 
     private string HandleString()
     {
-        // Get the string's length.
-        var length = BitConverter.ToUInt16(ReadPayload(Tag.Short.Size));
-
-        // Start eating the string's bytes.
-        var bytes = source[current..(current + length)];
-
-        // We finished eating the string's bytes.
-        current += length;
-
+        var bytes = ReadPayload(BitConverter.ToUInt16(ReadPayload(Tag.Short.Size)), false);
         return Encoding.UTF8.GetString(bytes);
     }
 
     private Token[] HandleList()
     {
-        // Get the tag's ID byte.
-        var tag = Tag.Resolve(source[current]);
-
-        // We finished eating the tag's ID byte.
-        current++;
+        var tag = ReadHeader();
 
         // Eat the list's length.
         var length = HandleInt();
@@ -138,8 +153,7 @@ public sealed class Scanner
         // Eat until we hit the ending tag.
         while (Tag.Resolve(source[current]).Type is not nameof(Tag.End))
         {
-            var token = Scan();
-            tokens.Add(token);
+            tokens.Add(Scan());
         }
 
         // Eat the ending tag.
@@ -178,21 +192,5 @@ public sealed class Scanner
         }
 
         return longs;
-    }
-
-    private byte[] ReadPayload(int size)
-    {
-        // Start eating the payload's bytes.
-        var bytes = source[current..(current + size)];
-
-        if (swap)
-        {
-            Array.Reverse(bytes);
-        }
-
-        // We finished eating the payload's bytes.
-        current += bytes.Length;
-
-        return bytes;
     }
 }
