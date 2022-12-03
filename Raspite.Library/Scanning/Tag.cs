@@ -1,8 +1,6 @@
 ﻿namespace Raspite.Library.Scanning;
 
-/// <param name="Type">Represents the type of the tag.</param>
-/// <param name="Size">Represents the length of bytes for the tag's payload. 0 Means undefined.</param>
-public sealed record Tag(string Type, int Size = 0)
+public sealed class Tag
 {
     /// <summary>
     /// Signifies the end of a <see cref="Compound"/>.
@@ -75,6 +73,23 @@ public sealed record Tag(string Type, int Size = 0)
     /// The prefix is a signed integer (thus 4 bytes) and indicates the number of 8 byte longs.
     /// </summary>
     public static Tag LongArray => new Tag(nameof(LongArray));
+
+    /// <summary>
+    /// Represents the type of the tag.
+    /// </summary>
+    public string Type { get; }
+
+    /// <summary>
+    /// Represents the number of bytes that hold the tag's payload. 0 Means undefined.
+    /// </summary>
+    public int Size { get; }
+
+    // This class works as a "smart" enum.
+    private Tag(string type, int size = 0)
+    {
+        Type = type;
+        Size = size;
+    }
 
     public static Tag Resolve(int id)
     {

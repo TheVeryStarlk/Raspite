@@ -35,7 +35,7 @@ public sealed class Scanner
 
             if (tag.Type is nameof(Tag.End))
             {
-                return new Token(tag, Tag.End.Type);
+                return new Token(tag);
             }
 
             name = HandleString();
@@ -43,18 +43,18 @@ public sealed class Scanner
 
         return tag.Type switch
         {
-            nameof(Tag.Byte) => new Token(tag, name, HandleByte()),
-            nameof(Tag.Short) => new Token(tag, name, HandleShort()),
-            nameof(Tag.Int) => new Token(tag, name, HandleInt()),
-            nameof(Tag.Long) => new Token(tag, name, HandleLong()),
-            nameof(Tag.Float) => new Token(tag, name, HandleFloat()),
-            nameof(Tag.Double) => new Token(tag, name, HandleDouble()),
-            nameof(Tag.ByteArray) => new Token(tag, name, HandleByteArray()),
-            nameof(Tag.String) => new Token(tag, name, HandleString()),
-            nameof(Tag.List) => new Token(tag, name, HandleList()),
-            nameof(Tag.Compound) => new Token(tag, name, HandleCompound()),
-            nameof(Tag.IntArray) => new Token(tag, name, HandleIntArray()),
-            nameof(Tag.LongArray) => new Token(tag, name, HandleLongArray()),
+            nameof(Tag.Byte) => new Token.Value(tag, name, HandleByte()),
+            nameof(Tag.Short) => new Token.Value(tag, name, HandleShort()),
+            nameof(Tag.Int) => new Token.Value(tag, name, HandleInt()),
+            nameof(Tag.Long) => new Token.Value(tag, name, HandleLong()),
+            nameof(Tag.Float) => new Token.Value(tag, name, HandleFloat()),
+            nameof(Tag.Double) => new Token.Value(tag, name, HandleDouble()),
+            nameof(Tag.ByteArray) => new Token.Value(tag, name, HandleByteArray()),
+            nameof(Tag.String) => new Token.Value(tag, name, HandleString()),
+            nameof(Tag.List) => new Token.Parent(tag, name, HandleList()),
+            nameof(Tag.Compound) => new Token.Parent(tag, name, HandleCompound()),
+            nameof(Tag.IntArray) => new Token.Value(tag, name, HandleIntArray()),
+            nameof(Tag.LongArray) => new Token.Value(tag, name, HandleLongArray()),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -125,7 +125,7 @@ public sealed class Scanner
 
         for (var index = 0; index < length; index++)
         {
-            tokens[index] = new Token(tag, tag.Type, Scan(tag));
+            tokens[index] = Scan(tag);
         }
 
         return tokens;
