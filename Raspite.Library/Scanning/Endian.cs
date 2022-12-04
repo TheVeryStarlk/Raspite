@@ -1,7 +1,7 @@
 ﻿namespace Raspite.Library.Scanning;
 
-public enum Edition
+public enum Endian
 {
-    Java,
-    Bedrock
+    Big,
+    Little
 }

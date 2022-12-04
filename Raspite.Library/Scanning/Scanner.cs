@@ -10,31 +10,16 @@ public sealed class Scanner
     private int current;
 
     private readonly byte[] source;
-    private readonly Edition edition;
     private readonly bool swap;
 
-    public Scanner(byte[] source, Edition edition)
+    public Scanner(byte[] source, Endian endian)
     {
         this.source = source;
-        this.edition = edition;
-
-        swap = BitConverter.IsLittleEndian == edition is Edition.Java;
+        swap = BitConverter.IsLittleEndian == endian is Endian.Big;
     }
 
     public Token Run()
     {
-        // The Bedrock edition always starts with a custom header, we need to validate it. 
-        if (edition is Edition.Bedrock)
-        {
-            var header = HandleInt();
-            var size = HandleInt();
-
-            if (header + size != source.Length)
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
         return Scan();
     }
 
