@@ -1,4 +1,4 @@
-﻿namespace Raspite.Library.Scanning;
+﻿namespace Raspite.Library.Reading;
 
 public sealed class Tag
 {
@@ -89,6 +89,11 @@ public sealed class Tag
     {
         Type = type;
         Size = size;
+    }
+
+    public bool Matches(Tag tag)
+    {
+        return Type == tag.Type;
     }
 
     public static Tag Resolve(int id)

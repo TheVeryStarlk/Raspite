@@ -1,18 +1,15 @@
 ﻿using System.Text;
 
-namespace Raspite.Library.Scanning;
+namespace Raspite.Library.Reading;
 
-/// <summary>
-/// Converts a single dimensional sequence of bytes into a hierarchical representation in <see cref="Token"/>. 
-/// </summary>
-public sealed class Scanner
+public sealed class Reader
 {
     private int current;
 
     private readonly byte[] source;
     private readonly bool swap;
 
-    public Scanner(byte[] source, Endian endian)
+    public Reader(byte[] source, Endian endian)
     {
         this.source = source;
         swap = BitConverter.IsLittleEndian == endian is Endian.Big;
@@ -32,7 +29,7 @@ public sealed class Scanner
         {
             tag = ReadHeader();
 
-            if (tag.Type is nameof(Tag.End))
+            if (tag.Matches(Tag.End))
             {
                 return new Token(tag);
             }
@@ -60,29 +57,22 @@ public sealed class Scanner
 
     private Tag ReadHeader()
     {
-        // Get the tag's ID byte.
         var tag = Tag.Resolve(source[current]);
 
-        // We finished eating the tag's ID byte.
         current++;
-
         return tag;
     }
 
     private byte[] ReadPayload(int size, bool numeric = true)
     {
-        // Start eating the payload's bytes.
         var bytes = source[current..(current + size)];
 
-        // Sometimes we need to override swapping because endianness is not present in payloads like strings.
         if (swap && numeric)
         {
             Array.Reverse(bytes);
         }
 
-        // We finished eating the payload's bytes.
         current += bytes.Length;
-
         return bytes;
     }
 
@@ -118,7 +108,6 @@ public sealed class Scanner
 
     private byte[] HandleByteArray()
     {
-        // Get the byte array's length, then eat its payload.
         return ReadPayload(HandleInt());
     }
 
@@ -131,14 +120,9 @@ public sealed class Scanner
     private Token[] HandleList()
     {
         var tag = ReadHeader();
+        var tokens = new Token[HandleInt()];
 
-        // Eat the list's length.
-        var length = HandleInt();
-
-        // Start eating the list's payload.
-        var tokens = new Token[length];
-
-        for (var index = 0; index < length; index++)
+        for (var index = 0; index < tokens.Length; index++)
         {
             tokens[index] = Scan(tag);
         }
@@ -151,7 +135,7 @@ public sealed class Scanner
         var tokens = new List<Token>();
 
         // Eat until we hit the ending tag.
-        while (Tag.Resolve(source[current]).Type is not nameof(Tag.End))
+        while (!Tag.Resolve(source[current]).Matches(Tag.End))
         {
             tokens.Add(Scan());
         }
@@ -164,13 +148,9 @@ public sealed class Scanner
 
     private int[] HandleIntArray()
     {
-        // Eat the int array's length.
-        var length = HandleInt();
+        var ints = new int[HandleInt()];
 
-        // Start eating the int array's payload.
-        var ints = new int[length];
-
-        for (var index = 0; index < length; index++)
+        for (var index = 0; index < ints.Length; index++)
         {
             ints[index] = HandleInt();
         }
@@ -180,13 +160,9 @@ public sealed class Scanner
 
     private long[] HandleLongArray()
     {
-        // Eat the long array's length.
-        var length = HandleInt();
+        var longs = new long[HandleInt()];
 
-        // Start eating the long array's payload.
-        var longs = new long[length];
-
-        for (var index = 0; index < length; index++)
+        for (var index = 0; index < longs.Length; index++)
         {
             longs[index] = HandleLong();
         }

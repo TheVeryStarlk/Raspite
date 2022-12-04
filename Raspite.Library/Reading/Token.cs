@@ -1,4 +1,4 @@
-﻿namespace Raspite.Library.Scanning;
+﻿namespace Raspite.Library.Reading;
 
 public record Token(Tag Tag)
 {

@@ -1,4 +1,4 @@
-using Raspite.Library.Scanning;
+using Raspite.Library.Reading;
 
 namespace Raspite.Tests;
 
@@ -16,7 +16,7 @@ public sealed class ScannerTests
         var expected = new Token.Value(Tag.String, "Name", "Raspite");
 
         // Act
-        var actual = new Scanner(source, Endian.Big).Run() as Token.Value;
+        var actual = new Reader(source, Endian.Big).Run() as Token.Value;
 
         // Assert
         Assert.Equal(expected.Tag.Type, actual?.Tag.Type);
@@ -36,7 +36,7 @@ public sealed class ScannerTests
         var expected = new Token.Value(Tag.String, "Name", "Raspite");
 
         // Act
-        var actual = new Scanner(source, Endian.Little).Run() as Token.Value;
+        var actual = new Reader(source, Endian.Little).Run() as Token.Value;
 
         // Assert
         Assert.Equal(expected.Tag.Type, actual?.Tag.Type);
