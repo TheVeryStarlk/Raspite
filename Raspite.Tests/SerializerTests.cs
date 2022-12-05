@@ -5,7 +5,7 @@ namespace Raspite.Tests;
 public sealed class SerializerTests
 {
     [Fact]
-    public async Task Serializing_Outputs_Tags()
+    public async Task Serializing_Little_None_Outputs_CorrectTags()
     {
         // Arrange
         var source = new byte[]
