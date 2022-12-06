@@ -4,9 +4,6 @@ namespace Raspite.Library;
 
 internal sealed class BinaryWriter
 {
-    // To figure out if we need to account for payload when we're in a list or not.
-    private bool named = true;
-
     private readonly Tag source;
     private readonly bool needSwap;
 
@@ -43,28 +40,25 @@ internal sealed class BinaryWriter
 
     private List<byte> WritePayload(int tag, string? name)
     {
-        var bytes = new List<byte>();
+        name ??= string.Empty;
 
-        if (named)
+        var payload = new List<byte>()
         {
-            bytes.Add((byte) tag);
+            (byte) tag
+        };
 
-            var length = BitConverter.GetBytes((ushort) (name?.Length ?? 0));
+        var bytes = Encoding.UTF8.GetBytes(name);
+        var length = BitConverter.GetBytes((ushort) bytes.Length);
 
-            if (needSwap)
-            {
-                Array.Reverse(length);
-            }
-
-            bytes.AddRange(length);
-            bytes.AddRange(Encoding.UTF8.GetBytes(name ?? string.Empty));
-
-            return bytes;
-        }
-        else
+        if (needSwap)
         {
-            return bytes;
+            Array.Reverse(length);
         }
+
+        payload.AddRange(length);
+        payload.AddRange(bytes);
+
+        return payload;
     }
 
     private byte[] HandleByte(Tag.Byte tag)
@@ -155,11 +149,7 @@ internal sealed class BinaryWriter
             Array.Reverse(length);
         }
 
-        if (named)
-        {
-            bytes.AddRange(length);
-        }
-        
+        bytes.AddRange(length);
         bytes.AddRange(tag.Values);
 
         return bytes.ToArray();
@@ -168,7 +158,9 @@ internal sealed class BinaryWriter
     private byte[] HandleString(Tag.String tag)
     {
         var bytes = WritePayload(8, tag.Name);
-        var length = BitConverter.GetBytes((short) tag.Value.Length);
+
+        var value = Encoding.UTF8.GetBytes(tag.Value);
+        var length = BitConverter.GetBytes((short) value.Length);
 
         if (needSwap)
         {
@@ -176,31 +168,14 @@ internal sealed class BinaryWriter
         }
 
         bytes.AddRange(length);
-        bytes.AddRange(Encoding.UTF8.GetBytes(tag.Value));
+        bytes.AddRange(value);
 
         return bytes.ToArray();
     }
 
     private byte[] HandleList(Tag.List tag)
     {
-        var bytes = WritePayload(9, tag.Name);
-
-        bytes.Add(Scan(tag.Children[0])[0]);
-
-        var length = BitConverter.GetBytes(tag.Children.Length);
-
-        if (needSwap)
-        {
-            Array.Reverse(length);
-        }
-        
-        bytes.AddRange(length);
-        
-        named = false;
-        bytes.AddRange(tag.Children.SelectMany(Scan));
-        named = true;
-
-        return bytes.ToArray();
+        throw new NotImplementedException();
     }
 
     private byte[] HandleCompound(Tag.Compound tag)
@@ -223,10 +198,7 @@ internal sealed class BinaryWriter
             Array.Reverse(length);
         }
 
-        if (named)
-        {
-            bytes.AddRange(length);
-        }
+        bytes.AddRange(length);
 
         foreach (var value in tag.Values)
         {
@@ -253,10 +225,7 @@ internal sealed class BinaryWriter
             Array.Reverse(length);
         }
 
-        if (named)
-        {
-            bytes.AddRange(length);
-        }
+        bytes.AddRange(length);
 
         foreach (var value in tag.Values)
         {

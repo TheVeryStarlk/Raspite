@@ -18,6 +18,7 @@ public static class NbtSerializer
         if (options?.Compression is Compression.GZip)
         {
             using var destination = new MemoryStream();
+
             await using var stream = new GZipStream(new MemoryStream(source), CompressionMode.Decompress);
             await stream.CopyToAsync(destination);
 
