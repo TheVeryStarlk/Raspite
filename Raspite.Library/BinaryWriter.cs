@@ -42,7 +42,7 @@ internal sealed class BinaryWriter
     {
         var bytes = new List<byte>()
         {
-            (byte) tag, 2
+            (byte) tag
         };
 
         var length = BitConverter.GetBytes((ushort) (name?.Length ?? 0));
