@@ -4,6 +4,8 @@ namespace Raspite.Library;
 
 internal sealed class BinaryWriter
 {
+    private bool isNameless;
+
     private readonly Tag source;
     private readonly bool needSwap;
 
@@ -40,6 +42,11 @@ internal sealed class BinaryWriter
 
     private List<byte> WritePayload(int tag, string? name)
     {
+        if (isNameless)
+        {
+            return new List<byte>();
+        }
+
         name ??= string.Empty;
 
         var payload = new List<byte>()
@@ -175,12 +182,38 @@ internal sealed class BinaryWriter
 
     private byte[] HandleList(Tag.List tag)
     {
-        throw new NotImplementedException();
+        var bytes = WritePayload(9, tag.Name);
+
+        var children = tag.Children.Length;
+
+        var type = children > 0 ? Scan(tag.Children[0])[0] : 0;
+        bytes.Add((byte) type);
+
+        var length = BitConverter.GetBytes(children);
+
+        if (needSwap)
+        {
+            Array.Reverse(length);
+        }
+
+        bytes.AddRange(length);
+
+        foreach (var child in tag.Children)
+        {
+            isNameless = true;
+            bytes.AddRange(Scan(child));
+        }
+
+        isNameless = false;
+
+        return bytes.ToArray();
     }
 
     private byte[] HandleCompound(Tag.Compound tag)
     {
         var bytes = WritePayload(10, tag.Name);
+
+        isNameless = false;
 
         bytes.AddRange(tag.Children.SelectMany(Scan));
         bytes.Add(0);
