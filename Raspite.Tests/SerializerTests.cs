@@ -1,6 +1,4 @@
-﻿using Raspite.Library;
-
-namespace Raspite.Tests;
+﻿namespace Raspite.Tests;
 
 public sealed class SerializerTests
 {
