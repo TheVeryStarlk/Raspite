@@ -4,7 +4,7 @@ namespace Raspite.Library;
 
 internal sealed class BinaryWriter
 {
-    private bool isNameless;
+    private bool nameless;
 
     private readonly Tag source;
     private readonly bool needSwap;
@@ -42,7 +42,7 @@ internal sealed class BinaryWriter
 
     private List<byte> WritePayload(int tag, string? name)
     {
-        if (isNameless)
+        if (nameless)
         {
             return new List<byte>();
         }
@@ -200,11 +200,11 @@ internal sealed class BinaryWriter
 
         foreach (var child in tag.Children)
         {
-            isNameless = true;
+            nameless = true;
             bytes.AddRange(Scan(child));
         }
 
-        isNameless = false;
+        nameless = false;
 
         return bytes.ToArray();
     }
@@ -213,7 +213,7 @@ internal sealed class BinaryWriter
     {
         var bytes = WritePayload(10, tag.Name);
 
-        isNameless = false;
+        nameless = false;
 
         bytes.AddRange(tag.Children.SelectMany(Scan));
         bytes.Add(0);
