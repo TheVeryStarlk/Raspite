@@ -51,7 +51,7 @@ internal sealed class BinaryReader
             nameof(Tag.Compound) => new Tag.Compound(HandleCompound(), name),
             nameof(Tag.IntArray) => new Tag.IntArray(HandleIntArray(), name),
             nameof(Tag.LongArray) => new Tag.LongArray(HandleLongArray(), name),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown tag type.")
         };
     }
 

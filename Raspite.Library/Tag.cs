@@ -63,7 +63,7 @@ public abstract record Tag(string? Name = null)
             10 => nameof(Compound),
             11 => nameof(IntArray),
             12 => nameof(LongArray),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(tag), tag, "Unknown tag.")
         };
     }
 }

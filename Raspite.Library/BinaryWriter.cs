@@ -36,7 +36,7 @@ internal sealed class BinaryWriter
             Tag.Compound tag => HandleCompound(tag),
             Tag.IntArray tag => HandleIntArray(tag),
             Tag.LongArray tag => HandleLongArray(tag),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(parent), parent, "Unknown tag.")
         };
     }
 
