@@ -4,6 +4,9 @@ namespace Raspite.Library;
 
 internal sealed class BinaryWriter
 {
+    // To figure out if we need to account for payload when we're in a list or not.
+    private bool named = true;
+
     private readonly Tag source;
     private readonly bool needSwap;
 
@@ -38,29 +41,35 @@ internal sealed class BinaryWriter
         };
     }
 
-    private List<byte> ReadPayload(int tag, string? name)
+    private List<byte> WritePayload(int tag, string? name)
     {
-        var bytes = new List<byte>()
-        {
-            (byte) tag
-        };
+        var bytes = new List<byte>();
 
-        var length = BitConverter.GetBytes((ushort) (name?.Length ?? 0));
-
-        if (needSwap)
+        if (named)
         {
-            Array.Reverse(length);
+            bytes.Add((byte) tag);
+
+            var length = BitConverter.GetBytes((ushort) (name?.Length ?? 0));
+
+            if (needSwap)
+            {
+                Array.Reverse(length);
+            }
+
+            bytes.AddRange(length);
+            bytes.AddRange(Encoding.UTF8.GetBytes(name ?? string.Empty));
+
+            return bytes;
         }
-
-        bytes.AddRange(length);
-        bytes.AddRange(Encoding.UTF8.GetBytes(name ?? string.Empty));
-
-        return bytes;
+        else
+        {
+            return bytes;
+        }
     }
 
     private byte[] HandleByte(Tag.Byte tag)
     {
-        var payload = ReadPayload(1, tag.Name);
+        var payload = WritePayload(1, tag.Name);
         payload.Add(tag.Value);
 
         return payload.ToArray();
@@ -68,7 +77,7 @@ internal sealed class BinaryWriter
 
     private byte[] HandleShort(Tag.Short tag)
     {
-        var bytes = ReadPayload(2, tag.Name);
+        var bytes = WritePayload(2, tag.Name);
         var value = BitConverter.GetBytes(tag.Value);
 
         if (needSwap)
@@ -82,7 +91,7 @@ internal sealed class BinaryWriter
 
     private byte[] HandleInt(Tag.Int tag)
     {
-        var bytes = ReadPayload(3, tag.Name);
+        var bytes = WritePayload(3, tag.Name);
         var value = BitConverter.GetBytes(tag.Value);
 
         if (needSwap)
@@ -96,7 +105,7 @@ internal sealed class BinaryWriter
 
     private byte[] HandleLong(Tag.Long tag)
     {
-        var bytes = ReadPayload(4, tag.Name);
+        var bytes = WritePayload(4, tag.Name);
         var value = BitConverter.GetBytes(tag.Value);
 
         if (needSwap)
@@ -110,7 +119,7 @@ internal sealed class BinaryWriter
 
     private byte[] HandleFloat(Tag.Float tag)
     {
-        var bytes = ReadPayload(5, tag.Name);
+        var bytes = WritePayload(5, tag.Name);
         var value = BitConverter.GetBytes(tag.Value);
 
         if (needSwap)
@@ -124,7 +133,7 @@ internal sealed class BinaryWriter
 
     private byte[] HandleDouble(Tag.Double tag)
     {
-        var bytes = ReadPayload(6, tag.Name);
+        var bytes = WritePayload(6, tag.Name);
         var value = BitConverter.GetBytes(tag.Value);
 
         if (needSwap)
@@ -138,7 +147,7 @@ internal sealed class BinaryWriter
 
     private byte[] HandleByteArray(Tag.ByteArray tag)
     {
-        var bytes = ReadPayload(7, tag.Name);
+        var bytes = WritePayload(7, tag.Name);
         var length = BitConverter.GetBytes(tag.Values.Length);
 
         if (needSwap)
@@ -146,7 +155,11 @@ internal sealed class BinaryWriter
             Array.Reverse(length);
         }
 
-        bytes.AddRange(length);
+        if (named)
+        {
+            bytes.AddRange(length);
+        }
+        
         bytes.AddRange(tag.Values);
 
         return bytes.ToArray();
@@ -154,7 +167,7 @@ internal sealed class BinaryWriter
 
     private byte[] HandleString(Tag.String tag)
     {
-        var bytes = ReadPayload(8, tag.Name);
+        var bytes = WritePayload(8, tag.Name);
         var length = BitConverter.GetBytes((short) tag.Value.Length);
 
         if (needSwap)
@@ -168,9 +181,41 @@ internal sealed class BinaryWriter
         return bytes.ToArray();
     }
 
+    private byte[] HandleList(Tag.List tag)
+    {
+        var bytes = WritePayload(9, tag.Name);
+
+        bytes.Add(Scan(tag.Children[0])[0]);
+
+        var length = BitConverter.GetBytes(tag.Children.Length);
+
+        if (needSwap)
+        {
+            Array.Reverse(length);
+        }
+        
+        bytes.AddRange(length);
+        
+        named = false;
+        bytes.AddRange(tag.Children.SelectMany(Scan));
+        named = true;
+
+        return bytes.ToArray();
+    }
+
+    private byte[] HandleCompound(Tag.Compound tag)
+    {
+        var bytes = WritePayload(10, tag.Name);
+
+        bytes.AddRange(tag.Children.SelectMany(Scan));
+        bytes.Add(0);
+
+        return bytes.ToArray();
+    }
+
     private byte[] HandleIntArray(Tag.IntArray tag)
     {
-        var bytes = ReadPayload(11, tag.Name);
+        var bytes = WritePayload(11, tag.Name);
         var length = BitConverter.GetBytes(tag.Values.Length);
 
         if (needSwap)
@@ -178,7 +223,10 @@ internal sealed class BinaryWriter
             Array.Reverse(length);
         }
 
-        bytes.AddRange(length);
+        if (named)
+        {
+            bytes.AddRange(length);
+        }
 
         foreach (var value in tag.Values)
         {
@@ -195,19 +243,9 @@ internal sealed class BinaryWriter
         return bytes.ToArray();
     }
 
-    private byte[] HandleCompound(Tag.Compound tag)
-    {
-        var bytes = ReadPayload(10, tag.Name);
-
-        bytes.AddRange(tag.Children.SelectMany(Scan));
-        bytes.Add(0);
-
-        return bytes.ToArray();
-    }
-
     private byte[] HandleLongArray(Tag.LongArray tag)
     {
-        var bytes = ReadPayload(12, tag.Name);
+        var bytes = WritePayload(12, tag.Name);
         var length = BitConverter.GetBytes(tag.Values.Length);
 
         if (needSwap)
@@ -215,7 +253,10 @@ internal sealed class BinaryWriter
             Array.Reverse(length);
         }
 
-        bytes.AddRange(length);
+        if (named)
+        {
+            bytes.AddRange(length);
+        }
 
         foreach (var value in tag.Values)
         {
@@ -230,10 +271,5 @@ internal sealed class BinaryWriter
         }
 
         return bytes.ToArray();
-    }
-
-    private byte[] HandleList(Tag.List tag)
-    {
-        throw new NotImplementedException();
     }
 }

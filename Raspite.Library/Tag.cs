@@ -34,17 +34,17 @@ public abstract record Tag(string? Name = null)
         public static int Size => sizeof(double);
     }
 
+    public sealed record ByteArray(byte[] Values, string? Name = null) : Tag(Name);
+
     public sealed record String(string Value, string? Name = null) : Tag(Name);
 
-    public sealed record ByteArray(byte[] Values, string? Name = null) : Tag(Name);
+    public sealed record List(Tag[] Children, string? Name = null) : Tag(Name);
+
+    public sealed record Compound(Tag[] Children, string? Name = null) : Tag(Name);
 
     public sealed record IntArray(int[] Values, string? Name = null) : Tag(Name);
 
     public sealed record LongArray(long[] Values, string? Name = null) : Tag(Name);
-
-    public sealed record Compound(Tag[] Children, string? Name = null) : Tag(Name);
-
-    public sealed record List(Tag[] Children, string? Name = null) : Tag(Name);
 
     public static string Resolve(int tag)
     {
