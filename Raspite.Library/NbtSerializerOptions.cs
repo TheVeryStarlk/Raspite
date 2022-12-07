@@ -15,7 +15,7 @@ public enum Compression
 /// <summary>
 /// Provides options to be used by the <see cref="BinaryReader"/> and the <see cref="BinaryWriter"/>.
 /// </summary>
-public sealed class BinaryOptions
+public sealed class NbtSerializerOptions
 {
     public Endianness Endianness { get; set; }
 

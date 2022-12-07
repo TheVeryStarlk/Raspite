@@ -13,7 +13,7 @@ public static class NbtSerializer
     /// <param name="source">The bytes to convert from.</param>
     /// <param name="options">Options to control the behavior of serializing.</param>
     /// <returns>A representation of the bytes into a <see cref="Tag"/>.</returns>
-    public static async Task<Tag> SerializeAsync(byte[] source, BinaryOptions? options = null)
+    public static async Task<Tag> SerializeAsync(byte[] source, NbtSerializerOptions? options = null)
     {
         if (options?.Compression is Compression.GZip)
         {
@@ -25,7 +25,7 @@ public static class NbtSerializer
             source = destination.ToArray();
         }
 
-        return new BinaryReader(source, options ?? new BinaryOptions()).Run();
+        return new BinaryReader(source, options ?? new NbtSerializerOptions()).Run();
     }
 
     /// <summary>
@@ -34,21 +34,20 @@ public static class NbtSerializer
     /// <param name="source">The tag to convert from.</param>
     /// <param name="options">Options to control the behavior of deserializing.</param>
     /// <returns>A representation of the <see cref="Tag"/> into bytes.</returns>
-    public static async Task<byte[]> DeserializeAsync(Tag source, BinaryOptions? options = null)
+    public static async Task<byte[]> DeserializeAsync(Tag source, NbtSerializerOptions? options = null)
     {
-        var bytes = new BinaryWriter(source, options ?? new BinaryOptions()).Run();
+        var bytes = new BinaryWriter(source, options ?? new NbtSerializerOptions()).Run();
 
         if (options?.Compression is Compression.GZip)
         {
-            using var input = new MemoryStream(bytes);
             using var destination = new MemoryStream();
 
             await using var stream = new GZipStream(destination, CompressionMode.Compress);
-            await input.CopyToAsync(stream);
+            stream.Write(bytes, 0, bytes.Length);
 
-            bytes = input.ToArray();
+            bytes = destination.ToArray();
         }
 
-        return bytes.ToArray();
+        return bytes;
     }
 }

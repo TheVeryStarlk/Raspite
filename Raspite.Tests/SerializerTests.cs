@@ -14,7 +14,7 @@ public sealed class SerializerTests
         var expected = new Tag.String("Raspite", "Name");
 
         // Act
-        var actual = await NbtSerializer.SerializeAsync(source, new BinaryOptions()
+        var actual = await NbtSerializer.SerializeAsync(source, new NbtSerializerOptions()
         {
             Endianness = Endianness.Little,
             Compression = Compression.None
@@ -37,7 +37,7 @@ public sealed class SerializerTests
         };
 
         // Act
-        var actual = await NbtSerializer.DeserializeAsync(source, new BinaryOptions()
+        var actual = await NbtSerializer.DeserializeAsync(source, new NbtSerializerOptions()
         {
             Endianness = Endianness.Little,
             Compression = Compression.None

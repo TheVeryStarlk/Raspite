@@ -9,7 +9,7 @@ internal sealed class BinaryReader
     private readonly byte[] source;
     private readonly bool needSwap;
 
-    public BinaryReader(byte[] source, BinaryOptions options)
+    public BinaryReader(byte[] source, NbtSerializerOptions options)
     {
         this.source = source;
         needSwap = BitConverter.IsLittleEndian == options.Endianness is Endianness.Big;

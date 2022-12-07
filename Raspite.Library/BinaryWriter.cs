@@ -9,7 +9,7 @@ internal sealed class BinaryWriter
     private readonly Tag source;
     private readonly bool needSwap;
 
-    public BinaryWriter(Tag source, BinaryOptions options)
+    public BinaryWriter(Tag source, NbtSerializerOptions options)
     {
         this.source = source;
         needSwap = BitConverter.IsLittleEndian == options.Endianness is Endianness.Big;
