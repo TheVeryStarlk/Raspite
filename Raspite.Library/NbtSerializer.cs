@@ -18,9 +18,10 @@ public static class NbtSerializer
         if (options?.Compression is Compression.GZip)
         {
             using var destination = new MemoryStream();
-
             await using var stream = new GZipStream(new MemoryStream(source), CompressionMode.Decompress);
+
             await stream.CopyToAsync(destination);
+            await stream.FlushAsync();
 
             source = destination.ToArray();
         }
@@ -41,9 +42,10 @@ public static class NbtSerializer
         if (options?.Compression is Compression.GZip)
         {
             using var destination = new MemoryStream();
-
             await using var stream = new GZipStream(destination, CompressionMode.Compress);
-            stream.Write(bytes, 0, bytes.Length);
+
+            await stream.WriteAsync(bytes);
+            await stream.FlushAsync();
 
             bytes = destination.ToArray();
         }
