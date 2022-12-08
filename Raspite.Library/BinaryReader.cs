@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Buffers.Binary;
+using System.Text;
 
 namespace Raspite.Library;
 
@@ -7,12 +8,12 @@ internal sealed class BinaryReader
     private int current;
 
     private readonly byte[] source;
-    private readonly bool needSwap;
+    private readonly bool bigEndian;
 
     public BinaryReader(byte[] source, NbtSerializerOptions options)
     {
         this.source = source;
-        needSwap = BitConverter.IsLittleEndian == options.Endianness is Endianness.Big;
+        bigEndian = options.Endianness is Endianness.Big;
     }
 
     public Tag Run()
@@ -60,17 +61,12 @@ internal sealed class BinaryReader
         return Tag.Resolve(source[current++]);
     }
 
-    private byte[] ReadPayload(int size)
+    private ReadOnlySpan<byte> ReadPayload(int size)
     {
-        var bytes = source[current..(current + size)];
+        var buffer = source.AsSpan(current, size);
 
-        if (needSwap)
-        {
-            Array.Reverse(bytes);
-        }
-
-        current += bytes.Length;
-        return bytes;
+        current += size;
+        return buffer;
     }
 
     private byte HandleByte()
@@ -80,38 +76,58 @@ internal sealed class BinaryReader
 
     private short HandleShort()
     {
-        return BitConverter.ToInt16(ReadPayload(Tag.Short.Size));
+        var payload = ReadPayload(Tag.Short.Size);
+
+        return bigEndian
+            ? BinaryPrimitives.ReadInt16BigEndian(payload)
+            : BinaryPrimitives.ReadInt16LittleEndian(payload);
     }
 
     private int HandleInt()
     {
-        return BitConverter.ToInt32(ReadPayload(Tag.Int.Size));
+        var payload = ReadPayload(Tag.Int.Size);
+
+        return bigEndian
+            ? BinaryPrimitives.ReadInt32BigEndian(payload)
+            : BinaryPrimitives.ReadInt32LittleEndian(payload);
     }
 
     private long HandleLong()
     {
-        return BitConverter.ToInt64(ReadPayload(Tag.Long.Size));
+        var payload = ReadPayload(Tag.Long.Size);
+
+        return bigEndian
+            ? BinaryPrimitives.ReadInt64BigEndian(payload)
+            : BinaryPrimitives.ReadInt64LittleEndian(payload);
     }
 
     private float HandleFloat()
     {
-        return BitConverter.ToSingle(ReadPayload(Tag.Float.Size));
+        var payload = ReadPayload(Tag.Float.Size);
+
+        return bigEndian
+            ? BinaryPrimitives.ReadSingleBigEndian(payload)
+            : BinaryPrimitives.ReadSingleLittleEndian(payload);
     }
 
     private double HandleDouble()
     {
-        return BitConverter.ToDouble(ReadPayload(Tag.Double.Size));
+        var payload = ReadPayload(Tag.Double.Size);
+
+        return bigEndian
+            ? BinaryPrimitives.ReadDoubleBigEndian(payload)
+            : BinaryPrimitives.ReadDoubleLittleEndian(payload);
     }
 
     private byte[] HandleByteArray()
     {
-        return ReadPayload(HandleInt());
+        return ReadPayload(HandleInt()).ToArray();
     }
 
     private string HandleString()
     {
-        var size = BitConverter.ToUInt16(ReadPayload(Tag.Short.Size));
-        var bytes = source[current..(current + size)];
+        var size = HandleShort();
+        var bytes = source.AsSpan().Slice(current, size);
 
         current += bytes.Length;
         return Encoding.UTF8.GetString(bytes);
@@ -146,25 +162,25 @@ internal sealed class BinaryReader
 
     private int[] HandleIntArray()
     {
-        var ints = new int[HandleInt()];
+        Span<int> ints = stackalloc int[HandleInt()];
 
         for (var index = 0; index < ints.Length; index++)
         {
             ints[index] = HandleInt();
         }
 
-        return ints;
+        return ints.ToArray();
     }
 
     private long[] HandleLongArray()
     {
-        var longs = new long[HandleInt()];
+        Span<long> longs = stackalloc long[HandleInt()];
 
         for (var index = 0; index < longs.Length; index++)
         {
             longs[index] = HandleLong();
         }
 
-        return longs;
+        return longs.ToArray();
     }
 }
