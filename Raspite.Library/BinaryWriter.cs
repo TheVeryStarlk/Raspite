@@ -2,7 +2,7 @@
 
 namespace Raspite.Library;
 
-internal sealed class BinaryWriter
+internal struct BinaryWriter
 {
     private bool nameless;
 

@@ -3,14 +3,14 @@ using System.Text;
 
 namespace Raspite.Library;
 
-internal sealed class BinaryReader
+internal ref struct BinaryReader
 {
     private int current;
 
-    private readonly byte[] source;
+    private readonly Span<byte> source;
     private readonly bool bigEndian;
 
-    public BinaryReader(byte[] source, NbtSerializerOptions options)
+    public BinaryReader(Span<byte> source, NbtSerializerOptions options)
     {
         this.source = source;
         bigEndian = options.Endianness is Endianness.Big;
@@ -63,7 +63,7 @@ internal sealed class BinaryReader
 
     private ReadOnlySpan<byte> ReadPayload(int size)
     {
-        var buffer = source.AsSpan(current, size);
+        var buffer = source.Slice(current, size);
 
         current += size;
         return buffer;
@@ -71,12 +71,12 @@ internal sealed class BinaryReader
 
     private byte HandleByte()
     {
-        return ReadPayload(Tag.Byte.Size)[0];
+        return ReadPayload(sizeof(byte))[0];
     }
 
     private short HandleShort()
     {
-        var payload = ReadPayload(Tag.Short.Size);
+        var payload = ReadPayload(sizeof(short));
 
         return bigEndian
             ? BinaryPrimitives.ReadInt16BigEndian(payload)
@@ -85,7 +85,7 @@ internal sealed class BinaryReader
 
     private int HandleInt()
     {
-        var payload = ReadPayload(Tag.Int.Size);
+        var payload = ReadPayload(sizeof(int));
 
         return bigEndian
             ? BinaryPrimitives.ReadInt32BigEndian(payload)
@@ -94,7 +94,7 @@ internal sealed class BinaryReader
 
     private long HandleLong()
     {
-        var payload = ReadPayload(Tag.Long.Size);
+        var payload = ReadPayload(sizeof(long));
 
         return bigEndian
             ? BinaryPrimitives.ReadInt64BigEndian(payload)
@@ -103,7 +103,7 @@ internal sealed class BinaryReader
 
     private float HandleFloat()
     {
-        var payload = ReadPayload(Tag.Float.Size);
+        var payload = ReadPayload(sizeof(float));
 
         return bigEndian
             ? BinaryPrimitives.ReadSingleBigEndian(payload)
@@ -112,7 +112,7 @@ internal sealed class BinaryReader
 
     private double HandleDouble()
     {
-        var payload = ReadPayload(Tag.Double.Size);
+        var payload = ReadPayload(sizeof(double));
 
         return bigEndian
             ? BinaryPrimitives.ReadDoubleBigEndian(payload)
@@ -127,7 +127,7 @@ internal sealed class BinaryReader
     private string HandleString()
     {
         var size = HandleShort();
-        var bytes = source.AsSpan().Slice(current, size);
+        var bytes = source.Slice(current, size);
 
         current += bytes.Length;
         return Encoding.UTF8.GetString(bytes);
@@ -162,25 +162,25 @@ internal sealed class BinaryReader
 
     private int[] HandleIntArray()
     {
-        Span<int> ints = stackalloc int[HandleInt()];
+        var ints = new int[HandleInt()];
 
         for (var index = 0; index < ints.Length; index++)
         {
             ints[index] = HandleInt();
         }
 
-        return ints.ToArray();
+        return ints;
     }
 
     private long[] HandleLongArray()
     {
-        Span<long> longs = stackalloc long[HandleInt()];
+        var longs = new long[HandleInt()];
 
         for (var index = 0; index < longs.Length; index++)
         {
             longs[index] = HandleLong();
         }
 
-        return longs.ToArray();
+        return longs;
     }
 }
