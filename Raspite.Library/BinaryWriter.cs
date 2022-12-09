@@ -6,10 +6,10 @@ internal struct BinaryWriter
 {
     private bool nameless;
 
-    private readonly Tag source;
+    private readonly TagBase source;
     private readonly bool needSwap;
 
-    public BinaryWriter(Tag source, NbtSerializerOptions options)
+    public BinaryWriter(TagBase source, NbtSerializerOptions options)
     {
         this.source = source;
         needSwap = BitConverter.IsLittleEndian == options.Endianness is Endianness.Big;
@@ -20,22 +20,22 @@ internal struct BinaryWriter
         return Scan(source);
     }
 
-    private byte[] Scan(Tag parent)
+    private byte[] Scan(TagBase parent)
     {
         return parent switch
         {
-            Tag.Byte tag => HandleByte(tag),
-            Tag.Short tag => HandleShort(tag),
-            Tag.Int tag => HandleInt(tag),
-            Tag.Long tag => HandleLong(tag),
-            Tag.Float tag => HandleFloat(tag),
-            Tag.Double tag => HandleDouble(tag),
-            Tag.ByteArray tag => HandleByteArray(tag),
-            Tag.String tag => HandleString(tag),
-            Tag.List tag => HandleList(tag),
-            Tag.Compound tag => HandleCompound(tag),
-            Tag.IntArray tag => HandleIntArray(tag),
-            Tag.LongArray tag => HandleLongArray(tag),
+            TagBase.Byte tag => HandleByte(tag),
+            TagBase.Short tag => HandleShort(tag),
+            TagBase.Int tag => HandleInt(tag),
+            TagBase.Long tag => HandleLong(tag),
+            TagBase.Float tag => HandleFloat(tag),
+            TagBase.Double tag => HandleDouble(tag),
+            TagBase.ByteArray tag => HandleByteArray(tag),
+            TagBase.String tag => HandleString(tag),
+            TagBase.List tag => HandleList(tag),
+            TagBase.Compound tag => HandleCompound(tag),
+            TagBase.IntArray tag => HandleIntArray(tag),
+            TagBase.LongArray tag => HandleLongArray(tag),
             _ => throw new ArgumentOutOfRangeException(nameof(parent), parent, "Unknown tag.")
         };
     }
@@ -68,7 +68,7 @@ internal struct BinaryWriter
         return payload;
     }
 
-    private byte[] HandleByte(Tag.Byte tag)
+    private byte[] HandleByte(TagBase.Byte tag)
     {
         var payload = WritePayload(1, tag.Name);
         payload.Add(tag.Value);
@@ -76,7 +76,7 @@ internal struct BinaryWriter
         return payload.ToArray();
     }
 
-    private byte[] HandleShort(Tag.Short tag)
+    private byte[] HandleShort(TagBase.Short tag)
     {
         var bytes = WritePayload(2, tag.Name);
         var value = BitConverter.GetBytes(tag.Value);
@@ -90,7 +90,7 @@ internal struct BinaryWriter
         return bytes.ToArray();
     }
 
-    private byte[] HandleInt(Tag.Int tag)
+    private byte[] HandleInt(TagBase.Int tag)
     {
         var bytes = WritePayload(3, tag.Name);
         var value = BitConverter.GetBytes(tag.Value);
@@ -104,7 +104,7 @@ internal struct BinaryWriter
         return bytes.ToArray();
     }
 
-    private byte[] HandleLong(Tag.Long tag)
+    private byte[] HandleLong(TagBase.Long tag)
     {
         var bytes = WritePayload(4, tag.Name);
         var value = BitConverter.GetBytes(tag.Value);
@@ -118,7 +118,7 @@ internal struct BinaryWriter
         return bytes.ToArray();
     }
 
-    private byte[] HandleFloat(Tag.Float tag)
+    private byte[] HandleFloat(TagBase.Float tag)
     {
         var bytes = WritePayload(5, tag.Name);
         var value = BitConverter.GetBytes(tag.Value);
@@ -132,7 +132,7 @@ internal struct BinaryWriter
         return bytes.ToArray();
     }
 
-    private byte[] HandleDouble(Tag.Double tag)
+    private byte[] HandleDouble(TagBase.Double tag)
     {
         var bytes = WritePayload(6, tag.Name);
         var value = BitConverter.GetBytes(tag.Value);
@@ -146,7 +146,7 @@ internal struct BinaryWriter
         return bytes.ToArray();
     }
 
-    private byte[] HandleByteArray(Tag.ByteArray tag)
+    private byte[] HandleByteArray(TagBase.ByteArray tag)
     {
         var bytes = WritePayload(7, tag.Name);
         var length = BitConverter.GetBytes(tag.Values.Length);
@@ -162,7 +162,7 @@ internal struct BinaryWriter
         return bytes.ToArray();
     }
 
-    private byte[] HandleString(Tag.String tag)
+    private byte[] HandleString(TagBase.String tag)
     {
         var bytes = WritePayload(8, tag.Name);
 
@@ -180,7 +180,7 @@ internal struct BinaryWriter
         return bytes.ToArray();
     }
 
-    private byte[] HandleList(Tag.List tag)
+    private byte[] HandleList(TagBase.List tag)
     {
         var bytes = WritePayload(9, tag.Name);
 
@@ -209,7 +209,7 @@ internal struct BinaryWriter
         return bytes.ToArray();
     }
 
-    private byte[] HandleCompound(Tag.Compound tag)
+    private byte[] HandleCompound(TagBase.Compound tag)
     {
         var bytes = WritePayload(10, tag.Name);
 
@@ -221,7 +221,7 @@ internal struct BinaryWriter
         return bytes.ToArray();
     }
 
-    private byte[] HandleIntArray(Tag.IntArray tag)
+    private byte[] HandleIntArray(TagBase.IntArray tag)
     {
         var bytes = WritePayload(11, tag.Name);
         var length = BitConverter.GetBytes(tag.Values.Length);
@@ -248,7 +248,7 @@ internal struct BinaryWriter
         return bytes.ToArray();
     }
 
-    private byte[] HandleLongArray(Tag.LongArray tag)
+    private byte[] HandleLongArray(TagBase.LongArray tag)
     {
         var bytes = WritePayload(12, tag.Name);
         var length = BitConverter.GetBytes(tag.Values.Length);

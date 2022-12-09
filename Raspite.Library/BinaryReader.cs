@@ -16,12 +16,12 @@ internal ref struct BinaryReader
         bigEndian = options.Endianness is Endianness.Big;
     }
 
-    public Tag Run()
+    public TagBase Run()
     {
         return Scan();
     }
 
-    private Tag Scan(string? type = null)
+    private TagBase Scan(string? type = null)
     {
         // Take into account for unnamed tags.
         string? name = null;
@@ -30,9 +30,9 @@ internal ref struct BinaryReader
         {
             type = ReadHeader();
 
-            if (type is nameof(Tag.End))
+            if (type is nameof(TagBase.End))
             {
-                return new Tag.End();
+                return new TagBase.End();
             }
 
             name = HandleString();
@@ -40,25 +40,46 @@ internal ref struct BinaryReader
 
         return type switch
         {
-            nameof(Tag.Byte) => new Tag.Byte(HandleByte(), name),
-            nameof(Tag.Short) => new Tag.Short(HandleShort(), name),
-            nameof(Tag.Int) => new Tag.Int(HandleInt(), name),
-            nameof(Tag.Long) => new Tag.Long(HandleLong(), name),
-            nameof(Tag.Float) => new Tag.Float(HandleFloat(), name),
-            nameof(Tag.Double) => new Tag.Double(HandleDouble(), name),
-            nameof(Tag.ByteArray) => new Tag.ByteArray(HandleByteArray(), name),
-            nameof(Tag.String) => new Tag.String(HandleString(), name),
-            nameof(Tag.List) => new Tag.List(HandleList(), name),
-            nameof(Tag.Compound) => new Tag.Compound(HandleCompound(), name),
-            nameof(Tag.IntArray) => new Tag.IntArray(HandleIntArray(), name),
-            nameof(Tag.LongArray) => new Tag.LongArray(HandleLongArray(), name),
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown tag type.")
+            nameof(TagBase.Byte) => new TagBase.Byte(HandleByte(), name),
+            nameof(TagBase.Short) => new TagBase.Short(HandleShort(), name),
+            nameof(TagBase.Int) => new TagBase.Int(HandleInt(), name),
+            nameof(TagBase.Long) => new TagBase.Long(HandleLong(), name),
+            nameof(TagBase.Float) => new TagBase.Float(HandleFloat(), name),
+            nameof(TagBase.Double) => new TagBase.Double(HandleDouble(), name),
+            nameof(TagBase.ByteArray) => new TagBase.ByteArray(HandleByteArray(), name),
+            nameof(TagBase.String) => new TagBase.String(HandleString(), name),
+            nameof(TagBase.List) => new TagBase.List(HandleList(), name),
+            nameof(TagBase.Compound) => new TagBase.Compound(HandleCompound(), name),
+            nameof(TagBase.IntArray) => new TagBase.IntArray(HandleIntArray(), name),
+            nameof(TagBase.LongArray) => new TagBase.LongArray(HandleLongArray(), name),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown tag.")
+        };
+    }
+
+    private string Resolve(int tag)
+    {
+        return tag switch
+        {
+            0 => nameof(TagBase.End),
+            1 => nameof(TagBase.Byte),
+            2 => nameof(TagBase.Short),
+            3 => nameof(TagBase.Int),
+            4 => nameof(TagBase.Long),
+            5 => nameof(TagBase.Float),
+            6 => nameof(TagBase.Double),
+            7 => nameof(TagBase.ByteArray),
+            8 => nameof(TagBase.String),
+            9 => nameof(TagBase.List),
+            10 => nameof(TagBase.Compound),
+            11 => nameof(TagBase.IntArray),
+            12 => nameof(TagBase.LongArray),
+            _ => throw new ArgumentOutOfRangeException(nameof(tag), tag, "Unknown tag.")
         };
     }
 
     private string ReadHeader()
     {
-        return Tag.Resolve(source[current++]);
+        return Resolve(source[current++]);
     }
 
     private ReadOnlySpan<byte> ReadPayload(int size)
@@ -133,10 +154,10 @@ internal ref struct BinaryReader
         return Encoding.UTF8.GetString(bytes);
     }
 
-    private Tag[] HandleList()
+    private TagBase[] HandleList()
     {
         var tag = ReadHeader();
-        var children = new Tag[HandleInt()];
+        var children = new TagBase[HandleInt()];
 
         for (var index = 0; index < children.Length; index++)
         {
@@ -146,12 +167,12 @@ internal ref struct BinaryReader
         return children;
     }
 
-    private Tag[] HandleCompound()
+    private TagBase[] HandleCompound()
     {
-        var tokens = new List<Tag>();
+        var tokens = new List<TagBase>();
 
         // Eat until we hit the ending tag.
-        while (Tag.Resolve(source[current]) is not nameof(Tag.End))
+        while (Resolve(source[current]) is not nameof(TagBase.End))
         {
             tokens.Add(Scan());
         }
