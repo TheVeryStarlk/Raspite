@@ -7,21 +7,21 @@ internal ref struct BinaryReader
 {
     private int current;
 
-    private readonly Span<byte> source;
+    private readonly ReadOnlySpan<byte> source;
     private readonly bool bigEndian;
 
-    public BinaryReader(Span<byte> source, NbtSerializerOptions options)
+    public BinaryReader(ReadOnlySpan<byte> source, NbtSerializerOptions options)
     {
         this.source = source;
         bigEndian = options.Endianness is Endianness.Big;
     }
 
-    public TagBase Run()
+    public NbtTag Run()
     {
         return Scan();
     }
 
-    private TagBase Scan(string? type = null)
+    private NbtTag Scan(string? type = null)
     {
         // Take into account for unnamed tags.
         string? name = null;
@@ -30,9 +30,9 @@ internal ref struct BinaryReader
         {
             type = ReadHeader();
 
-            if (type is nameof(TagBase.End))
+            if (type is nameof(NbtTag.End))
             {
-                return new TagBase.End();
+                return new NbtTag.End();
             }
 
             name = HandleString();
@@ -40,18 +40,18 @@ internal ref struct BinaryReader
 
         return type switch
         {
-            nameof(TagBase.Byte) => new TagBase.Byte(HandleByte(), name),
-            nameof(TagBase.Short) => new TagBase.Short(HandleShort(), name),
-            nameof(TagBase.Int) => new TagBase.Int(HandleInt(), name),
-            nameof(TagBase.Long) => new TagBase.Long(HandleLong(), name),
-            nameof(TagBase.Float) => new TagBase.Float(HandleFloat(), name),
-            nameof(TagBase.Double) => new TagBase.Double(HandleDouble(), name),
-            nameof(TagBase.ByteArray) => new TagBase.ByteArray(HandleByteArray(), name),
-            nameof(TagBase.String) => new TagBase.String(HandleString(), name),
-            nameof(TagBase.List) => new TagBase.List(HandleList(), name),
-            nameof(TagBase.Compound) => new TagBase.Compound(HandleCompound(), name),
-            nameof(TagBase.IntArray) => new TagBase.IntArray(HandleIntArray(), name),
-            nameof(TagBase.LongArray) => new TagBase.LongArray(HandleLongArray(), name),
+            nameof(NbtTag.Byte) => new NbtTag.Byte(HandleByte(), name),
+            nameof(NbtTag.Short) => new NbtTag.Short(HandleShort(), name),
+            nameof(NbtTag.Int) => new NbtTag.Int(HandleInt(), name),
+            nameof(NbtTag.Long) => new NbtTag.Long(HandleLong(), name),
+            nameof(NbtTag.Float) => new NbtTag.Float(HandleFloat(), name),
+            nameof(NbtTag.Double) => new NbtTag.Double(HandleDouble(), name),
+            nameof(NbtTag.ByteArray) => new NbtTag.ByteArray(HandleByteArray(), name),
+            nameof(NbtTag.String) => new NbtTag.String(HandleString(), name),
+            nameof(NbtTag.List) => new NbtTag.List(HandleList(), name),
+            nameof(NbtTag.Compound) => new NbtTag.Compound(HandleCompound(), name),
+            nameof(NbtTag.IntArray) => new NbtTag.IntArray(HandleIntArray(), name),
+            nameof(NbtTag.LongArray) => new NbtTag.LongArray(HandleLongArray(), name),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown tag.")
         };
     }
@@ -60,19 +60,19 @@ internal ref struct BinaryReader
     {
         return tag switch
         {
-            0 => nameof(TagBase.End),
-            1 => nameof(TagBase.Byte),
-            2 => nameof(TagBase.Short),
-            3 => nameof(TagBase.Int),
-            4 => nameof(TagBase.Long),
-            5 => nameof(TagBase.Float),
-            6 => nameof(TagBase.Double),
-            7 => nameof(TagBase.ByteArray),
-            8 => nameof(TagBase.String),
-            9 => nameof(TagBase.List),
-            10 => nameof(TagBase.Compound),
-            11 => nameof(TagBase.IntArray),
-            12 => nameof(TagBase.LongArray),
+            0 => nameof(NbtTag.End),
+            1 => nameof(NbtTag.Byte),
+            2 => nameof(NbtTag.Short),
+            3 => nameof(NbtTag.Int),
+            4 => nameof(NbtTag.Long),
+            5 => nameof(NbtTag.Float),
+            6 => nameof(NbtTag.Double),
+            7 => nameof(NbtTag.ByteArray),
+            8 => nameof(NbtTag.String),
+            9 => nameof(NbtTag.List),
+            10 => nameof(NbtTag.Compound),
+            11 => nameof(NbtTag.IntArray),
+            12 => nameof(NbtTag.LongArray),
             _ => throw new ArgumentOutOfRangeException(nameof(tag), tag, "Unknown tag.")
         };
     }
@@ -154,10 +154,10 @@ internal ref struct BinaryReader
         return Encoding.UTF8.GetString(bytes);
     }
 
-    private TagBase[] HandleList()
+    private NbtTag[] HandleList()
     {
         var tag = ReadHeader();
-        var children = new TagBase[HandleInt()];
+        var children = new NbtTag[HandleInt()];
 
         for (var index = 0; index < children.Length; index++)
         {
@@ -167,12 +167,12 @@ internal ref struct BinaryReader
         return children;
     }
 
-    private TagBase[] HandleCompound()
+    private NbtTag[] HandleCompound()
     {
-        var tokens = new List<TagBase>();
+        var tokens = new List<NbtTag>();
 
         // Eat until we hit the ending tag.
-        while (Resolve(source[current]) is not nameof(TagBase.End))
+        while (Resolve(source[current]) is not nameof(NbtTag.End))
         {
             tokens.Add(Scan());
         }

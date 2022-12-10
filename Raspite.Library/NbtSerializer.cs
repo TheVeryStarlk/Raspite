@@ -3,17 +3,17 @@
 namespace Raspite.Library;
 
 /// <summary>
-/// Provides functionality to serialize bytes to a <see cref="TagBase"/> and vice-versa.
+/// Provides functionality to serialize bytes to a <see cref="NbtTag"/> and vice-versa.
 /// </summary>
 public static class NbtSerializer
 {
     /// <summary>
-    /// Converts a sequence of bytes into a <see cref="TagBase"/>.
+    /// Converts a sequence of bytes into a <see cref="NbtTag"/>.
     /// </summary>
     /// <param name="source">The bytes to convert from.</param>
     /// <param name="options">Options to control the behavior of serializing.</param>
-    /// <returns>A representation of the bytes into a <see cref="TagBase"/>.</returns>
-    public static async Task<TagBase> SerializeAsync(byte[] source, NbtSerializerOptions? options = null)
+    /// <returns>A representation of the bytes into a <see cref="NbtTag"/>.</returns>
+    public static async Task<NbtTag> SerializeAsync(byte[] source, NbtSerializerOptions? options = null)
     {
         if (options?.Compression is Compression.GZip)
         {
@@ -30,12 +30,12 @@ public static class NbtSerializer
     }
 
     /// <summary>
-    /// Converts a <see cref="TagBase"/> into sequence a of bytes.
+    /// Converts a <see cref="NbtTag"/> into sequence a of bytes.
     /// </summary>
     /// <param name="source">The tag to convert from.</param>
     /// <param name="options">Options to control the behavior of deserializing.</param>
-    /// <returns>A representation of the <see cref="TagBase"/> into bytes.</returns>
-    public static async Task<byte[]> DeserializeAsync(TagBase source, NbtSerializerOptions? options = null)
+    /// <returns>A representation of the <see cref="NbtTag"/> into bytes.</returns>
+    public static async Task<byte[]> DeserializeAsync(NbtTag source, NbtSerializerOptions? options = null)
     {
         var bytes = new BinaryWriter(source, options ?? new NbtSerializerOptions()).Run();
 
