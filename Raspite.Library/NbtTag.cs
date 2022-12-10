@@ -3,32 +3,77 @@
 /// <summary>
 /// Represents a Minecraft tag.
 /// </summary>
-/// <param name="Name">The name of the tag.</param>
-public abstract record NbtTag(string? Name = null)
+public abstract class NbtTag
 {
-    public sealed record End : NbtTag;
+    /// <summary>
+    /// Represents the name of the tag.
+    /// </summary>
+    /// <remarks>
+    /// The name can be null when inside a <see cref="NbtTag.List"/>.
+    /// </remarks>
+    public string? Name { get; set; }
 
-    public sealed record Byte(byte Value, string? Name = null) : NbtTag(Name);
+    public sealed class End : NbtTag
+    {
+    }
 
-    public sealed record Short(short Value, string? Name = null) : NbtTag(Name);
+    public sealed class Byte : NbtTag
+    {
+        public required byte Value { get; set; }
+    }
 
-    public sealed record Int(int Value, string? Name = null) : NbtTag(Name);
+    public sealed class Short : NbtTag
+    {
+        public required short Value { get; set; }
+    }
 
-    public sealed record Long(long Value, string? Name = null) : NbtTag(Name);
+    public sealed class Int : NbtTag
+    {
+        public required int Value { get; set; }
+    }
 
-    public sealed record Float(float Value, string? Name = null) : NbtTag(Name);
+    public sealed class Long : NbtTag
+    {
+        public required long Value { get; set; }
+    }
 
-    public sealed record Double(double Value, string? Name = null) : NbtTag(Name);
+    public sealed class Float : NbtTag
+    {
+        public required float Value { get; set; }
+    }
 
-    public sealed record ByteArray(byte[] Values, string? Name = null) : NbtTag(Name);
+    public sealed class Double : NbtTag
+    {
+        public required double Value { get; set; }
+    }
 
-    public sealed record String(string Value, string? Name = null) : NbtTag(Name);
+    public sealed class ByteArray : NbtTag
+    {
+        public required byte[] Values { get; set; }
+    }
 
-    public sealed record List(NbtTag[] Children, string? Name = null) : NbtTag(Name);
+    public sealed class String : NbtTag
+    {
+        public required string Value { get; set; }
+    }
 
-    public sealed record Compound(NbtTag[] Children, string? Name = null) : NbtTag(Name);
+    public sealed class List : NbtTag
+    {
+        public required IEnumerable<NbtTag> Children { get; set; }
+    }
 
-    public sealed record IntArray(int[] Values, string? Name = null) : NbtTag(Name);
+    public sealed class Compound : NbtTag
+    {
+        public required IEnumerable<NbtTag> Children { get; set; }
+    }
 
-    public sealed record LongArray(long[] Values, string? Name = null) : NbtTag(Name);
+    public sealed class IntArray : NbtTag
+    {
+        public required int[] Values { get; set; }
+    }
+
+    public sealed class LongArray : NbtTag
+    {
+        public required long[] Values { get; set; }
+    }
 }

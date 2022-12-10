@@ -3,7 +3,7 @@
 public sealed class SerializerTests
 {
     [Fact]
-    public async Task Serializing_Little_None_Outputs_CorrectTags()
+    private async Task Serializing_Little_None_Outputs_CorrectTags()
     {
         // Arrange
         var source = new byte[]
@@ -11,7 +11,11 @@ public sealed class SerializerTests
             8, 4, 0, 78, 97, 109, 101, 7, 0, 82, 97, 115, 112, 105, 116, 101
         };
 
-        var expected = new NbtTag.String("Raspite", "Name");
+        var expected = new NbtTag.String()
+        {
+            Name = "Name",
+            Value = "Raspite"
+        };
 
         // Act
         var actual = await NbtSerializer.SerializeAsync(source, new NbtSerializerOptions()
@@ -26,10 +30,14 @@ public sealed class SerializerTests
     }
 
     [Fact]
-    public async Task Deserializing_Little_None_Outputs_CorrectBytes()
+    private async Task Deserializing_Little_None_Outputs_CorrectBytes()
     {
         // Arrange
-        var source = new NbtTag.String("Raspite", "Name");
+        var source = new NbtTag.String()
+        {
+            Name = "Name",
+            Value = "Raspite"
+        };
 
         var expected = new byte[]
         {

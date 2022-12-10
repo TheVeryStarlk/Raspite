@@ -38,22 +38,61 @@ internal ref struct BinaryReader
             name = HandleString();
         }
 
-        return type switch
+        NbtTag tag = type switch
         {
-            nameof(NbtTag.Byte) => new NbtTag.Byte(HandleByte(), name),
-            nameof(NbtTag.Short) => new NbtTag.Short(HandleShort(), name),
-            nameof(NbtTag.Int) => new NbtTag.Int(HandleInt(), name),
-            nameof(NbtTag.Long) => new NbtTag.Long(HandleLong(), name),
-            nameof(NbtTag.Float) => new NbtTag.Float(HandleFloat(), name),
-            nameof(NbtTag.Double) => new NbtTag.Double(HandleDouble(), name),
-            nameof(NbtTag.ByteArray) => new NbtTag.ByteArray(HandleByteArray(), name),
-            nameof(NbtTag.String) => new NbtTag.String(HandleString(), name),
-            nameof(NbtTag.List) => new NbtTag.List(HandleList(), name),
-            nameof(NbtTag.Compound) => new NbtTag.Compound(HandleCompound(), name),
-            nameof(NbtTag.IntArray) => new NbtTag.IntArray(HandleIntArray(), name),
-            nameof(NbtTag.LongArray) => new NbtTag.LongArray(HandleLongArray(), name),
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown tag.")
+            nameof(NbtTag.Byte) => new NbtTag.Byte()
+            {
+                Value = HandleByte()
+            },
+            nameof(NbtTag.Short) => new NbtTag.Short()
+            {
+                Value = HandleShort()
+            },
+            nameof(NbtTag.Int) => new NbtTag.Int()
+            {
+                Value = HandleInt()
+            },
+            nameof(NbtTag.Long) => new NbtTag.Long()
+            {
+                Value = HandleLong()
+            },
+            nameof(NbtTag.Float) => new NbtTag.Float()
+            {
+                Value = HandleFloat()
+            },
+            nameof(NbtTag.Double) => new NbtTag.Double()
+            {
+                Value = HandleDouble()
+            },
+            nameof(NbtTag.ByteArray) => new NbtTag.ByteArray()
+            {
+                Values = HandleByteArray()
+            },
+            nameof(NbtTag.String) => new NbtTag.String()
+            {
+                Value = HandleString()
+            },
+            nameof(NbtTag.List) => new NbtTag.List()
+            {
+                Children = HandleList()
+            },
+            nameof(NbtTag.Compound) => new NbtTag.Compound()
+            {
+                Children = HandleCompound()
+            },
+            nameof(NbtTag.IntArray) => new NbtTag.IntArray()
+            {
+                Values = HandleIntArray()
+            },
+            nameof(NbtTag.LongArray) => new NbtTag.LongArray()
+            {
+                Values = HandleLongArray()
+            },
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown type.")
         };
+
+        tag.Name = name;
+        return tag;
     }
 
     private string Resolve(int tag)
@@ -154,7 +193,7 @@ internal ref struct BinaryReader
         return Encoding.UTF8.GetString(bytes);
     }
 
-    private NbtTag[] HandleList()
+    private IEnumerable<NbtTag> HandleList()
     {
         var tag = ReadHeader();
         var children = new NbtTag[HandleInt()];
@@ -167,7 +206,7 @@ internal ref struct BinaryReader
         return children;
     }
 
-    private NbtTag[] HandleCompound()
+    private IEnumerable<NbtTag> HandleCompound()
     {
         var tokens = new List<NbtTag>();
 
@@ -178,7 +217,7 @@ internal ref struct BinaryReader
         }
 
         current++;
-        return tokens.ToArray();
+        return tokens;
     }
 
     private int[] HandleIntArray()

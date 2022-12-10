@@ -36,7 +36,7 @@ internal struct BinaryWriter
             NbtTag.Compound tag => HandleCompound(tag),
             NbtTag.IntArray tag => HandleIntArray(tag),
             NbtTag.LongArray tag => HandleLongArray(tag),
-            _ => throw new ArgumentOutOfRangeException(nameof(parent), parent, "Unknown tag.")
+            _ => throw new ArgumentOutOfRangeException(nameof(parent), parent, "Unexpected tag.")
         };
     }
 
@@ -55,7 +55,7 @@ internal struct BinaryWriter
         };
 
         var bytes = Encoding.UTF8.GetBytes(name);
-        var length = BitConverter.GetBytes((ushort) bytes.Length);
+        var length = BitConverter.GetBytes((short) bytes.Length);
 
         if (needSwap)
         {
@@ -184,9 +184,9 @@ internal struct BinaryWriter
     {
         var bytes = WritePayload(9, tag.Name);
 
-        var children = tag.Children.Length;
+        var children = tag.Children.Count();
 
-        var type = children > 0 ? Scan(tag.Children[0])[0] : 0;
+        var type = children > 0 ? Scan(tag.Children.First())[0] : 0;
         bytes.Add((byte) type);
 
         var length = BitConverter.GetBytes(children);
