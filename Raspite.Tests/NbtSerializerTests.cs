@@ -1,6 +1,6 @@
 ﻿namespace Raspite.Tests;
 
-public sealed class SerializerTests
+public sealed class NbtSerializerTests
 {
     [Fact]
     private async Task Serializing_Little_None_Outputs_CorrectTags()

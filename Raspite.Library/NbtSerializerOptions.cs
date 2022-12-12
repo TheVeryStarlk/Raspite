@@ -13,7 +13,7 @@ public enum Compression
 }
 
 /// <summary>
-/// Provides options to be used by the <see cref="BinaryReader"/> and the <see cref="BinaryWriter"/>.
+/// Provides options that control the behavior of the <see cref="NbtSerializer"/>.
 /// </summary>
 public sealed class NbtSerializerOptions
 {

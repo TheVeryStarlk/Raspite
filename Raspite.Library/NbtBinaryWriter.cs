@@ -2,14 +2,14 @@
 
 namespace Raspite.Library;
 
-internal struct BinaryWriter
+internal struct NbtBinaryWriter
 {
     private bool nameless;
 
     private readonly NbtTag source;
     private readonly bool needSwap;
 
-    public BinaryWriter(NbtTag source, NbtSerializerOptions options)
+    public NbtBinaryWriter(NbtTag source, NbtSerializerOptions options)
     {
         this.source = source;
         needSwap = BitConverter.IsLittleEndian == options.Endianness is Endianness.Big;

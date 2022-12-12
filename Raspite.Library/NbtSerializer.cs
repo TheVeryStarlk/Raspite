@@ -26,7 +26,7 @@ public static class NbtSerializer
             source = destination.ToArray();
         }
 
-        return new BinaryReader(source, options ?? new NbtSerializerOptions()).Run();
+        return new NbtBinaryReader(source, options ?? new NbtSerializerOptions()).Run();
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public static class NbtSerializer
     /// <returns>A representation of the <see cref="NbtTag"/> into bytes.</returns>
     public static async Task<byte[]> DeserializeAsync(NbtTag source, NbtSerializerOptions? options = null)
     {
-        var bytes = new BinaryWriter(source, options ?? new NbtSerializerOptions()).Run();
+        var bytes = new NbtBinaryWriter(source, options ?? new NbtSerializerOptions()).Run();
 
         if (options?.Compression is Compression.GZip)
         {

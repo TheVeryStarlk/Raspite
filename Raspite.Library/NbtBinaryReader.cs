@@ -3,14 +3,14 @@ using System.Text;
 
 namespace Raspite.Library;
 
-internal ref struct BinaryReader
+internal ref struct NbtBinaryReader
 {
     private int current;
 
     private readonly ReadOnlySpan<byte> source;
     private readonly bool bigEndian;
 
-    public BinaryReader(ReadOnlySpan<byte> source, NbtSerializerOptions options)
+    public NbtBinaryReader(ReadOnlySpan<byte> source, NbtSerializerOptions options)
     {
         this.source = source;
         bigEndian = options.Endianness is Endianness.Big;
