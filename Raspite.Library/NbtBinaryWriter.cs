@@ -205,7 +205,6 @@ internal struct NbtBinaryWriter
         }
 
         nameless = false;
-
         return bytes.ToArray();
     }
 
