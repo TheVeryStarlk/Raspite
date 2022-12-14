@@ -2,6 +2,13 @@
 
 namespace Raspite.WinUI;
 
-internal sealed class ShellViewModel : ObservableObject
+internal sealed partial class ShellViewModel : ObservableObject
 {
+    [ObservableProperty]
+    private MenuViewModel menuViewModel;
+
+    public ShellViewModel(MenuViewModel menuViewModel)
+    {
+        this.menuViewModel = menuViewModel;
+    }
 }

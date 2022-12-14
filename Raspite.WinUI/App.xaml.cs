@@ -17,6 +17,7 @@ public sealed partial class App : Application
         Services = new ServiceCollection()
             .AddTransient<ShellView>()
             .AddTransient<ShellViewModel>()
+            .AddTransient<MenuViewModel>()
             .BuildServiceProvider();
 
         InitializeComponent();
