@@ -5,10 +5,10 @@
                 xmlns:winex="using:WinUIEx">
 
     <winex:WindowEx.Backdrop>
-        <winex:MicaSystemBackdrop  />
+        <winex:MicaSystemBackdrop />
     </winex:WindowEx.Backdrop>
 
-    <Grid>
+    <Grid x:Name="Root">
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
             <RowDefinition Height="Auto" />
@@ -28,29 +28,29 @@
 
             <Image Source="Assets/StoreLogo.scale-100.png" Grid.Column="1" />
 
-            <TextBlock Text="Raspite" TextWrapping="NoWrap" 
-                       Style="{StaticResource CaptionTextBlockStyle}" 
+            <TextBlock Text="Raspite" TextWrapping="NoWrap"
+                       Style="{StaticResource CaptionTextBlockStyle}"
                        VerticalAlignment="Center" Grid.Column="3" />
         </Grid>
 
-        <MenuBar x:Name="Bar" Grid.Row="1">
+        <MenuBar x:Name="AppTitleBar" Grid.Row="1">
             <MenuBarItem Title="File">
-                <MenuFlyoutItem Text="New"/>
-                <MenuFlyoutItem Text="Open"/>
-                <MenuFlyoutItem Text="Save"/>
+                <MenuFlyoutItem Text="New" />
+                <MenuFlyoutItem Text="Open" />
+                <MenuFlyoutItem Text="Save" />
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Exit"/>
+                <MenuFlyoutItem Text="Exit" />
             </MenuBarItem>
 
             <MenuBarItem Title="Edit">
-                <MenuFlyoutItem Text="Undo"/>
-                <MenuFlyoutItem Text="Cut"/>
-                <MenuFlyoutItem Text="Copy"/>
-                <MenuFlyoutItem Text="Paste"/>
+                <MenuFlyoutItem Text="Undo" />
+                <MenuFlyoutItem Text="Cut" />
+                <MenuFlyoutItem Text="Copy" />
+                <MenuFlyoutItem Text="Paste" />
             </MenuBarItem>
 
             <MenuBarItem Title="Help">
-                <MenuFlyoutItem Text="About"/>
+                <MenuFlyoutItem Text="About" />
             </MenuBarItem>
         </MenuBar>
 
