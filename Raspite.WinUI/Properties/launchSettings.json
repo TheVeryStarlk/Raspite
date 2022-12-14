@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Raspite.WinUI (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Raspite.WinUI (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
