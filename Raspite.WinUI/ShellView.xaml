@@ -20,13 +20,13 @@
 
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="17" />
                 <ColumnDefinition Width="15" />
-                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Image Source="Assets/Square44x44Logo.scale-200.png" Grid.Column="1" />
+            <Image Source="Assets/StoreLogo.scale-100.png" Grid.Column="1" />
 
             <TextBlock Text="Raspite" TextWrapping="NoWrap" 
                        Style="{StaticResource CaptionTextBlockStyle}" 
