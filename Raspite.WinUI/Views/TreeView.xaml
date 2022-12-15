@@ -9,6 +9,31 @@
 
              d:DataContext="{d:DesignInstance vms:TreeViewModel}">
 
-    <TreeView Background="{ThemeResource NavigationViewContentBackground}">
-    </TreeView>
+    <Grid>
+        <TabView x:Name="Tab" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 IsAddTabButtonVisible="False" Opacity="0" TabItemsSource="{Binding Files}">
+
+            <TabView.OpacityTransition>
+                <ScalarTransition />
+            </TabView.OpacityTransition>
+
+            <TabView.TabItemTemplate>
+                <DataTemplate>
+                    <TabViewItem Header="{Binding Name}">
+                    </TabViewItem>
+                </DataTemplate>
+            </TabView.TabItemTemplate>
+        </TabView>
+
+        <StackPanel x:Name="FeelsEmpty" Orientation="Horizontal" HorizontalAlignment="Center"
+                    VerticalAlignment="Center" Spacing="5">
+
+            <StackPanel.OpacityTransition>
+                <ScalarTransition />
+            </StackPanel.OpacityTransition>
+
+            <TextBlock Text="Feels quite empty here..." VerticalAlignment="Center" />
+            <HyperlinkButton Content="Open File" Command="{Binding OpenFileCommand}" />
+        </StackPanel>
+    </Grid>
 </UserControl>

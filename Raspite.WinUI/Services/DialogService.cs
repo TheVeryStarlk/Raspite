@@ -17,8 +17,8 @@ internal sealed class DialogService
         var picker = Window?.CreateOpenFilePicker();
         picker?.FileTypeFilter.Add("*");
 
-        var file = await picker?.PickSingleFileAsync();
-        return file?.Path;
+        var storage = await picker?.PickSingleFileAsync();
+        return storage?.Path;
     }
 
     public async Task ShowMessageDialogAsync(string message, string title, string button = "Got it!")

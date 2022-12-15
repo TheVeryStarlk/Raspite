@@ -17,11 +17,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="1" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-
-        <Grid Background="{ThemeResource DividerStrokeColorDefaultBrush}" Grid.Row="2" />
 
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
@@ -68,8 +65,6 @@
             </MenuBarItem>
         </MenuBar>
 
-        <!-- <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Grid.Row="3" /> -->
-
-        <local:TreeView Grid.Row="3" />
+        <local:TreeView Grid.Row="2" />
     </Grid>
 </winex:WindowEx>
