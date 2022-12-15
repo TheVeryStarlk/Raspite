@@ -10,14 +10,15 @@ public sealed partial class App : Application
 
     public IServiceProvider Services { get; }
 
-    private Window? window;
+    public Window? Window { get; private set; }
 
     public App()
     {
         Services = new ServiceCollection()
-            .AddTransient<ShellView>()
             .AddTransient<ShellViewModel>()
             .AddTransient<MenuViewModel>()
+            .AddTransient<DialogService>()
+            .AddTransient<NbtSerializerService>()
             .BuildServiceProvider();
 
         InitializeComponent();
@@ -25,8 +26,11 @@ public sealed partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs eventArgs)
     {
-        window = Services.GetRequiredService<ShellView>();
-        window.ExtendsContentIntoTitleBar = true;
-        window.Activate();
+        Window = new ShellView()
+        {
+            ExtendsContentIntoTitleBar = true
+        };
+
+        Window.Activate();
     }
 }
