@@ -68,7 +68,7 @@
 
         <local:TreeView Grid.Row="2" Grid.RowSpan="2" />
 
-        <InfoBar IsOpen="{Binding IsOpen}" Message="{Binding Message}" Severity="Error"
+        <InfoBar IsOpen="{Binding IsOpen,Mode=TwoWay}" Message="{Binding Message}" Severity="Error"
                  HorizontalAlignment="Right" Margin="15" Grid.Row="3" />
     </Grid>
 </winex:WindowEx>
