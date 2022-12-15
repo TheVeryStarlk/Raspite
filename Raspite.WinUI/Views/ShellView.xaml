@@ -68,7 +68,12 @@
 
         <local:TreeView Grid.Row="2" Grid.RowSpan="2" />
 
-        <InfoBar IsOpen="{Binding IsOpen,Mode=TwoWay}" Message="{Binding Message}" Severity="Error"
-                 HorizontalAlignment="Right" Margin="15" Grid.Row="3" />
+        <Grid x:Name="Notification" HorizontalAlignment="Right" Visibility="Collapsed" Opacity="0" Margin="15" Grid.Row="3">
+            <Grid.OpacityTransition>
+                <ScalarTransition />
+            </Grid.OpacityTransition>
+
+            <InfoBar IsOpen="{Binding IsOpen, Mode=TwoWay}" Message="{Binding Message}" Severity="Error" />
+        </Grid>
     </Grid>
 </winex:WindowEx>
