@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Raspite.WinUI;
+namespace Raspite.WinUI.Services;
 
 internal sealed class NbtSerializerService
 {

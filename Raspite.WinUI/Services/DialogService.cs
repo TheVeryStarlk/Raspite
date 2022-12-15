@@ -6,7 +6,7 @@ using WinUIEx;
 using Microsoft.Xaml.Interactivity;
 using Raspite.WinUI.Behaviors;
 
-namespace Raspite.WinUI;
+namespace Raspite.WinUI.Services;
 
 internal sealed class DialogService
 {

@@ -1,8 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Raspite.WinUI.Services;
 using System.Threading.Tasks;
 
-namespace Raspite.WinUI;
+namespace Raspite.WinUI.ViewModels;
 
 internal sealed partial class MenuViewModel : ObservableObject
 {

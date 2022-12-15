@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Raspite.WinUI;
+namespace Raspite.WinUI.ViewModels;
 
 internal sealed partial class ShellViewModel : ObservableObject
 {

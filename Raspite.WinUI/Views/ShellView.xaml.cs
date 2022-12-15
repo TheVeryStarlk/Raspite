@@ -1,8 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Input;
+using Raspite.WinUI.ViewModels;
 using WinUIEx;
 
-namespace Raspite.WinUI;
+namespace Raspite.WinUI.Views;
 
 public sealed partial class ShellView : WindowEx
 {

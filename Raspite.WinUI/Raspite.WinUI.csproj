@@ -43,6 +43,9 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Raspite.Library\Raspite.Library.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Views\" />
+	</ItemGroup>
 
 	<!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
