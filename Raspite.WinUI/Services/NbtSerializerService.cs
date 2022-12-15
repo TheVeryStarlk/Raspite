@@ -6,7 +6,7 @@ namespace Raspite.WinUI.Services;
 
 internal sealed class NbtSerializerService
 {
-    public async Task<NbtTag?> SerializeAsync(byte[] source)
+    public async Task<(NbtTag Tag, NbtSerializerOptions Options)?> SerializeAsync(byte[] source)
     {
         var possibilities = new NbtSerializerOptions[]
         {
@@ -36,7 +36,7 @@ internal sealed class NbtSerializerService
         {
             try
             {
-                return await NbtSerializer.SerializeAsync(source, possibility);
+                return (await NbtSerializer.SerializeAsync(source, possibility), possibility);
             }
             catch (Exception)
             {

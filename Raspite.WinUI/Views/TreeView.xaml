@@ -12,7 +12,8 @@
 
     <Grid>
         <TabView x:Name="Tab" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 IsAddTabButtonVisible="False" Opacity="0" TabItemsSource="{Binding Files}">
+                 AddTabButtonCommand="{Binding OpenFileCommand}" Opacity="0" SelectedIndex="{Binding SelectedIndex}"
+                 TabCloseRequested="TabTabCloseRequested" TabItemsSource="{Binding Files}">
 
             <TabView.OpacityTransition>
                 <ScalarTransition />

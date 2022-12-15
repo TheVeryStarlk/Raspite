@@ -50,9 +50,9 @@
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="Save">
+                <MenuFlyoutItem Text="Save" Command="{Binding SaveFileCommand}">
                     <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="S" />
+                        <KeyboardAccelerator Modifiers="Control" Key="S" Invoked="SaveShortcutInvoked" />
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 

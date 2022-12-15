@@ -15,8 +15,12 @@ internal sealed class Node
 
     public IEnumerable<Node>? Children { get; }
 
+    public NbtTag Tag { get; }
+
     public Node(NbtTag tag, string path)
     {
+        Tag = tag;
+
         Name = string.IsNullOrWhiteSpace(tag.Name) ? Path.GetFileName(path)! : tag.Name;
 
         var type = tag.GetType().Name;

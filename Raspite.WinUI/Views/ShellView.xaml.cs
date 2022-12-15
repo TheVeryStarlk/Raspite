@@ -43,4 +43,9 @@ public sealed partial class ShellView : WindowEx
     {
         await viewModel.MenuViewModel.OpenFileCommand.ExecuteAsync(null);
     }
+
+    private void SaveShortcutInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        viewModel.MenuViewModel.SaveFileCommand.Execute(null);
+    }
 }
