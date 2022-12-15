@@ -32,8 +32,8 @@
                 <ScalarTransition />
             </StackPanel.OpacityTransition>
 
-            <TextBlock Text="Feels quite empty here..." VerticalAlignment="Center" />
-            <HyperlinkButton Content="Open File" Command="{Binding OpenFileCommand}" />
+            <TextBlock Text="Feels quite empty here" VerticalAlignment="Center" />
+            <HyperlinkButton Content="Open File" Margin="0 2 0 0" Command="{Binding OpenFileCommand}" />
         </StackPanel>
     </Grid>
 </UserControl>
