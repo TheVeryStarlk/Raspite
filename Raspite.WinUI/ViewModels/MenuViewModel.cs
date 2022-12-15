@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Raspite.Library;
 using Raspite.WinUI.Messages;
 using Raspite.WinUI.Models;
 using Raspite.WinUI.Services;
 using System;
+using System.Formats.Asn1;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -42,7 +44,16 @@ internal sealed partial class MenuViewModel : ObservableObject
             return;
         }
 
-        WeakReferenceMessenger.Default.Send(new FileOpenMessage(new Models.File(path, tag)));
+        var root = new NbtTag.Compound()
+        {
+            Name = Path.GetFileName(path),
+            Children = new NbtTag[]
+            {
+                tag
+            }
+        };
+
+        WeakReferenceMessenger.Default.Send(new FileOpenMessage(new Models.File(path, new Node(root, path))));
     }
 
     [RelayCommand]

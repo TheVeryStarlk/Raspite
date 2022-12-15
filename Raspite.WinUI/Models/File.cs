@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Raspite.WinUI.Models;
 
-internal sealed record File(string Path, NbtTag Tag)
+internal sealed record File(string Path, Node Node)
 {
     public string Name => System.IO.Path.GetFileName(Path);
 }

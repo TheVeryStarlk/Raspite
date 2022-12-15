@@ -5,6 +5,7 @@
              xmlns:vms="using:Raspite.WinUI.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="using:Raspite.WinUI.Models"
              mc:Ignorable="d"
 
              d:DataContext="{d:DesignInstance vms:TreeViewModel}">
@@ -20,6 +21,13 @@
             <TabView.TabItemTemplate>
                 <DataTemplate>
                     <TabViewItem Header="{Binding Name}">
+                        <TreeView ItemsSource="{Binding Node.Children}">
+                            <TreeView.ItemTemplate>
+                                <DataTemplate x:DataType="models:Node">
+                                    <TreeViewItem ItemsSource="{Binding Children}" Content="{Binding Name}" />
+                                </DataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
                     </TabViewItem>
                 </DataTemplate>
             </TabView.TabItemTemplate>
