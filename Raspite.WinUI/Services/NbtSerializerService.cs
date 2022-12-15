@@ -38,7 +38,7 @@ internal sealed class NbtSerializerService
             {
                 return await NbtSerializer.SerializeAsync(source, possibility);
             }
-            catch (ArgumentOutOfRangeException)
+            catch (Exception)
             {
             }
         }

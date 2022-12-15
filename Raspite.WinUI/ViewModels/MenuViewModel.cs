@@ -38,6 +38,7 @@ internal sealed partial class MenuViewModel : ObservableObject
 
         if (tag is null)
         {
+            WeakReferenceMessenger.Default.Send(new NotificationRequestMessage("An error has occured while trying to serialize the file."));
             return;
         }
 

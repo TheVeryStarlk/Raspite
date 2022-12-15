@@ -18,7 +18,7 @@ internal sealed partial class TreeViewModel : ObservableObject
         WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, FileOpenHandler);
     }
 
-    private void FileOpenHandler(object sender, FileOpenMessage message)
+    private void FileOpenHandler(object recipient, FileOpenMessage message)
     {
         if (Files.Any(file => file.Name == message.File.Name))
         {
