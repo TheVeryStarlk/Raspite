@@ -1,18 +1,43 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
 using System;
 using System.Threading.Tasks;
 using WinUIEx;
+using Microsoft.Xaml.Interactivity;
+using Raspite.WinUI.Behaviors;
 
 namespace Raspite.WinUI;
 
 internal sealed class DialogService
 {
+    private Window? Window => App.Current.Window;
+
     public async Task<string?> ShowFileDialogAsync()
     {
-        var picker = App.Current.Window?.CreateOpenFilePicker();
+        var picker = Window?.CreateOpenFilePicker();
         picker?.FileTypeFilter.Add("*");
 
         var file = await picker?.PickSingleFileAsync();
         return file?.Path;
+    }
+
+    public async Task ShowMessageDialogAsync(string message, string title, string button = "Got it!")
+    {
+        var dialog = new ContentDialog
+        {
+            XamlRoot = Window?.Content.XamlRoot,
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            Title = title,
+            Content = message,
+            PrimaryButtonText = button,
+            DefaultButton = ContentDialogButton.Primary
+        };
+
+        Interaction.SetBehaviors(dialog, new BehaviorCollection()
+        {
+            new ContentDialogBehavior()
+        });
+
+        await dialog.ShowAsync();
     }
 }

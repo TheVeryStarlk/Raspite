@@ -47,7 +47,7 @@
 
                 <MenuFlyoutItem Text="Open" Command="{Binding OpenFileCommand}">
                     <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="O" />
+                        <KeyboardAccelerator Modifiers="Control" Key="O" Invoked="OpenShortcutInvoked" />
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
@@ -63,7 +63,7 @@
             </MenuBarItem>
 
             <MenuBarItem Title="Help">
-                <MenuFlyoutItem Text="About" />
+                <MenuFlyoutItem Text="About" Command="{Binding AboutCommand}" />
             </MenuBarItem>
         </MenuBar>
 

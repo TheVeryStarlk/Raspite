@@ -20,6 +20,14 @@ internal sealed partial class MenuViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task AboutAsync()
+    {
+        await dialogService.ShowMessageDialogAsync(
+            "An application that helps with editing NBT files.",
+            "About");
+    }
+
+    [RelayCommand]
     private void Exit()
     {
         App.Current.Exit();
