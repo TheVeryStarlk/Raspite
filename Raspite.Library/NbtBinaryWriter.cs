@@ -71,7 +71,7 @@ internal struct NbtBinaryWriter
     private byte[] HandleByte(NbtTag.Byte tag)
     {
         var payload = WritePayload(1, tag.Name);
-        payload.Add(tag.Value);
+        payload.Add((byte) tag.Value);
 
         return payload.ToArray();
     }
@@ -79,7 +79,7 @@ internal struct NbtBinaryWriter
     private byte[] HandleShort(NbtTag.Short tag)
     {
         var bytes = WritePayload(2, tag.Name);
-        var value = BitConverter.GetBytes(tag.Value);
+        var value = BitConverter.GetBytes((short) tag.Value);
 
         if (needSwap)
         {
@@ -93,7 +93,7 @@ internal struct NbtBinaryWriter
     private byte[] HandleInt(NbtTag.Int tag)
     {
         var bytes = WritePayload(3, tag.Name);
-        var value = BitConverter.GetBytes(tag.Value);
+        var value = BitConverter.GetBytes((short) tag.Value);
 
         if (needSwap)
         {
@@ -107,7 +107,7 @@ internal struct NbtBinaryWriter
     private byte[] HandleLong(NbtTag.Long tag)
     {
         var bytes = WritePayload(4, tag.Name);
-        var value = BitConverter.GetBytes(tag.Value);
+        var value = BitConverter.GetBytes((short) tag.Value);
 
         if (needSwap)
         {
@@ -121,7 +121,7 @@ internal struct NbtBinaryWriter
     private byte[] HandleFloat(NbtTag.Float tag)
     {
         var bytes = WritePayload(5, tag.Name);
-        var value = BitConverter.GetBytes(tag.Value);
+        var value = BitConverter.GetBytes((short) tag.Value);
 
         if (needSwap)
         {
@@ -135,7 +135,7 @@ internal struct NbtBinaryWriter
     private byte[] HandleDouble(NbtTag.Double tag)
     {
         var bytes = WritePayload(6, tag.Name);
-        var value = BitConverter.GetBytes(tag.Value);
+        var value = BitConverter.GetBytes((short) tag.Value);
 
         if (needSwap)
         {
@@ -166,7 +166,7 @@ internal struct NbtBinaryWriter
     {
         var bytes = WritePayload(8, tag.Name);
 
-        var value = Encoding.UTF8.GetBytes(tag.Value);
+        var value = Encoding.UTF8.GetBytes((string) tag.Value);
         var length = BitConverter.GetBytes((short) value.Length);
 
         if (needSwap)

@@ -17,34 +17,33 @@ public abstract class NbtTag
     {
     }
 
-    public sealed class Byte : NbtTag
+    public abstract class ValueBase : NbtTag
     {
-        public required byte Value { get; set; }
+        public required object Value { get; set; }
     }
 
-    public sealed class Short : NbtTag
+    public sealed class Byte : ValueBase
     {
-        public required short Value { get; set; }
     }
 
-    public sealed class Int : NbtTag
+    public sealed class Short : ValueBase
     {
-        public required int Value { get; set; }
     }
 
-    public sealed class Long : NbtTag
+    public sealed class Int : ValueBase
     {
-        public required long Value { get; set; }
     }
 
-    public sealed class Float : NbtTag
+    public sealed class Long : ValueBase
     {
-        public required float Value { get; set; }
     }
 
-    public sealed class Double : NbtTag
+    public sealed class Float : ValueBase
     {
-        public required double Value { get; set; }
+    }
+
+    public sealed class Double : ValueBase
+    {
     }
 
     public sealed class ByteArray : NbtTag
@@ -52,9 +51,8 @@ public abstract class NbtTag
         public required byte[] Values { get; set; }
     }
 
-    public sealed class String : NbtTag
+    public sealed class String : ValueBase
     {
-        public required string Value { get; set; }
     }
 
     public sealed class List : NbtTag

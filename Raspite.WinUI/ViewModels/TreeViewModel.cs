@@ -3,10 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Raspite.Library;
 using Raspite.WinUI.Messages;
-using Raspite.WinUI.Models;
-using System;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 
 namespace Raspite.WinUI.ViewModels;
@@ -44,7 +41,15 @@ internal sealed partial class TreeViewModel : ObservableObject
             return;
         }
 
-        var bytes = await NbtSerializer.DeserializeAsync(file.Node.Tag, file.Options);
+        // Skip the compound tag we created in the menu view-model.
+        NbtTag? parent = file.Node.Tag is NbtTag.Compound compound ? compound.Children.FirstOrDefault() : file.Node.Tag;
+
+        if (parent is null)
+        {
+            return;
+        }
+
+        var bytes = await NbtSerializer.DeserializeAsync(parent, file.Options);
         await System.IO.File.WriteAllBytesAsync(file.Path, bytes);
     }
 
