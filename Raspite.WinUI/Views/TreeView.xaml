@@ -24,7 +24,15 @@
                         <TreeView ItemsSource="{Binding Node.Children}">
                             <TreeView.ItemTemplate>
                                 <DataTemplate x:DataType="models:Node">
-                                    <TreeViewItem ItemsSource="{Binding Children}" Content="{Binding Name}" />
+                                    <TreeViewItem ItemsSource="{Binding Children}">
+                                        <StackPanel Orientation="Horizontal" Spacing="7">
+                                            <TextBlock Text="{Binding Type}" FontFamily="Cascadia Mono"
+                                                       Foreground="{Binding Color}" Opacity="0.5"
+                                                       FontSize="12" Margin="0 3 0 0" />
+
+                                            <TextBlock Text="{Binding Name}" />
+                                        </StackPanel>
+                                    </TreeViewItem>
                                 </DataTemplate>
                             </TreeView.ItemTemplate>
                         </TreeView>
