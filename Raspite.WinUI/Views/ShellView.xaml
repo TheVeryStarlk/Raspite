@@ -1,6 +1,7 @@
 <winex:WindowEx x:Class="Raspite.WinUI.Views.ShellView"
                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:local="using:Raspite.WinUI.Views"
                 xmlns:vms="using:Raspite.WinUI.ViewModels"
                 xmlns:winex="using:WinUIEx"
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -67,7 +68,8 @@
             </MenuBarItem>
         </MenuBar>
 
-        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Grid.Row="3">
-        </Grid>
+        <!-- <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Grid.Row="3" /> -->
+
+        <local:TreeView Grid.Row="3" />
     </Grid>
 </winex:WindowEx>

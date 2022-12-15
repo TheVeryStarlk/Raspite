@@ -12,6 +12,9 @@
 		<UseWinUI>true</UseWinUI>
 		<EnableMsixTooling>true</EnableMsixTooling>
 	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="Views\TreeView.xaml" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Content Include="Assets\SplashScreen.scale-200.png" />
@@ -44,7 +47,9 @@
 	  <ProjectReference Include="..\Raspite.Library\Raspite.Library.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Views\" />
+	  <Page Update="Views\TreeView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 
 	<!--

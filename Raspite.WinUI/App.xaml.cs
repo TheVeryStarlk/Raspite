@@ -28,6 +28,7 @@ public sealed partial class App : Application
             .AddTransient<MenuViewModel>()
             .AddTransient<DialogService>()
             .AddTransient<NbtSerializerService>()
+            .AddTransient<TreeViewModel>()
             .BuildServiceProvider();
 
         Window = new ShellView()
