@@ -1,27 +1,9 @@
 ﻿using Raspite.Library;
 
-var compound = new CompoundTag
+var tag = new StringTag()
 {
-    Name = "World",
-    Value = new TagBase[]
-    {
-        new IntTag
-        {
-            Name = "ID",
-            Value = Random.Shared.Next()
-        },
-        new ListTag
-        {
-            Name = "Players",
-            Value = new StringTag[]
-            {
-                new StringTag
-                {
-                    Value = "Starlk"
-                }
-            }
-        }
-    }
+    Name = "Username",
+    Value = "Raspite"
 };
 
-_ = BinaryTagSerializer.Serialize(compound);
+_ = BinaryTagSerializer.Serialize<StringTag>(tag);
