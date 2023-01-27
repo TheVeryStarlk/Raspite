@@ -40,7 +40,7 @@ public abstract class TagBase
     /// </summary>
     /// <example>
     /// <code>
-    /// var _ = compoundTag.TryGetValue&lt;IEnumerable&lt;TagBase&gt;&gt;(out var value);
+    /// _ = compoundTag.TryGetValue&lt;IEnumerable&lt;TagBase&gt;&gt;(out var value);
     /// </code>
     /// </example>
     /// <param name="value">The tag's value.</param>
@@ -69,7 +69,7 @@ public abstract class TagBase
     /// </summary>
     /// <example>
     /// <code>
-    /// var _ = compoundTag.TrySetValue(Array.Empty&lt;TagBase&gt;());
+    /// _ = compoundTag.TrySetValue(Array.Empty&lt;TagBase&gt;());
     /// </code>
     /// </example>
     /// <param name="value">The value to set to the tag.</param>

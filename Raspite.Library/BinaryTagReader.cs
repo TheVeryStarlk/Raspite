@@ -200,7 +200,12 @@ internal ref struct BinaryTagReader
         {
             if (current >= source.Length)
             {
-                throw new BinaryTagReaderException(current, "Compound tag did not have an ending tag.");
+                if (source[^1] is not (byte) TagBase.Type.End)
+                {
+                    throw new BinaryTagReaderException(current, "Compound tag did not have an ending tag.");
+                }
+
+                break;
             }
 
             if (source[current] is (byte) TagBase.Type.End)
