@@ -94,6 +94,23 @@ public abstract class TagBase
 }
 
 /// <inheritdoc />
+public abstract class CollectionTagBase : TagBase
+{
+    public T First<T>(string? name = null) where T : TagBase
+    {
+        var collection = (IEnumerable<TagBase>) InternalValue!;
+        return (T) collection.First(tag =>
+        {
+            var typeMatches = typeof(T) == tag.GetType();
+
+            return name is not null
+                ? typeMatches && tag.Name == name
+                : typeMatches;
+        });
+    }
+}
+
+/// <inheritdoc />
 public abstract class EndTag : TagBase
 {
 }
@@ -175,7 +192,7 @@ public sealed class StringTag : TagBase
 }
 
 /// <inheritdoc />
-public sealed class ListTag : TagBase
+public sealed class ListTag : CollectionTagBase
 {
     public required IEnumerable<TagBase> Value
     {
@@ -185,7 +202,7 @@ public sealed class ListTag : TagBase
 }
 
 /// <inheritdoc />
-public sealed class CompoundTag : TagBase
+public sealed class CompoundTag : CollectionTagBase
 {
     public required IEnumerable<TagBase> Value
     {

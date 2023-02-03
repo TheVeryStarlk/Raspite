@@ -6,4 +6,4 @@ var tag = new StringTag()
     Value = "Raspite"
 };
 
-_ = BinaryTagSerializer.Serialize<StringTag>(tag);
+var bytes = BinaryTagSerializer.Serialize(tag);
