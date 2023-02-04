@@ -1,8 +1,9 @@
 ﻿using System.Buffers.Binary;
 using System.Numerics;
 using System.Text;
+using Raspite.Serializer.Tags;
 
-namespace Raspite.Library;
+namespace Raspite.Serializer;
 
 public sealed class BinaryTagReaderException : InvalidOperationException
 {

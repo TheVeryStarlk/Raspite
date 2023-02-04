@@ -1,4 +1,5 @@
-﻿using Raspite.Library;
+﻿using Raspite.Serializer;
+using Raspite.Serializer.Tags;
 
 var tag = new StringTag()
 {
@@ -7,3 +8,4 @@ var tag = new StringTag()
 };
 
 var bytes = BinaryTagSerializer.Serialize(tag);
+// BinaryTagSerializer.Deserialize<StringTag>(bytes);

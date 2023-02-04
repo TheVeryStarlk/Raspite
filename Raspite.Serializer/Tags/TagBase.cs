@@ -1,4 +1,4 @@
-﻿namespace Raspite.Library;
+﻿namespace Raspite.Serializer.Tags;
 
 /// <summary>
 /// Represents a Minecraft tag.
@@ -99,6 +99,7 @@ public abstract class CollectionTagBase : TagBase
     public T First<T>(string? name = null) where T : TagBase
     {
         var collection = (IEnumerable<TagBase>) InternalValue!;
+
         return (T) collection.First(tag =>
         {
             var typeMatches = typeof(T) == tag.GetType();
@@ -107,126 +108,5 @@ public abstract class CollectionTagBase : TagBase
                 ? typeMatches && tag.Name == name
                 : typeMatches;
         });
-    }
-}
-
-/// <inheritdoc />
-public abstract class EndTag : TagBase
-{
-}
-
-/// <inheritdoc />
-public sealed class ByteTag : TagBase
-{
-    public required byte Value
-    {
-        get => (byte) InternalValue!;
-        set => InternalValue = value;
-    }
-}
-
-/// <inheritdoc />
-public sealed class ShortTag : TagBase
-{
-    public required short Value { get; set; }
-}
-
-/// <inheritdoc />
-public sealed class IntTag : TagBase
-{
-    public required int Value
-    {
-        get => (int) InternalValue!;
-        set => InternalValue = value;
-    }
-}
-
-/// <inheritdoc />
-public sealed class LongTag : TagBase
-{
-    public required long Value
-    {
-        get => (long) InternalValue!;
-        set => InternalValue = value;
-    }
-}
-
-/// <inheritdoc />
-public sealed class FloatTag : TagBase
-{
-    public required float Value
-    {
-        get => (float) InternalValue!;
-        set => InternalValue = value;
-    }
-}
-
-/// <inheritdoc />
-public sealed class DoubleTag : TagBase
-{
-    public required double Value
-    {
-        get => (double) InternalValue!;
-        set => InternalValue = value;
-    }
-}
-
-/// <inheritdoc />
-public sealed class ByteArrayTag : TagBase
-{
-    public required IEnumerable<byte> Value
-    {
-        get => (IEnumerable<byte>) InternalValue!;
-        set => InternalValue = value;
-    }
-}
-
-/// <inheritdoc />
-public sealed class StringTag : TagBase
-{
-    public required string Value
-    {
-        get => (string) InternalValue!;
-        set => InternalValue = value;
-    }
-}
-
-/// <inheritdoc />
-public sealed class ListTag : CollectionTagBase
-{
-    public required IEnumerable<TagBase> Value
-    {
-        get => (IEnumerable<TagBase>) InternalValue!;
-        set => InternalValue = value;
-    }
-}
-
-/// <inheritdoc />
-public sealed class CompoundTag : CollectionTagBase
-{
-    public required IEnumerable<TagBase> Value
-    {
-        get => (IEnumerable<TagBase>) InternalValue!;
-        set => InternalValue = value;
-    }
-}
-
-/// <inheritdoc />
-public sealed class IntArrayTag : TagBase
-{
-    public required IEnumerable<int> Value
-    {
-        get => (IEnumerable<int>) InternalValue!;
-        set => InternalValue = value;
-    }
-}
-
-/// <inheritdoc />
-public sealed class LongArrayTag : TagBase
-{
-    public required IEnumerable<long> Value
-    {
-        get => (IEnumerable<long>) InternalValue!;
-        set => InternalValue = value;
     }
 }

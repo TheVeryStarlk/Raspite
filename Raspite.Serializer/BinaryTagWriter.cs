@@ -1,7 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
+using Raspite.Serializer.Tags;
 
-namespace Raspite.Library;
+namespace Raspite.Serializer;
 
 public sealed class BinaryTagWriterException : InvalidOperationException
 {
@@ -175,7 +176,7 @@ internal sealed class BinaryTagWriter
             {
                 throw new BinaryTagWriterException(
                     type,
-                    $"List contained a type different than the predefined one ('{currentType}').");
+                    $"List contained a type different than the predefined one '{currentType}'.");
             }
 
             buffer.AddRange(Write(value).ToArray());

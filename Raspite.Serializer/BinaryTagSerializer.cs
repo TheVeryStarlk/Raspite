@@ -1,4 +1,6 @@
-﻿namespace Raspite.Library;
+﻿using Raspite.Serializer.Tags;
+
+namespace Raspite.Serializer;
 
 public sealed class BinaryTagSerializerOptions
 {
@@ -15,17 +17,10 @@ public static class BinaryTagSerializer
 
     public static T Deserialize<T>(byte[] source, BinaryTagSerializerOptions? options = null) where T : TagBase
     {
-        options ??= new BinaryTagSerializerOptions();
-        return (T) new BinaryTagReader(source.AsSpan(), options.LittleEndian).Read();
+        return (T) Deserialize(source, options);
     }
 
     public static byte[] Serialize(TagBase source, BinaryTagSerializerOptions? options = null)
-    {
-        options ??= new BinaryTagSerializerOptions();
-        return new BinaryTagWriter(options.LittleEndian).Write(source).ToArray();
-    }
-
-    public static byte[] Serialize<T>(T source, BinaryTagSerializerOptions? options = null) where T : TagBase
     {
         options ??= new BinaryTagSerializerOptions();
         return new BinaryTagWriter(options.LittleEndian).Write(source).ToArray();
