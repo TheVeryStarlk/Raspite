@@ -1,1 +1,0 @@
-﻿internal sealed record FileSaveMessage();
