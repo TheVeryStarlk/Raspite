@@ -3,9 +3,5 @@
 /// <inheritdoc />
 public sealed class StringTag : TagBase
 {
-    public required string Value
-    {
-        get => (string) InternalValue!;
-        set => InternalValue = value;
-    }
+    public required string Value { get; set; }
 }

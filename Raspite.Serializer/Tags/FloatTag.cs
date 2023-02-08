@@ -3,9 +3,5 @@
 /// <inheritdoc />
 public sealed class FloatTag : TagBase
 {
-    public required float Value
-    {
-        get => (float) InternalValue!;
-        set => InternalValue = value;
-    }
+    public required float Value { get; set; }
 }

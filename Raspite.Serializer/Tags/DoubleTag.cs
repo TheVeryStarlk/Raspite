@@ -3,9 +3,5 @@
 /// <inheritdoc />
 public sealed class DoubleTag : TagBase
 {
-    public required double Value
-    {
-        get => (double) InternalValue!;
-        set => InternalValue = value;
-    }
+    public required double Value { get; set; }
 }

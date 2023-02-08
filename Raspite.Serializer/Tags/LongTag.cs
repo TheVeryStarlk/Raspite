@@ -3,9 +3,5 @@
 /// <inheritdoc />
 public sealed class LongTag : TagBase
 {
-    public required long Value
-    {
-        get => (long) InternalValue!;
-        set => InternalValue = value;
-    }
+    public required long Value { get; set; }
 }

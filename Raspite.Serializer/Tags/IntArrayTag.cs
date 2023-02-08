@@ -3,9 +3,5 @@
 /// <inheritdoc />
 public sealed class IntArrayTag : TagBase
 {
-    public required IEnumerable<int> Value
-    {
-        get => (IEnumerable<int>) InternalValue!;
-        set => InternalValue = value;
-    }
+    public required IEnumerable<int> Value { get; set; }
 }

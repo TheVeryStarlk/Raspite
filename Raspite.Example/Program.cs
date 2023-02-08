@@ -1,11 +1,14 @@
 ﻿using Raspite.Serializer;
 using Raspite.Serializer.Tags;
 
-var tag = new StringTag()
+TagBase tag = new StringTag()
 {
     Name = "Username",
-    Value = "Raspite"
+    Value = string.Empty
 };
 
 var bytes = BinaryTagSerializer.Serialize(tag);
 // BinaryTagSerializer.Deserialize<StringTag>(bytes);
+
+tag.SetValue("Raspite");
+Console.WriteLine(tag.GetValue<string>());
