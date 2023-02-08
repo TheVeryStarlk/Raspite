@@ -4,6 +4,16 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <PublishAot>true</PublishAot>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>1.1.0</Version>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Title>Raspite</Title>
+        <Authors>Starlk</Authors>
+        <Description>An AOT-friendly NBT serializing tool.</Description>
+        <RepositoryUrl>https://github.com/StarlkYT/Raspite</RepositoryUrl>
+        <PackageTags>Minecraft, Serializer, NBT, AOT</PackageTags>
+        <PackageReleaseNotes>Fix a bug when reading zero length payloads.</PackageReleaseNotes>
     </PropertyGroup>
 
 </Project>
