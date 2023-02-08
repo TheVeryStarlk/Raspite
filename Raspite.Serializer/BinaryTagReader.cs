@@ -100,12 +100,7 @@ internal ref struct BinaryTagReader
 
     private ReadOnlySpan<byte> ReadPayload(int length)
     {
-        if (current >= source.Length)
-        {
-            throw new BinaryTagReaderException(current, "Index cannot be bigger than the source's length.");
-        }
-
-        if (length > source.Length)
+        if ((current + length) > source.Length)
         {
             throw new BinaryTagReaderException(length, "Length cannot be bigger than the source's length.");
         }
