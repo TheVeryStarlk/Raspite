@@ -7,20 +7,27 @@ namespace Raspite.Serializer;
 
 public sealed class BinaryTagReaderException : InvalidOperationException
 {
+    public BinaryTagReaderException(string message) : base(message)
+    {
+    }
+
     public BinaryTagReaderException(object value, string message) : base($"{message} At '{value}'.")
     {
     }
 }
 
-internal ref struct BinaryTagReader
+internal readonly struct BinaryTagReader
 {
-    private int current;
-
-    private readonly ReadOnlySpan<byte> source;
+    private readonly Stream source;
     private readonly bool littleEndian;
 
-    public BinaryTagReader(ReadOnlySpan<byte> source, bool littleEndian)
+    public BinaryTagReader(Stream source, bool littleEndian)
     {
+        if (!source.CanRead || !source.CanWrite || !source.CanSeek)
+        {
+            throw new BinaryTagReaderException("This stream can not be used.");
+        }
+
         this.source = source;
         this.littleEndian = littleEndian;
     }
@@ -100,14 +107,14 @@ internal ref struct BinaryTagReader
 
     private ReadOnlySpan<byte> ReadPayload(int length)
     {
-        if ((current + length) > source.Length)
+        if ((source.Position + length) > source.Length)
         {
             throw new BinaryTagReaderException(length, "Length cannot be bigger than the source's length.");
         }
 
-        var buffer = source.Slice(current, Validate(length));
+        var buffer = new byte[Validate(length)];
+        source.ReadExactly(buffer);
 
-        current += length;
         return buffer;
     }
 
@@ -194,25 +201,27 @@ internal ref struct BinaryTagReader
         // Eat until we hit the ending tag.
         while (true)
         {
-            if (current >= source.Length)
+            if (source.Position >= source.Length)
             {
-                if (source[^1] is not (byte) TagBase.Type.End)
+                if (source.ReadByte() is not (byte) TagBase.Type.End)
                 {
-                    throw new BinaryTagReaderException(current, "Compound tag did not have an ending tag.");
+                    throw new BinaryTagReaderException(source.Position, "Compound tag did not have an ending tag.");
                 }
 
                 break;
             }
 
-            if (source[current] is (byte) TagBase.Type.End)
+            var oldPosition = source.Position;
+
+            if (source.ReadByte() is (byte) TagBase.Type.End)
             {
                 break;
             }
 
+            source.Position = oldPosition;
             children.Add(Read());
         }
 
-        current++;
         return children;
     }
 
