@@ -1,14 +1,25 @@
 ﻿using Raspite.Serializer;
 using Raspite.Serializer.Tags;
 
-TagBase tag = new StringTag()
+var tag = new CompoundTag()
 {
-    Name = "Username",
-    Value = string.Empty
+    Children = new Tag[]
+    {
+        new CompoundTag()
+        {
+            Name = "Parent",
+            Children = new Tag[]
+            {
+                new StringTag()
+                {
+                    Name = "Username",
+                    Value = "Raspite"
+                }
+            }
+        }
+    }
 };
 
-var bytes = BinaryTagSerializer.Serialize(tag);
-// BinaryTagSerializer.Deserialize<StringTag>(bytes);
+await using var file = File.OpenWrite("file.dat");
 
-tag.SetValue("Raspite");
-Console.WriteLine(tag.GetValue<string>());
+await BinaryTagSerializer.SerializeAsync(tag, file);

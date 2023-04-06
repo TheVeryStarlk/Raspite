@@ -1,7 +1,6 @@
 ﻿namespace Raspite.Serializer.Tags;
 
-/// <inheritdoc />
-public sealed class StringTag : TagBase
+public sealed class StringTag : Tag<string>
 {
-    public required string Value { get; set; }
+    internal override byte Type => 8;
 }

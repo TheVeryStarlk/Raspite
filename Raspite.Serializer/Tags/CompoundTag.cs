@@ -1,7 +1,6 @@
 ﻿namespace Raspite.Serializer.Tags;
 
-/// <inheritdoc />
-public sealed class CompoundTag : CollectionTagBase
+public sealed class CompoundTag : CollectionTag<Tag>
 {
-    public required IEnumerable<TagBase> Value { get; set; }
+    internal override byte Type => 10;
 }
