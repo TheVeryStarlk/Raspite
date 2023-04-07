@@ -70,6 +70,22 @@ internal sealed class BinaryTagWriter
                 break;
             
             default:
+                if (tag.GetType().Name == typeof(ListTag<>).Name)
+                {
+                    var children = (Tag[]?) tag
+                        .GetType()
+                        .GetProperty("Children")?
+                        .GetValue(tag);
+
+                    await WriteListTagAsync(new CompoundTag()
+                    {
+                        Name = tag.Name,
+                        Children = children ?? Array.Empty<Tag>()
+                    });
+
+                    break;
+                }
+
                 throw new ArgumentOutOfRangeException(nameof(tag), tag, "Unknown tag type.");
         }
     }
@@ -116,6 +132,20 @@ internal sealed class BinaryTagWriter
         await stream.WriteBytesAsync(Encoding.UTF8.GetBytes(tag.Value));
     }
 
+    private async Task WriteListTagAsync(CollectionTag<Tag> tag)
+    {
+        await stream.WriteBytesAsync(tag.Children.FirstOrDefault()?.Type ?? 0);
+        await stream.WriteIntegerAsync(tag.Children.Length);
+
+        foreach (var child in tag.Children)
+        {
+            isNameless = true;
+            await EvaluateAsync(child);
+        }
+
+        isNameless = false;
+    }
+    
     private async Task WriteCompoundTagAsync(CompoundTag tag)
     {
         var wasNameless = isNameless;
