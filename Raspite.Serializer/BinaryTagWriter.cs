@@ -50,8 +50,8 @@ internal sealed class BinaryTagWriter
                 await WriteDoubleTagAsync(doubleTag);
                 break;
 
-            case SignedByteArrayTag signedByteArrayTag:
-                await WriteSignedByteArrayTagAsync(signedByteArrayTag);
+            case SignedByteCollectionTag signedByteCollectionTag:
+                await WriteSignedByteCollectionTagAsync(signedByteCollectionTag);
                 break;
 
             case StringTag stringTag:
@@ -62,12 +62,12 @@ internal sealed class BinaryTagWriter
                 await WriteCompoundTagAsync(compoundTag);
                 break;
 
-            case IntegerArrayTag integerArrayTag:
-                await WriteIntegerArrayTagAsync(integerArrayTag);
+            case IntegerCollectionTag integerCollectionTag:
+                await WriteIntegerCollectionTagAsync(integerCollectionTag);
                 break;
 
-            case LongArrayTag longArrayTag:
-                await WriteLongArrayTagAsync(longArrayTag);
+            case LongCollectionTag longCollectionTag:
+                await WriteLongCollectionTagAsync(longCollectionTag);
                 break;
 
             default:
@@ -123,10 +123,10 @@ internal sealed class BinaryTagWriter
         await stream.WriteDoubleAsync(tag.Value);
     }
 
-    private async Task WriteSignedByteArrayTagAsync(SignedByteArrayTag tag)
+    private async Task WriteSignedByteCollectionTagAsync(SignedByteCollectionTag tag)
     {
-        await stream.WriteIntegerAsync(tag.Value.Length);
-        await stream.WriteSignedBytesAsync(tag.Value);
+        await stream.WriteIntegerAsync(tag.Children.Length);
+        await stream.WriteSignedBytesAsync(tag.Children);
     }
 
     private async Task WriteStringTagAsync(StringTag tag)
@@ -163,21 +163,21 @@ internal sealed class BinaryTagWriter
         isNameless = wasNameless;
     }
 
-    private async Task WriteIntegerArrayTagAsync(IntegerArrayTag tag)
+    private async Task WriteIntegerCollectionTagAsync(IntegerCollectionTag tag)
     {
-        await stream.WriteIntegerAsync(tag.Value.Length);
+        await stream.WriteIntegerAsync(tag.Children.Length);
 
-        foreach (var value in tag.Value)
+        foreach (var value in tag.Children)
         {
             await stream.WriteIntegerAsync(value);
         }
     }
 
-    private async Task WriteLongArrayTagAsync(LongArrayTag tag)
+    private async Task WriteLongCollectionTagAsync(LongCollectionTag tag)
     {
-        await stream.WriteIntegerAsync(tag.Value.Length);
+        await stream.WriteIntegerAsync(tag.Children.Length);
 
-        foreach (var value in tag.Value)
+        foreach (var value in tag.Children)
         {
             await stream.WriteLongAsync(value);
         }
