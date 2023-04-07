@@ -1,6 +1,6 @@
 ﻿namespace Raspite.Serializer.Tags;
 
-public sealed class LongArrayTag : Tag<long[]>
+public sealed class LongCollectionTag : CollectionTag<long>
 {
     internal override byte Type => 12;
 }
