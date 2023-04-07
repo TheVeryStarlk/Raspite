@@ -15,4 +15,10 @@ public abstract class Tag<T> : Tag
 public abstract class CollectionTag<T> : Tag
 {
     public required T[] Children { get; set; }
+
+    public T this[int index]
+    {
+        get => Children[index];
+        set => Children[index] = value;
+    }
 }
