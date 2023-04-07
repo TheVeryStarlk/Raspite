@@ -3,6 +3,13 @@ using Raspite.Serializer.Tags;
 
 namespace Raspite.Serializer;
 
+public sealed class BinaryTagWriterException : Exception
+{
+    public BinaryTagWriterException(string message) : base(message)
+    {
+    }
+}
+
 internal sealed class BinaryTagWriter
 {
     private bool isNameless;
@@ -89,7 +96,7 @@ internal sealed class BinaryTagWriter
                     break;
                 }
 
-                throw new ArgumentOutOfRangeException(nameof(tag), tag, "Unknown tag type.");
+                throw new BinaryTagWriterException("Unknown tag type.");
         }
     }
 
@@ -137,11 +144,18 @@ internal sealed class BinaryTagWriter
 
     private async Task WriteListTagAsync(CollectionTag<Tag> tag)
     {
-        await stream.WriteBytesAsync(tag.Children.FirstOrDefault()?.Type ?? 0);
+        var predefinedType = tag.Children.FirstOrDefault()?.Type ?? 0;
+
+        await stream.WriteBytesAsync(predefinedType);
         await stream.WriteIntegerAsync(tag.Children.Length);
 
         foreach (var child in tag.Children)
         {
+            if (child.Type != predefinedType)
+            {
+                throw new BinaryTagWriterException("List tag cannot contain multiple tag types.");
+            }
+
             isNameless = true;
             await EvaluateAsync(child);
         }
