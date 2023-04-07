@@ -16,6 +16,7 @@ internal sealed class BinaryTagWriter
 
     public async Task EvaluateAsync(Tag tag)
     {
+        // Do not write the headers if we're inside a list.
         if (!isNameless)
         {
             await stream.WriteBytesAsync(tag.Type);
@@ -48,7 +49,7 @@ internal sealed class BinaryTagWriter
             case DoubleTag doubleTag:
                 await WriteDoubleTagAsync(doubleTag);
                 break;
-            
+
             case SignedByteCollectionTag byteCollectionTag:
                 await WriteByteCollectionTagAsync(byteCollectionTag);
                 break;
@@ -68,8 +69,10 @@ internal sealed class BinaryTagWriter
             case LongCollectionTag longCollectionTag:
                 await WriteLongCollectionTagAsync(longCollectionTag);
                 break;
-            
+
             default:
+                // This is a walk-around for not being able to know the generic type of
+                // a list tag in compile-time thus making it impossible* to add a case for it.
                 if (tag.GetType().Name == typeof(ListTag<>).Name)
                 {
                     var children = (Tag[]?) tag
@@ -145,7 +148,7 @@ internal sealed class BinaryTagWriter
 
         isNameless = false;
     }
-    
+
     private async Task WriteCompoundTagAsync(CompoundTag tag)
     {
         var wasNameless = isNameless;
@@ -159,7 +162,7 @@ internal sealed class BinaryTagWriter
         await stream.WriteBytesAsync(0);
         isNameless = wasNameless;
     }
-    
+
     private async Task WriteIntegerCollectionTagAsync(IntegerCollectionTag tag)
     {
         await stream.WriteIntegerAsync(tag.Children.Length);
@@ -169,11 +172,11 @@ internal sealed class BinaryTagWriter
             await stream.WriteIntegerAsync(child);
         }
     }
-    
+
     private async Task WriteLongCollectionTagAsync(LongCollectionTag tag)
     {
         await stream.WriteIntegerAsync(tag.Children.Length);
-        
+
         foreach (var child in tag.Children)
         {
             await stream.WriteLongAsync(child);
