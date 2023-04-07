@@ -167,9 +167,9 @@ internal sealed class BinaryTagWriter
     {
         await stream.WriteIntegerAsync(tag.Children.Length);
 
-        foreach (var value in tag.Children)
+        foreach (var child in tag.Children)
         {
-            await stream.WriteIntegerAsync(value);
+            await stream.WriteIntegerAsync(child);
         }
     }
 
@@ -177,9 +177,9 @@ internal sealed class BinaryTagWriter
     {
         await stream.WriteIntegerAsync(tag.Children.Length);
 
-        foreach (var value in tag.Children)
+        foreach (var child in tag.Children)
         {
-            await stream.WriteLongAsync(value);
+            await stream.WriteLongAsync(child);
         }
     }
 }
