@@ -25,6 +25,30 @@ internal sealed class BinaryTagWriter
 
         switch (tag)
         {
+            case ByteTag byteTag:
+                await WriteByteTagAsync(byteTag);
+                break;
+
+            case ShortTag shortTag:
+                await WriteShortTagAsync(shortTag);
+                break;
+
+            case IntegerTag integerTag:
+                await WriteIntegerTagAsync(integerTag);
+                break;
+
+            case LongTag longTag:
+                await WriteLongTagAsync(longTag);
+                break;
+
+            case FloatTag floatTag:
+                await WriteFloatTagAsync(floatTag);
+                break;
+
+            case DoubleTag doubleTag:
+                await WriteDoubleTagAsync(doubleTag);
+                break;
+
             case StringTag stringTag:
                 await WriteStringTagAsync(stringTag);
                 break;
@@ -36,6 +60,36 @@ internal sealed class BinaryTagWriter
             default:
                 throw new ArgumentOutOfRangeException(nameof(tag), tag, "Unknown tag type.");
         }
+    }
+
+    private async Task WriteByteTagAsync(ByteTag tag)
+    {
+        await stream.WriteBytesAsync(tag.Value);
+    }
+
+    private async Task WriteShortTagAsync(ShortTag tag)
+    {
+        await stream.WriteShortAsync(tag.Value);
+    }
+
+    private async Task WriteIntegerTagAsync(IntegerTag tag)
+    {
+        await stream.WriteIntegerAsync(tag.Value);
+    }
+
+    private async Task WriteLongTagAsync(LongTag tag)
+    {
+        await stream.WriteLongAsync(tag.Value);
+    }
+
+    private async Task WriteFloatTagAsync(FloatTag tag)
+    {
+        await stream.WriteFloatAsync(tag.Value);
+    }
+
+    private async Task WriteDoubleTagAsync(DoubleTag tag)
+    {
+        await stream.WriteDoubleAsync(tag.Value);
     }
 
     private async Task WriteStringTagAsync(StringTag tag)

@@ -46,4 +46,16 @@ internal sealed class BinaryStream
         var buffer = BitPrimitives.GetBytes(value, needSwap);
         await stream.WriteAsync(buffer);
     }
+
+    public async Task WriteFloatAsync(float value)
+    {
+        var buffer = BitPrimitives.GetBytes(value, needSwap);
+        await stream.WriteAsync(buffer);
+    }
+    
+    public async Task WriteDoubleAsync(double value)
+    {
+        var buffer = BitPrimitives.GetBytes(value, needSwap);
+        await stream.WriteAsync(buffer);
+    }
 }
