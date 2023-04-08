@@ -1,6 +1,7 @@
 ﻿using System.Buffers.Binary;
+using Raspite.Serializer.Extensions;
 
-namespace Raspite.Serializer.Extensions;
+namespace Raspite.Serializer;
 
 internal static class BitPrimitives
 {
