@@ -1,6 +1,6 @@
 ﻿namespace Raspite.Serializer;
 
-public sealed class BinaryStream
+internal sealed class BinaryStream
 {
     private readonly Stream stream;
     private readonly bool needSwap;
