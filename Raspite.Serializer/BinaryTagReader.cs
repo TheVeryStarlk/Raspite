@@ -29,6 +29,7 @@ internal sealed class BinaryTagReader
         Tag result = type switch
         {
             1 => ReadSignedByteTag(name),
+            8 => await ReadStringTagAsync(name),
             10 => await ReadCompoundTagAsync(name),
             _ => throw new BinaryTagReaderException("Unknown tag type.")
         };
@@ -38,12 +39,24 @@ internal sealed class BinaryTagReader
 
     private SignedByteTag ReadSignedByteTag(string name)
     {
-        var payload = stream.ReadSignedByte();
+        var value = stream.ReadSignedByte();
 
         return new SignedByteTag()
         {
             Name = name,
-            Value = payload
+            Value = value
+        };
+    }
+
+    private async Task<StringTag> ReadStringTagAsync(string name)
+    {
+        var size = await stream.ReadUnsignedShortAsync();
+        var value = Encoding.UTF8.GetString(await stream.ReadBytesAsync(size));
+
+        return new StringTag()
+        {
+            Name = name,
+            Value = value
         };
     }
 
@@ -51,7 +64,7 @@ internal sealed class BinaryTagReader
     {
         var children = new List<Tag>();
 
-        while (stream.CanRead)
+        while (stream.SpaceAvailable)
         {
             var current = stream.ReadByte();
 

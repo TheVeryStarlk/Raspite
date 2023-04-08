@@ -2,7 +2,7 @@
 
 internal sealed class BinaryStream
 {
-    public bool CanRead => stream.Length > stream.Position;
+    public bool SpaceAvailable => stream.Length > stream.Position;
 
     private readonly Stream stream;
     private readonly bool needSwap;

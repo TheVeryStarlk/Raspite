@@ -25,8 +25,8 @@ public static class BinaryTagSerializer
         options ??= new BinaryTagSerializerOptions();
 
         var binaryStream = new BinaryStream(stream, options.LittleEndian);
-        var writer = new BinaryTagReader(binaryStream);
+        var reader = new BinaryTagReader(binaryStream);
 
-        return (T) await writer.EvaluateAsync();
+        return (T) await reader.EvaluateAsync();
     }
 }
