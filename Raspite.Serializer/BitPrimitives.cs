@@ -46,4 +46,46 @@ internal static class BitPrimitives
             ? BitConverter.GetBytes(value.ReverseEndianness())
             : BitConverter.GetBytes(value);
     }
+
+    public static short ToShort(byte[] buffer, bool bigEndian)
+    {
+        return bigEndian
+            ? BinaryPrimitives.ReadInt16BigEndian(buffer)
+            : BinaryPrimitives.ReadInt16LittleEndian(buffer);
+    }
+
+    public static ushort ToUnsignedShort(byte[] buffer, bool bigEndian)
+    {
+        return bigEndian
+            ? BinaryPrimitives.ReadUInt16BigEndian(buffer)
+            : BinaryPrimitives.ReadUInt16LittleEndian(buffer);
+    }
+
+    public static int ToInteger(byte[] buffer, bool bigEndian)
+    {
+        return bigEndian
+            ? BinaryPrimitives.ReadInt32BigEndian(buffer)
+            : BinaryPrimitives.ReadInt32LittleEndian(buffer);
+    }
+
+    public static long ToLong(byte[] buffer, bool bigEndian)
+    {
+        return bigEndian
+            ? BinaryPrimitives.ReadInt64BigEndian(buffer)
+            : BinaryPrimitives.ReadInt64LittleEndian(buffer);
+    }
+
+    public static float ToFloat(byte[] buffer, bool bigEndian)
+    {
+        return bigEndian
+            ? BinaryPrimitives.ReadSingleBigEndian(buffer)
+            : BinaryPrimitives.ReadSingleLittleEndian(buffer);
+    }
+
+    public static double ToDouble(byte[] buffer, bool bigEndian)
+    {
+        return bigEndian
+            ? BinaryPrimitives.ReadDoubleBigEndian(buffer)
+            : BinaryPrimitives.ReadDoubleLittleEndian(buffer);
+    }
 }

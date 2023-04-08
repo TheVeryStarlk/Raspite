@@ -5,17 +5,10 @@ var tag = new CompoundTag()
 {
     Children = new Tag[]
     {
-        new CompoundTag()
+        new StringTag()
         {
-            Name = "Parent",
-            Children = new Tag[]
-            {
-                new StringTag()
-                {
-                    Name = "Username",
-                    Value = "Raspite"
-                }
-            }
+            Name = "Username",
+            Value = "Raspite"
         }
     }
 };
