@@ -27,8 +27,11 @@ internal sealed class BinaryTagWriter
         if (!isNameless)
         {
             await stream.WriteBytesAsync(tag.Type);
-            await stream.WriteShortAsync((short) tag.Name.Length);
-            await stream.WriteBytesAsync(Encoding.UTF8.GetBytes(tag.Name));
+
+            var buffer = Encoding.UTF8.GetBytes(tag.Name);
+
+            await stream.WriteShortAsync((short) buffer.Length);
+            await stream.WriteBytesAsync(buffer);
         }
 
         switch (tag)
