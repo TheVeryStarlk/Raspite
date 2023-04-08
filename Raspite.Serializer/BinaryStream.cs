@@ -2,6 +2,8 @@
 
 internal sealed class BinaryStream
 {
+    public bool CanRead => stream.Length > stream.Position;
+
     private readonly Stream stream;
     private readonly bool needSwap;
     private readonly bool bigEndian;
@@ -12,6 +14,16 @@ internal sealed class BinaryStream
 
         needSwap = BitConverter.IsLittleEndian != littleEndian;
         bigEndian = !littleEndian;
+    }
+
+    public void WriteByte(byte value)
+    {
+        stream.WriteByte(value);
+    }
+
+    public void WriteSignedByte(sbyte value)
+    {
+        stream.WriteByte((byte) value);
     }
 
     public async Task WriteBytesAsync(params byte[] value)
@@ -58,6 +70,16 @@ internal sealed class BinaryStream
     {
         var buffer = BitPrimitives.GetBytes(value, needSwap);
         await stream.WriteAsync(buffer);
+    }
+
+    public byte ReadByte()
+    {
+        return (byte) stream.ReadByte();
+    }
+
+    public sbyte ReadSignedByte()
+    {
+        return (sbyte) stream.ReadByte();
     }
 
     public async Task<byte[]> ReadBytesAsync(int size)

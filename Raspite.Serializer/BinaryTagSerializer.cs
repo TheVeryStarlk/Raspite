@@ -18,4 +18,15 @@ public static class BinaryTagSerializer
 
         await writer.EvaluateAsync(tag);
     }
+
+    public static async Task<T> DeserializeAsync<T>(Stream stream, BinaryTagSerializerOptions? options = null)
+        where T : Tag
+    {
+        options ??= new BinaryTagSerializerOptions();
+
+        var binaryStream = new BinaryStream(stream, options.LittleEndian);
+        var writer = new BinaryTagReader(binaryStream);
+
+        return (T) await writer.EvaluateAsync();
+    }
 }

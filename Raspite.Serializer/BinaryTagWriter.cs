@@ -26,7 +26,7 @@ internal sealed class BinaryTagWriter
         // Do not write the headers if we're inside a list.
         if (!isNameless)
         {
-            await stream.WriteBytesAsync(tag.Type);
+            stream.WriteByte(tag.Type);
 
             var buffer = Encoding.UTF8.GetBytes(tag.Name);
 
@@ -37,7 +37,7 @@ internal sealed class BinaryTagWriter
         switch (tag)
         {
             case SignedByteTag signedByteTag:
-                await WriteSignedByteTagAsync(signedByteTag);
+                WriteSignedByteTag(signedByteTag);
                 break;
 
             case ShortTag shortTag:
@@ -103,9 +103,9 @@ internal sealed class BinaryTagWriter
         }
     }
 
-    private async Task WriteSignedByteTagAsync(SignedByteTag tag)
+    private void WriteSignedByteTag(SignedByteTag tag)
     {
-        await stream.WriteSignedBytesAsync(tag.Value);
+        stream.WriteSignedByte(tag.Value);
     }
 
     private async Task WriteShortTagAsync(ShortTag tag)
@@ -151,7 +151,7 @@ internal sealed class BinaryTagWriter
     {
         var predefinedType = tag.Children.FirstOrDefault()?.Type ?? 0;
 
-        await stream.WriteBytesAsync(predefinedType);
+        stream.WriteByte(predefinedType);
         await stream.WriteIntegerAsync(tag.Children.Length);
 
         foreach (var child in tag.Children)
@@ -178,7 +178,7 @@ internal sealed class BinaryTagWriter
             await EvaluateAsync(child);
         }
 
-        await stream.WriteBytesAsync(0);
+        stream.WriteByte(0);
         isNameless = wasNameless;
     }
 
