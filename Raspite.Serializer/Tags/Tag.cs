@@ -2,7 +2,7 @@
 
 public abstract class Tag
 {
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = "";
 
     internal abstract byte Type { get; }
 }

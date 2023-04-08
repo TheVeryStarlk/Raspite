@@ -138,8 +138,10 @@ internal sealed class BinaryTagWriter
 
     private async Task WriteStringTagAsync(StringTag tag)
     {
-        await stream.WriteUnsignedShortAsync((ushort) tag.Value.Length);
-        await stream.WriteBytesAsync(Encoding.UTF8.GetBytes(tag.Value));
+        var buffer = Encoding.UTF8.GetBytes(tag.Value);
+
+        await stream.WriteUnsignedShortAsync((ushort) buffer.Length);
+        await stream.WriteBytesAsync(buffer);
     }
 
     private async Task WriteListTagAsync(CollectionTag<Tag> tag)
