@@ -36,8 +36,8 @@ internal sealed class BinaryTagWriter
 
         switch (tag)
         {
-            case ByteTag byteTag:
-                await WriteByteTagAsync(byteTag);
+            case SignedByteTag signedByteTag:
+                await WriteSignedByteTagAsync(signedByteTag);
                 break;
 
             case ShortTag shortTag:
@@ -103,9 +103,9 @@ internal sealed class BinaryTagWriter
         }
     }
 
-    private async Task WriteByteTagAsync(ByteTag tag)
+    private async Task WriteSignedByteTagAsync(SignedByteTag tag)
     {
-        await stream.WriteBytesAsync(tag.Value);
+        await stream.WriteSignedBytesAsync(tag.Value);
     }
 
     private async Task WriteShortTagAsync(ShortTag tag)
