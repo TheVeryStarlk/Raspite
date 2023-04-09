@@ -1,4 +1,5 @@
-﻿using Raspite.Serializer.Tags;
+﻿using Raspite.Serializer.Streams;
+using Raspite.Serializer.Tags;
 
 namespace Raspite.Serializer;
 
@@ -27,6 +28,6 @@ public static class BinaryTagSerializer
         var binaryStream = new BinaryStream(stream, options.LittleEndian);
         var reader = new BinaryTagReader(binaryStream);
 
-        return (T) await reader.EvaluateAsync();
+        return await reader.EvaluateAsync<T>();
     }
 }

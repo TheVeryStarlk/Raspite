@@ -1,7 +1,7 @@
 ﻿using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 
-namespace Raspite.Serializer.Extensions;
+namespace Raspite.Serializer.Streams;
 
 // https://github.com/ForeverZer0/SharpNBT/blob/master/SharpNBT/EndianExtensions.cs
 internal static class EndianExtensions

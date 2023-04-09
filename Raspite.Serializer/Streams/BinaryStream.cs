@@ -1,9 +1,7 @@
-﻿namespace Raspite.Serializer;
+﻿namespace Raspite.Serializer.Streams;
 
 internal sealed class BinaryStream
 {
-    public bool SpaceAvailable => stream.Length > stream.Position;
-
     private readonly Stream stream;
     private readonly bool needSwap;
     private readonly bool bigEndian;
@@ -72,9 +70,9 @@ internal sealed class BinaryStream
         await stream.WriteAsync(buffer);
     }
 
-    public byte ReadByte()
+    public int ReadByte()
     {
-        return (byte) stream.ReadByte();
+        return stream.ReadByte();
     }
 
     public sbyte ReadSignedByte()

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Raspite.Serializer.Streams;
 using Raspite.Serializer.Tags;
 
 namespace Raspite.Serializer;
@@ -19,9 +20,9 @@ internal sealed class BinaryTagReader
         this.stream = stream;
     }
 
-    public async Task<Tag> EvaluateAsync(byte? type = null)
+    public async Task<T> EvaluateAsync<T>(byte? type = null) where T : Tag
     {
-        type ??= stream.ReadByte();
+        type ??= (byte) stream.ReadByte();
 
         var size = await stream.ReadShortAsync();
         var name = Encoding.UTF8.GetString(await stream.ReadBytesAsync(size));
@@ -34,7 +35,7 @@ internal sealed class BinaryTagReader
             _ => throw new BinaryTagReaderException("Unknown tag type.")
         };
 
-        return result;
+        return (T) result;
     }
 
     private SignedByteTag ReadSignedByteTag(string name)
@@ -64,22 +65,26 @@ internal sealed class BinaryTagReader
     {
         var children = new List<Tag>();
 
-        while (stream.SpaceAvailable)
+        while (true)
         {
             var current = stream.ReadByte();
 
-            if (current == 0)
+            switch (current)
             {
-                return new CompoundTag()
-                {
-                    Name = name,
-                    Children = children.ToArray()
-                };
+                case -1:
+                    throw new BinaryTagReaderException("Compound tag did not end with an ending tag.");
+
+                case 0:
+                    return new CompoundTag()
+                    {
+                        Name = name,
+                        Children = children.ToArray()
+                    };
+
+                default:
+                    children.Add(await EvaluateAsync<Tag>((byte) current));
+                    break;
             }
-
-            children.Add(await EvaluateAsync(current));
         }
-
-        throw new BinaryTagReaderException("Compound tag did not end with an ending tag.");
     }
 }
