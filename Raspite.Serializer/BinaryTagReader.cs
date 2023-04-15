@@ -1,9 +1,11 @@
-﻿using System.Text;
-using Raspite.Serializer.Streams;
+﻿using Raspite.Serializer.Streams;
 using Raspite.Serializer.Tags;
 
 namespace Raspite.Serializer;
 
+/// <summary>
+/// Represents an error that occured while reading.
+/// </summary>
 public sealed class BinaryTagReaderException : Exception
 {
     public BinaryTagReaderException(string message) : base(message)
@@ -13,9 +15,9 @@ public sealed class BinaryTagReaderException : Exception
 
 internal sealed class BinaryTagReader
 {
-    private readonly BinaryStream stream;
+    private readonly ReadableBinaryStream stream;
 
-    public BinaryTagReader(BinaryStream stream)
+    public BinaryTagReader(ReadableBinaryStream stream)
     {
         this.stream = stream;
     }
@@ -24,8 +26,7 @@ internal sealed class BinaryTagReader
     {
         type ??= (byte) stream.ReadByte();
 
-        var size = await stream.ReadShortAsync();
-        var name = Encoding.UTF8.GetString(await stream.ReadBytesAsync(size));
+        var name = await stream.ReadStringAsync();
 
         Tag result = type switch
         {
@@ -51,8 +52,7 @@ internal sealed class BinaryTagReader
 
     private async Task<StringTag> ReadStringTagAsync(string name)
     {
-        var size = await stream.ReadUnsignedShortAsync();
-        var value = Encoding.UTF8.GetString(await stream.ReadBytesAsync(size));
+        var value = await stream.ReadStringAsync();
 
         return new StringTag()
         {

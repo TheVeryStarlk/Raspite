@@ -1,10 +1,12 @@
-﻿using System.Text;
-using Raspite.Serializer.Streams;
+﻿using Raspite.Serializer.Streams;
 using Raspite.Serializer.Tags;
 
 namespace Raspite.Serializer;
 
-public sealed class BinaryTagWriterException : Exception
+/// <summary>
+/// Represents an error that occured while writing.
+/// </summary>
+public sealed class BinaryTagWriterException : BinaryTagSerializationException
 {
     public BinaryTagWriterException(string message) : base(message)
     {
@@ -15,9 +17,9 @@ internal sealed class BinaryTagWriter
 {
     private bool isNameless;
 
-    private readonly BinaryStream stream;
+    private readonly WriteableBinaryStream stream;
 
-    public BinaryTagWriter(BinaryStream stream)
+    public BinaryTagWriter(WriteableBinaryStream stream)
     {
         this.stream = stream;
     }
@@ -28,11 +30,7 @@ internal sealed class BinaryTagWriter
         if (!isNameless)
         {
             stream.WriteByte(tag.Type);
-
-            var buffer = Encoding.UTF8.GetBytes(tag.Name);
-
-            await stream.WriteShortAsync((short) buffer.Length);
-            await stream.WriteBytesAsync(buffer);
+            await stream.WriteStringAsync(tag.Name);
         }
 
         switch (tag)
@@ -142,10 +140,7 @@ internal sealed class BinaryTagWriter
 
     private async Task WriteStringTagAsync(StringTag tag)
     {
-        var buffer = Encoding.UTF8.GetBytes(tag.Value);
-
-        await stream.WriteUnsignedShortAsync((ushort) buffer.Length);
-        await stream.WriteBytesAsync(buffer);
+        await stream.WriteStringAsync(tag.Value);
     }
 
     private async Task WriteListTagAsync(CollectionTag<Tag> tag)

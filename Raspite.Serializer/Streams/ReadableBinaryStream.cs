@@ -1,73 +1,22 @@
-﻿namespace Raspite.Serializer.Streams;
+﻿using System.Text;
 
-internal sealed class BinaryStream
+namespace Raspite.Serializer.Streams;
+
+/// <summary>
+/// Wraps a <see cref="Stream"/> and provides methods to read common used types.
+/// </summary>
+internal sealed class ReadableBinaryStream
 {
     private readonly Stream stream;
-    private readonly bool needSwap;
     private readonly bool bigEndian;
 
-    public BinaryStream(Stream stream, bool littleEndian)
+    public ReadableBinaryStream(Stream stream, bool littleEndian)
     {
-        this.stream = stream;
+        this.stream = stream.CanRead
+            ? stream
+            : throw new BinaryTagSerializationException("Stream does not support reading.");
 
-        needSwap = BitConverter.IsLittleEndian != littleEndian;
         bigEndian = !littleEndian;
-    }
-
-    public void WriteByte(byte value)
-    {
-        stream.WriteByte(value);
-    }
-
-    public void WriteSignedByte(sbyte value)
-    {
-        stream.WriteByte((byte) value);
-    }
-
-    public async Task WriteBytesAsync(params byte[] value)
-    {
-        await stream.WriteAsync(value);
-    }
-
-    public async Task WriteSignedBytesAsync(params sbyte[] value)
-    {
-        await stream.WriteAsync(Array.ConvertAll(value, input => (byte) input));
-    }
-
-    public async Task WriteShortAsync(short value)
-    {
-        var buffer = BitPrimitives.GetBytes(value, needSwap);
-        await stream.WriteAsync(buffer);
-    }
-
-    public async Task WriteUnsignedShortAsync(ushort value)
-    {
-        var buffer = BitPrimitives.GetBytes(value, needSwap);
-        await stream.WriteAsync(buffer);
-    }
-
-    public async Task WriteIntegerAsync(int value)
-    {
-        var buffer = BitPrimitives.GetBytes(value, needSwap);
-        await stream.WriteAsync(buffer);
-    }
-
-    public async Task WriteLongAsync(long value)
-    {
-        var buffer = BitPrimitives.GetBytes(value, needSwap);
-        await stream.WriteAsync(buffer);
-    }
-
-    public async Task WriteFloatAsync(float value)
-    {
-        var buffer = BitPrimitives.GetBytes(value, needSwap);
-        await stream.WriteAsync(buffer);
-    }
-
-    public async Task WriteDoubleAsync(double value)
-    {
-        var buffer = BitPrimitives.GetBytes(value, needSwap);
-        await stream.WriteAsync(buffer);
     }
 
     public int ReadByte()
@@ -142,5 +91,13 @@ internal sealed class BinaryStream
         await stream.ReadExactlyAsync(buffer);
 
         return BitPrimitives.ToDouble(buffer, bigEndian);
+    }
+
+    public async Task<string> ReadStringAsync()
+    {
+        var size = await ReadUnsignedShortAsync();
+        var buffer = await ReadBytesAsync(size);
+
+        return Encoding.UTF8.GetString(buffer);
     }
 }
