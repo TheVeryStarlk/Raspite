@@ -4,7 +4,7 @@ using Raspite.Serializer.Tags;
 namespace Raspite.Serializer;
 
 /// <summary>
-/// Represents an error that occured while writing.
+/// Represents an error that occurred while writing.
 /// </summary>
 public sealed class BinaryTagWriterException : BinaryTagSerializationException
 {

@@ -27,7 +27,7 @@ internal static class EndianExtensions
 internal static class BitPrimitives
 {
     /// <summary>
-    /// Gets the the bytes of a value.
+    /// Gets the bytes of a value.
     /// </summary>
     /// <param name="value">The value to which get the bytes from.</param>
     /// <param name="swap">Whether to reverse endianness or not.</param>
@@ -80,7 +80,7 @@ internal static class BitPrimitives
     }
 
     /// <summary>
-    /// Gets the value from bytes. 
+    /// Gets the value from bytes.
     /// </summary>
     /// <param name="buffer">The byte representation of the value.</param>
     /// <param name="bigEndian">Whether the provided buffer is in big endian or not.</param>

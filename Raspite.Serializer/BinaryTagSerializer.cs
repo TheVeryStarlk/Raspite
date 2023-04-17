@@ -53,6 +53,6 @@ public static class BinaryTagSerializer
         var binaryStream = new ReadableBinaryStream(stream, options.LittleEndian);
         var reader = new BinaryTagReader(binaryStream);
 
-        return await reader.EvaluateAsync<T>();
+        return (T) await reader.EvaluateAsync();
     }
 }

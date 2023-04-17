@@ -4,7 +4,7 @@ using Raspite.Serializer.Tags;
 namespace Raspite.Serializer;
 
 /// <summary>
-/// Represents an error that occured while reading.
+/// Represents an error that occurred while reading.
 /// </summary>
 public sealed class BinaryTagReaderException : Exception
 {
@@ -24,13 +24,13 @@ internal sealed class BinaryTagReader
         this.stream = stream;
     }
 
-    public async Task<T> EvaluateAsync<T>(byte? type = null) where T : Tag
+    public async Task<Tag> EvaluateAsync(byte? type = null)
     {
         type ??= (byte) stream.ReadByte();
 
         var name = string.Empty;
 
-        // Do not write the headers if we're inside a list.
+        // Do not read the name if we're inside a list.
         if (!isNameless)
         {
             name = await stream.ReadStringAsync();
@@ -53,7 +53,7 @@ internal sealed class BinaryTagReader
             _ => throw new BinaryTagReaderException("Unknown tag type.")
         };
 
-        return (T) result;
+        return result;
     }
 
     private SignedByteTag ReadSignedByteTag(string name)
@@ -154,7 +154,7 @@ internal sealed class BinaryTagReader
         for (var index = 0; index < size; index++)
         {
             isNameless = true;
-            children[index] = await EvaluateAsync<Tag>(predefinedType);
+            children[index] = await EvaluateAsync(predefinedType);
         }
 
         isNameless = false;
@@ -192,7 +192,7 @@ internal sealed class BinaryTagReader
                     };
 
                 default:
-                    children.Add(await EvaluateAsync<Tag>((byte) current));
+                    children.Add(await EvaluateAsync((byte) current));
                     break;
             }
         }
