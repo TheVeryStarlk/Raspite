@@ -9,7 +9,7 @@ namespace Raspite.Serializer;
 public sealed class BinaryTagSerializerOptions
 {
     /// <summary>
-    /// Represents the endianness of the data. 
+    /// Represents the endianness of the data.
     /// </summary>
     /// <remarks>
     /// False by default.

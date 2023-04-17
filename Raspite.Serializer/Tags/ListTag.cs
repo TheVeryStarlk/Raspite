@@ -1,18 +1,18 @@
 ﻿namespace Raspite.Serializer.Tags;
 
 /// <inheritdoc cref="Tag{T}"/>
-public sealed class ListTag<T> : CollectionTag<T> where T : Tag
+public sealed class ListTag : CollectionTag<Tag>
 {
     internal override byte Type => 9;
 
     /// <summary>
     /// Searches inside the whole list tag for a matching predicate tag.
     /// </summary>
-    /// <param name="name">The tag's name.</param>
+    /// <typeparam name="T">The tag's type.</typeparam>
     /// <returns>The tag that matches the provided name.</returns>
-    public T First(string name)
+    public T First<T>() where T : Tag
     {
-        var tag = Children.First(tag => tag.Name == name);
-        return tag;
+        var tag = Children.First(tag => typeof(T) == tag.GetType());
+        return (T) tag;
     }
 }

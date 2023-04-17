@@ -15,6 +15,8 @@ public sealed class BinaryTagReaderException : Exception
 
 internal sealed class BinaryTagReader
 {
+    private bool isNameless;
+
     private readonly ReadableBinaryStream stream;
 
     public BinaryTagReader(ReadableBinaryStream stream)
@@ -26,7 +28,13 @@ internal sealed class BinaryTagReader
     {
         type ??= (byte) stream.ReadByte();
 
-        var name = await stream.ReadStringAsync();
+        var name = string.Empty;
+
+        // Do not write the headers if we're inside a list.
+        if (!isNameless)
+        {
+            name = await stream.ReadStringAsync();
+        }
 
         Tag result = type switch
         {
@@ -38,6 +46,7 @@ internal sealed class BinaryTagReader
             6 => await ReadDoubleTagAsync(name),
             7 => await ReadSignedByteCollectionTagAsync(name),
             8 => await ReadStringTagAsync(name),
+            9 => await ReadListTagAsync(name),
             10 => await ReadCompoundTagAsync(name),
             11 => await ReadIntegerCollectionTagAsync(name),
             12 => await ReadLongCollectionTagAsync(name),
@@ -136,9 +145,33 @@ internal sealed class BinaryTagReader
         };
     }
 
+    private async Task<ListTag> ReadListTagAsync(string name)
+    {
+        var predefinedType = (byte) stream.ReadByte();
+        var size = await stream.ReadIntegerAsync();
+        var children = new Tag[size];
+
+        for (var index = 0; index < size; index++)
+        {
+            isNameless = true;
+            children[index] = await EvaluateAsync<Tag>(predefinedType);
+        }
+
+        isNameless = false;
+
+        return new ListTag()
+        {
+            Name = name,
+            Children = children
+        };
+    }
+
     private async Task<CompoundTag> ReadCompoundTagAsync(string name)
     {
         var children = new List<Tag>();
+
+        var wasNameless = isNameless;
+        isNameless = false;
 
         while (true)
         {
@@ -150,6 +183,8 @@ internal sealed class BinaryTagReader
                     throw new BinaryTagReaderException("Compound tag did not end with an ending tag.");
 
                 case 0:
+                    isNameless = wasNameless;
+
                     return new CompoundTag()
                     {
                         Name = name,

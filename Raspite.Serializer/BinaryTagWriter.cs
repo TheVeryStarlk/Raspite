@@ -67,6 +67,10 @@ internal sealed class BinaryTagWriter
                 await WriteStringTagAsync(stringTag);
                 break;
 
+            case ListTag listTag:
+                await WriteListTagAsync(listTag);
+                break;
+
             case CompoundTag compoundTag:
                 await WriteCompoundTagAsync(compoundTag);
                 break;
@@ -80,24 +84,6 @@ internal sealed class BinaryTagWriter
                 break;
 
             default:
-                // This is a walk-around for not being able to know the generic type of
-                // a list tag in compile-time thus making it impossible* to add a case for it.
-                if (tag.GetType().Name == typeof(ListTag<>).Name)
-                {
-                    var children = (Tag[]?) tag
-                        .GetType()
-                        .GetProperty("Children")?
-                        .GetValue(tag);
-
-                    await WriteListTagAsync(new CompoundTag()
-                    {
-                        Name = tag.Name,
-                        Children = children ?? Array.Empty<Tag>()
-                    });
-
-                    break;
-                }
-
                 throw new BinaryTagWriterException("Unknown tag type.");
         }
     }
@@ -143,7 +129,7 @@ internal sealed class BinaryTagWriter
         await stream.WriteStringAsync(tag.Value);
     }
 
-    private async Task WriteListTagAsync(CollectionTag<Tag> tag)
+    private async Task WriteListTagAsync(ListTag tag)
     {
         var predefinedType = tag.Children.FirstOrDefault()?.Type ?? 0;
 
