@@ -1,7 +1,7 @@
 ﻿namespace Raspite.Serializer;
 
 /// <summary>
-/// Represents a faulty state for the binary tag serializer.
+/// Represents an error from the binary tag serializer.
 /// </summary>
 public class BinaryTagSerializationException : Exception
 {

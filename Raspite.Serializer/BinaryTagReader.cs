@@ -169,8 +169,8 @@ internal sealed class BinaryTagReader
     private async Task<CompoundTag> ReadCompoundTagAsync(string name)
     {
         var children = new List<Tag>();
-
         var wasNameless = isNameless;
+
         isNameless = false;
 
         while (true)
