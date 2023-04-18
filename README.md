@@ -10,7 +10,7 @@ An up-to-date and easy to use library for serializing/deserializing Minecraft's 
 # Usage
 
 #### Serializing
-Serializing takes a tag and a stream to serialize to:
+* Serializing takes a tag and a stream to serialize to:
 ```cs
 var tag = new StringTag()
 {
@@ -21,7 +21,7 @@ await using var stream = new MemoryStream();
 await BinaryTagSerializer.SerializeAsync(tag, stream);
 ```
 
-Deserializing is pretty much the same, but in a reversed way:
+* Deserializing is pretty much the same, but in a reversed way:
 ```cs
 await using var stream = new MemoryStream();
 var tag = await BinaryTagSerializer.DeserializeAsync<StringTag>(file);
