@@ -8,13 +8,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Raspite.Serializer\Raspite.Serializer.csproj" />
+        <ProjectReference Include="..\Raspite.Serializer\Raspite.Serializer.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="bigtest.nbt">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+        <None Update="bigtest.nbt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>
