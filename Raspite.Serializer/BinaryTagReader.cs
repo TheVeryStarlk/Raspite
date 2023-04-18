@@ -50,7 +50,7 @@ internal sealed class BinaryTagReader
             10 => await ReadCompoundTagAsync(name),
             11 => await ReadIntegerCollectionTagAsync(name),
             12 => await ReadLongCollectionTagAsync(name),
-            _ => throw new BinaryTagReaderException("Unknown tag type.")
+            _ => throw new BinaryTagReaderException($"Unknown tag type {type}.")
         };
 
         return result;

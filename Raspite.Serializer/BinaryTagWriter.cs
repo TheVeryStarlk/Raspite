@@ -84,7 +84,7 @@ internal sealed class BinaryTagWriter
                 break;
 
             default:
-                throw new BinaryTagWriterException("Unknown tag type.");
+                throw new BinaryTagWriterException($"Unknown tag type '{tag}'.");
         }
     }
 
