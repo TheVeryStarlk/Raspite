@@ -28,7 +28,8 @@ public static class BinaryTagSerializer
     /// <param name="tag">The tag to serialize.</param>
     /// <param name="stream">The destination stream.</param>
     /// <param name="options">Options to control the way serializing behaves.</param>
-    public static async Task SerializeAsync(Tag tag, Stream stream, BinaryTagSerializerOptions? options = null)
+    public static async Task SerializeAsync<T>(T tag, Stream stream, BinaryTagSerializerOptions? options = null)
+        where T : Tag
     {
         options ??= new BinaryTagSerializerOptions();
 

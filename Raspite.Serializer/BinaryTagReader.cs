@@ -148,6 +148,7 @@ internal sealed class BinaryTagReader
     private async Task<ListTag> ReadListTagAsync(string name)
     {
         var predefinedType = (byte) stream.ReadByte();
+
         var size = await stream.ReadIntegerAsync();
         var children = new Tag[size];
 
