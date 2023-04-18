@@ -1,4 +1,4 @@
-[![Raspite.Serializer](https://img.shields.io/nuget/v/Raspite.Serializer)](https://www.nuget.org/packages/Raspite.Serializer/1.1.0/)
+[![Raspite.Serializer](https://img.shields.io/nuget/v/Raspite.Serializer)](https://www.nuget.org/packages/Raspite.Serializer/2.0.0/)
 
 <p align="center">
   <img width="175" height="175" align="center" src="Raspite.Serializer/raspite.png">
