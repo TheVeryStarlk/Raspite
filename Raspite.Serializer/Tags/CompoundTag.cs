@@ -24,4 +24,12 @@ public sealed class CompoundTag : CollectionTag<Tag>
 
         return (T) tag;
     }
+
+    public static implicit operator CompoundTag(Tag[] children)
+    {
+        return new CompoundTag()
+        {
+            Children = children
+        };
+    }
 }

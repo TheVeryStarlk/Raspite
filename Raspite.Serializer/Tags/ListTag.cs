@@ -15,4 +15,12 @@ public sealed class ListTag : CollectionTag<Tag>
         var tag = Children.First(tag => typeof(T) == tag.GetType());
         return (T) tag;
     }
+
+    public static implicit operator ListTag(Tag[] children)
+    {
+        return new ListTag()
+        {
+            Children = children
+        };
+    }
 }
