@@ -1,50 +1,37 @@
-﻿namespace Raspite.Serializer.Tags;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 
-/// <summary>
-/// Represents the base class of a Minecraft tag.
-/// </summary>
-public abstract class Tag
+namespace Raspite.Serializer.Tags;
+
+public abstract record Tag
 {
-    /// <summary>
-    /// Represents the tag's name.
-    /// </summary>
-    /// <remarks>
-    /// Tags may not have a name when inside a <see cref="ListTag{T}"/>.
-    /// </remarks>
-    public string Name { get; set; } = "";
+	public abstract byte Identifier { get; }
 
-    /// <summary>
-    /// Represents the tag's type. Used for serializing.
-    /// </summary>
-    internal abstract byte Type { get; }
+	public string Name { get; set; } = string.Empty;
+
+	internal virtual int CalculateLength(bool nameless)
+	{
+		return nameless ? 0 : sizeof(byte) + sizeof(ushort) + Encoding.UTF8.GetByteCount(Name);
+	}
 }
 
-/// <summary>
-/// Represents a Minecraft tag that stores a value.
-/// </summary>
-/// <typeparam name="T">The value's type.</typeparam>
-public abstract class Tag<T> : Tag
+public abstract record Tag<T> : Tag
 {
-    /// <summary>
-    /// Represents the tag's value.
-    /// </summary>
-    public required T Value { get; set; }
+	public required T Value { get; set; }
+
+	internal override int CalculateLength(bool nameless)
+	{
+		return base.CalculateLength(nameless) + Unsafe.SizeOf<T>();
+	}
 }
 
-/// <summary>
-/// Represents a Minecraft tag that stores other <see cref="Tag"/>(s).
-/// </summary>
-/// <typeparam name="T">The value's type.</typeparam>
-public abstract class CollectionTag<T> : Tag
+public abstract record CollectionTag<T> : Tag
 {
-    /// <summary>
-    /// Represents the stored tags.
-    /// </summary>
-    public required T[] Children { get; set; }
+	public required T[] Children { get; set; }
 
-    public T this[int index]
-    {
-        get => Children[index];
-        set => Children[index] = value;
-    }
+	public T this[int index]
+	{
+		get => Children[index];
+		set => Children[index] = value;
+	}
 }

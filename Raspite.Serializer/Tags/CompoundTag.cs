@@ -1,35 +1,67 @@
 ﻿namespace Raspite.Serializer.Tags;
 
-/// <inheritdoc cref="Tag{T}"/>
-public sealed class CompoundTag : CollectionTag<Tag>
+public sealed record CompoundTag : CollectionTag<Tag>
 {
-    internal override byte Type => 10;
+	public override byte Identifier => 10;
 
-    /// <summary>
-    /// Searches inside the whole compound tag for a matching predicate tag.
-    /// </summary>
-    /// <param name="name">The tag's name.</param>
-    /// <typeparam name="T">The tag's type.</typeparam>
-    /// <returns>The tag that matches the provided name.</returns>
-    public T First<T>(string? name = null) where T : Tag
-    {
-        var tag = Children.First(tag =>
-        {
-            var typeMatches = typeof(T) == tag.GetType();
+	private CompoundTag()
+	{
+	}
 
-            return name is not null
-                ? typeMatches && tag.Name == name
-                : typeMatches;
-        });
+	public static CompoundTag Create(Tag[] children, string name = "")
+	{
+		return new CompoundTag
+		{
+			Name = name,
+			Children = children
+		};
+	}
 
-        return (T) tag;
-    }
+	public static CompoundTagBuilder Create(string name = "")
+	{
+		return new CompoundTagBuilder(name);
+	}
 
-    public static implicit operator CompoundTag(Tag[] children)
-    {
-        return new CompoundTag()
-        {
-            Children = children
-        };
-    }
+	public T First<T>(string? name = "") where T : Tag
+	{
+		var tag = Children.First(tag =>
+		{
+			var typeMatches = typeof(T) == tag.GetType();
+
+			return name is not null
+				? typeMatches && tag.Name == name
+				: typeMatches;
+		});
+
+		return (T) tag;
+	}
+
+	internal override int CalculateLength(bool nameless)
+	{
+		return base.CalculateLength(nameless)
+		       + Children.Sum(child => child.CalculateLength(false))
+		       + sizeof(byte);
+	}
+}
+
+public sealed class CompoundTagBuilder
+{
+	private readonly string name;
+	private readonly List<Tag> children = [];
+
+	internal CompoundTagBuilder(string name)
+	{
+		this.name = name;
+	}
+
+	public CompoundTagBuilder Add(Tag tag)
+	{
+		children.Add(tag);
+		return this;
+	}
+
+	public CompoundTag Build()
+	{
+		return CompoundTag.Create(children.ToArray(), name);
+	}
 }

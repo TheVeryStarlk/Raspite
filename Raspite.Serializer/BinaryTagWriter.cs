@@ -1,186 +1,129 @@
-﻿using Raspite.Serializer.Streams;
+﻿using System.Runtime.InteropServices;
 using Raspite.Serializer.Tags;
 
 namespace Raspite.Serializer;
 
-/// <summary>
-/// Represents an error that occurred while writing.
-/// </summary>
-public sealed class BinaryTagWriterException : BinaryTagSerializationException
+internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, uint maximumDepth)
 {
-    public BinaryTagWriterException(string message) : base(message)
-    {
-    }
-}
+	public int Position => writer.Position;
 
-internal sealed class BinaryTagWriter
-{
-    private bool isNameless;
+	private SpanWriter writer = new(span, littleEndian);
+	private uint maximumDepth = maximumDepth;
+	private bool nameless;
 
-    private readonly WriteableBinaryStream stream;
+	public void WriteTag(Tag tag)
+	{
+		if (!nameless)
+		{
+			writer.WriteByte(tag.Identifier);
+			writer.WriteString(tag.Name);
+		}
 
-    public BinaryTagWriter(WriteableBinaryStream stream)
-    {
-        this.stream = stream;
-    }
+		switch (tag)
+		{
+			case ByteTag current:
+				writer.WriteByte(current.Value);
+				break;
 
-    public async Task EvaluateAsync(Tag tag)
-    {
-        // Do not write the headers if we're inside a list.
-        if (!isNameless)
-        {
-            stream.WriteByte(tag.Type);
-            await stream.WriteStringAsync(tag.Name);
-        }
+			case ShortTag current:
+				writer.WriteShort(current.Value);
+				break;
 
-        switch (tag)
-        {
-            case SignedByteTag signedByteTag:
-                WriteSignedByteTag(signedByteTag);
-                break;
+			case IntegerTag current:
+				writer.WriteInteger(current.Value);
+				break;
 
-            case ShortTag shortTag:
-                await WriteShortTagAsync(shortTag);
-                break;
+			case LongTag current:
+				writer.WriteLong(current.Value);
+				break;
 
-            case IntegerTag integerTag:
-                await WriteIntegerTagAsync(integerTag);
-                break;
+			case FloatTag current:
+				writer.WriteFloat(current.Value);
+				break;
 
-            case LongTag longTag:
-                await WriteLongTagAsync(longTag);
-                break;
+			case DoubleTag current:
+				writer.WriteDouble(current.Value);
+				break;
 
-            case FloatTag floatTag:
-                await WriteFloatTagAsync(floatTag);
-                break;
+			case ByteCollectionTag current:
+				writer.WriteInteger(current.Children.Length);
+				writer.Write(current.Children);
+				break;
 
-            case DoubleTag doubleTag:
-                await WriteDoubleTagAsync(doubleTag);
-                break;
+			case StringTag current:
+				writer.WriteString(current.Value);
+				break;
 
-            case SignedByteCollectionTag signedByteCollectionTag:
-                await WriteSignedByteCollectionTagAsync(signedByteCollectionTag);
-                break;
+			case ListTag current:
+				var identifier = (byte) (current.Children.Length > 0 ? current.Children[0].Identifier : 0);
 
-            case StringTag stringTag:
-                await WriteStringTagAsync(stringTag);
-                break;
+				writer.WriteByte(identifier);
+				writer.WriteInteger(current.Children.Length);
 
-            case ListTag listTag:
-                await WriteListTagAsync(listTag);
-                break;
+				foreach (var child in current.Children)
+				{
+					if (child.Identifier != identifier)
+					{
+						throw new BinaryTagSerializerException("List tag can only hold one type.");
+					}
 
-            case CompoundTag compoundTag:
-                await WriteCompoundTagAsync(compoundTag);
-                break;
+					nameless = true;
+					WriteTag(child);
+				}
 
-            case IntegerCollectionTag integerCollectionTag:
-                await WriteIntegerCollectionTagAsync(integerCollectionTag);
-                break;
+				break;
 
-            case LongCollectionTag longCollectionTag:
-                await WriteLongCollectionTagAsync(longCollectionTag);
-                break;
+			case CompoundTag current:
+				foreach (var child in current.Children)
+				{
+					nameless = false;
+					WriteTag(child);
+				}
 
-            default:
-                throw new BinaryTagWriterException($"Unknown tag type '{tag}'.");
-        }
-    }
+				writer.WriteByte(0);
+				break;
 
-    private void WriteSignedByteTag(SignedByteTag tag)
-    {
-        stream.WriteSignedByte(tag.Value);
-    }
+			case IntegerCollectionTag current:
+				writer.WriteInteger(current.Children.Length);
 
-    private async Task WriteShortTagAsync(ShortTag tag)
-    {
-        await stream.WriteShortAsync(tag.Value);
-    }
+				if (BitConverter.IsLittleEndian == littleEndian)
+				{
+					writer.Write(MemoryMarshal.AsBytes(current.Children.AsSpan()));
+					break;
+				}
 
-    private async Task WriteIntegerTagAsync(IntegerTag tag)
-    {
-        await stream.WriteIntegerAsync(tag.Value);
-    }
+				foreach (var child in current.Children)
+				{
+					writer.WriteInteger(child);
+				}
 
-    private async Task WriteLongTagAsync(LongTag tag)
-    {
-        await stream.WriteLongAsync(tag.Value);
-    }
+				break;
 
-    private async Task WriteFloatTagAsync(FloatTag tag)
-    {
-        await stream.WriteFloatAsync(tag.Value);
-    }
+			case LongCollectionTag current:
+				writer.WriteInteger(current.Children.Length);
 
-    private async Task WriteDoubleTagAsync(DoubleTag tag)
-    {
-        await stream.WriteDoubleAsync(tag.Value);
-    }
+				if (BitConverter.IsLittleEndian == littleEndian)
+				{
+					writer.Write(MemoryMarshal.AsBytes(current.Children.AsSpan()));
+					break;
+				}
 
-    private async Task WriteSignedByteCollectionTagAsync(SignedByteCollectionTag tag)
-    {
-        await stream.WriteIntegerAsync(tag.Children.Length);
-        await stream.WriteSignedBytesAsync(tag.Children);
-    }
+				foreach (var child in current.Children)
+				{
+					writer.WriteLong(child);
+				}
 
-    private async Task WriteStringTagAsync(StringTag tag)
-    {
-        await stream.WriteStringAsync(tag.Value);
-    }
+				break;
 
-    private async Task WriteListTagAsync(ListTag tag)
-    {
-        var predefinedType = tag.Children.FirstOrDefault()?.Type ?? 0;
+			default:
+				throw new BinaryTagSerializerException($"Unknown tag: '{tag}'.");
+		}
 
-        stream.WriteByte(predefinedType);
-        await stream.WriteIntegerAsync(tag.Children.Length);
+		if (maximumDepth <= 0)
+		{
+			throw new BinaryTagSerializerException("Maximum depth reached.");
+		}
 
-        foreach (var child in tag.Children)
-        {
-            if (child.Type != predefinedType)
-            {
-                throw new BinaryTagWriterException("List tag cannot contain multiple tag types.");
-            }
-
-            isNameless = true;
-            await EvaluateAsync(child);
-        }
-
-        isNameless = false;
-    }
-
-    private async Task WriteCompoundTagAsync(CompoundTag tag)
-    {
-        var wasNameless = isNameless;
-        isNameless = false;
-
-        foreach (var child in tag.Children)
-        {
-            await EvaluateAsync(child);
-        }
-
-        stream.WriteByte(0);
-        isNameless = wasNameless;
-    }
-
-    private async Task WriteIntegerCollectionTagAsync(IntegerCollectionTag tag)
-    {
-        await stream.WriteIntegerAsync(tag.Children.Length);
-
-        foreach (var child in tag.Children)
-        {
-            await stream.WriteIntegerAsync(child);
-        }
-    }
-
-    private async Task WriteLongCollectionTagAsync(LongCollectionTag tag)
-    {
-        await stream.WriteIntegerAsync(tag.Children.Length);
-
-        foreach (var child in tag.Children)
-        {
-            await stream.WriteLongAsync(child);
-        }
-    }
+		maximumDepth--;
+	}
 }

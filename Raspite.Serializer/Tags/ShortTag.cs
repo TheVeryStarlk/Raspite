@@ -1,7 +1,19 @@
 ﻿namespace Raspite.Serializer.Tags;
 
-/// <inheritdoc cref="Tag{T}"/>
-public sealed class ShortTag : Tag<short>
+public sealed record ShortTag : Tag<short>
 {
-    internal override byte Type => 2;
+	public override byte Identifier => 2;
+
+	private ShortTag()
+	{
+	}
+
+	public static ShortTag Create(short value, string name = "")
+	{
+		return new ShortTag
+		{
+			Name = name,
+			Value = value
+		};
+	}
 }

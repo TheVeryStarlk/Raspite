@@ -1,7 +1,19 @@
 ﻿namespace Raspite.Serializer.Tags;
 
-/// <inheritdoc cref="Tag{T}"/>
-public sealed class FloatTag : Tag<float>
+public sealed record FloatTag : Tag<float>
 {
-    internal override byte Type => 5;
+	public override byte Identifier => 5;
+
+	private FloatTag()
+	{
+	}
+
+	public static FloatTag Create(float value, string name = "")
+	{
+		return new FloatTag
+		{
+			Name = name,
+			Value = value
+		};
+	}
 }

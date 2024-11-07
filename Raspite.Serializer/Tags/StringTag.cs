@@ -1,7 +1,27 @@
-﻿namespace Raspite.Serializer.Tags;
+﻿using System.Text;
 
-/// <inheritdoc cref="Tag{T}"/>
-public sealed class StringTag : Tag<string>
+namespace Raspite.Serializer.Tags;
+
+public sealed record StringTag : Tag<string>
 {
-    internal override byte Type => 8;
+	public override byte Identifier => 8;
+
+	private StringTag()
+	{
+	}
+
+	public static StringTag Create(string value, string name = "")
+	{
+		return new StringTag
+		{
+			Name = name,
+			Value = value
+		};
+	}
+
+	internal override int CalculateLength(bool nameless)
+	{
+		var name = nameless ? 0 : sizeof(byte) + sizeof(ushort) + Encoding.UTF8.GetByteCount(Name);
+		return name + sizeof(ushort) + Encoding.UTF8.GetByteCount(Value);
+	}
 }

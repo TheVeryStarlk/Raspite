@@ -1,235 +1,226 @@
-﻿using Raspite.Serializer.Streams;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using Raspite.Serializer.Tags;
 
 namespace Raspite.Serializer;
 
-/// <summary>
-/// Represents an error that occurred while reading.
-/// </summary>
-public sealed class BinaryTagReaderException : Exception
+internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, uint maximumDepth)
 {
-    public BinaryTagReaderException(string message) : base(message)
-    {
-    }
-}
+	public int Position => reader.Position;
 
-internal sealed class BinaryTagReader
-{
-    private bool isNameless;
+	private SpanReader reader = new(span, littleEndian);
+	private byte current;
 
-    private readonly ReadableBinaryStream stream;
+	public bool TryRead([NotNullWhen(true)] out Tag? tag)
+	{
+		tag = null;
 
-    public BinaryTagReader(ReadableBinaryStream stream)
-    {
-        this.stream = stream;
-    }
+		var name = string.Empty;
 
-    public async Task<Tag> EvaluateAsync(byte? type = null)
-    {
-        type ??= (byte) stream.ReadByte();
+		if (current is 0 && (!reader.TryRead(out current) || !reader.TryRead(out name)))
+		{
+			return false;
+		}
 
-        var name = string.Empty;
+		switch (current)
+		{
+			case 1 when reader.TryRead(out byte value):
+				tag = ByteTag.Create(value);
+				break;
 
-        // Do not read the name if we're inside a list.
-        if (!isNameless)
-        {
-            name = await stream.ReadStringAsync();
-        }
+			case 2 when reader.TryRead(out short value):
+				tag = ShortTag.Create(value);
+				break;
 
-        Tag result = type switch
-        {
-            1 => ReadSignedByteTag(name),
-            2 => await ReadShortTagAsync(name),
-            3 => await ReadIntegerTagAsync(name),
-            4 => await ReadLongTagAsync(name),
-            5 => await ReadFloatTagAsync(name),
-            6 => await ReadDoubleTagAsync(name),
-            7 => await ReadSignedByteCollectionTagAsync(name),
-            8 => await ReadStringTagAsync(name),
-            9 => await ReadListTagAsync(name),
-            10 => await ReadCompoundTagAsync(name),
-            11 => await ReadIntegerCollectionTagAsync(name),
-            12 => await ReadLongCollectionTagAsync(name),
-            _ => throw new BinaryTagReaderException($"Unknown tag type {type}.")
-        };
+			case 3 when reader.TryRead(out int value):
+				tag = IntegerTag.Create(value);
+				break;
 
-        return result;
-    }
+			case 4 when reader.TryRead(out long value):
+				tag = LongTag.Create(value);
+				break;
 
-    private SignedByteTag ReadSignedByteTag(string name)
-    {
-        var value = stream.ReadSignedByte();
+			case 5 when reader.TryRead(out float value):
+				tag = FloatTag.Create(value);
+				break;
 
-        return new SignedByteTag()
-        {
-            Name = name,
-            Value = value
-        };
-    }
+			case 6 when reader.TryRead(out double value):
+				tag = DoubleTag.Create(value);
+				break;
 
-    private async Task<ShortTag> ReadShortTagAsync(string name)
-    {
-        var value = await stream.ReadShortAsync();
+			case 7 when reader.TryRead(out int length) && reader.TryRead(length, out var children):
+				tag = ByteCollectionTag.Create(children.ToArray());
+				break;
 
-        return new ShortTag()
-        {
-            Name = name,
-            Value = value
-        };
-    }
+			case 8 when reader.TryRead(out string? value):
+				tag = StringTag.Create(value);
+				break;
 
-    private async Task<IntegerTag> ReadIntegerTagAsync(string name)
-    {
-        var value = await stream.ReadIntegerAsync();
+			case 9 when TryReadListTag(out var result):
+				tag = result;
+				break;
 
-        return new IntegerTag()
-        {
-            Name = name,
-            Value = value
-        };
-    }
+			case 10 when TryReadCompoundTag(out var result):
+				tag = result;
+				break;
 
-    private async Task<LongTag> ReadLongTagAsync(string name)
-    {
-        var value = await stream.ReadLongAsync();
+			case 11 when TryReadIntegerCollectionTag(out var result):
+				tag = result;
+				break;
 
-        return new LongTag()
-        {
-            Name = name,
-            Value = value
-        };
-    }
+			case 12 when TryReadLongCollectionTag(out var result):
+				tag = result;
+				break;
 
-    private async Task<FloatTag> ReadFloatTagAsync(string name)
-    {
-        var value = await stream.ReadFloatAsync();
+			default:
+				return false;
+		}
 
-        return new FloatTag()
-        {
-            Name = name,
-            Value = value
-        };
-    }
+		tag.Name = name;
+		return true;
+	}
 
-    private async Task<DoubleTag> ReadDoubleTagAsync(string name)
-    {
-        var value = await stream.ReadDoubleAsync();
+	private bool TryReadListTag([NotNullWhen(true)] out ListTag? tag)
+	{
+		tag = null;
 
-        return new DoubleTag()
-        {
-            Name = name,
-            Value = value
-        };
-    }
+		if (!reader.TryRead(out byte type) || !reader.TryRead(out int length))
+		{
+			return false;
+		}
 
-    private async Task<SignedByteCollectionTag> ReadSignedByteCollectionTagAsync(string name)
-    {
-        var size = await stream.ReadIntegerAsync();
-        var children = await stream.ReadSignedBytesAsync(size);
+		if (type is 0)
+		{
+			tag = ListTag.Create([]);
+			return true;
+		}
 
-        return new SignedByteCollectionTag()
-        {
-            Name = name,
-            Children = children
-        };
-    }
+		BinaryTagSerializerException.ThrowIfGreaterThan(
+			length,
+			maximumDepth,
+			"Children length can not be bigger than the maximum depth.");
 
-    private async Task<StringTag> ReadStringTagAsync(string name)
-    {
-        var value = await stream.ReadStringAsync();
+		var children = new Tag[length];
+		var index = 0;
 
-        return new StringTag()
-        {
-            Name = name,
-            Value = value
-        };
-    }
+		while (children.Length > index)
+		{
+			current = type;
 
-    private async Task<ListTag> ReadListTagAsync(string name)
-    {
-        var predefinedType = (byte) stream.ReadByte();
+			if (!TryRead(out var child))
+			{
+				return false;
+			}
 
-        var size = await stream.ReadIntegerAsync();
-        var children = new Tag[size];
+			if (child.Identifier != type)
+			{
+				throw new BinaryTagSerializerException("List tags can not hold different tag types.");
+			}
 
-        for (var index = 0; index < size; index++)
-        {
-            isNameless = true;
-            children[index] = await EvaluateAsync(predefinedType);
-        }
+			children[index++] = child;
+		}
 
-        isNameless = false;
+		current = 0;
 
-        return new ListTag()
-        {
-            Name = name,
-            Children = children
-        };
-    }
+		tag = ListTag.Create(children[..index]);
+		return true;
+	}
 
-    private async Task<CompoundTag> ReadCompoundTagAsync(string name)
-    {
-        var children = new List<Tag>();
-        var wasNameless = isNameless;
+	private bool TryReadCompoundTag([NotNullWhen(true)] out CompoundTag? tag)
+	{
+		tag = null;
 
-        isNameless = false;
+		var children = new List<Tag>();
 
-        while (true)
-        {
-            var current = stream.ReadByte();
+		while (true)
+		{
+			BinaryTagSerializerException.ThrowIfGreaterThan(
+				children.Count,
+				maximumDepth,
+				"Maximum depth reached.");
 
-            switch (current)
-            {
-                case -1:
-                    throw new BinaryTagReaderException("Compound tag did not end with an ending tag.");
+			if (!reader.TryRead(out current))
+			{
+				return false;
+			}
 
-                case 0:
-                    isNameless = wasNameless;
+			if (current is 0)
+			{
+				break;
+			}
 
-                    return new CompoundTag()
-                    {
-                        Name = name,
-                        Children = children.ToArray()
-                    };
+			if (!reader.TryRead(out string? name) || !TryRead(out var child))
+			{
+				return false;
+			}
 
-                default:
-                    children.Add(await EvaluateAsync((byte) current));
-                    break;
-            }
-        }
-    }
+			children.Add(child with { Name = name });
+		}
 
-    private async Task<IntegerCollectionTag> ReadIntegerCollectionTagAsync(string name)
-    {
-        var size = await stream.ReadIntegerAsync();
-        var children = new int[size];
+		tag = CompoundTag.Create(children.ToArray());
+		return true;
+	}
 
-        for (var index = 0; index < size; index++)
-        {
-            children[index] = await stream.ReadIntegerAsync();
-        }
+	private bool TryReadIntegerCollectionTag([NotNullWhen(true)] out IntegerCollectionTag? tag)
+	{
+		tag = null;
 
-        return new IntegerCollectionTag()
-        {
-            Name = name,
-            Children = children
-        };
-    }
+		if (!reader.TryRead(out int length))
+		{
+			return false;
+		}
 
-    private async Task<LongCollectionTag> ReadLongCollectionTagAsync(string name)
-    {
-        var size = await stream.ReadIntegerAsync();
-        var children = new long[size];
+		if (BitConverter.IsLittleEndian == littleEndian && reader.TryRead(length * sizeof(int), out var buffer))
+		{
+			tag = IntegerCollectionTag.Create(MemoryMarshal.Cast<byte, int>(buffer).ToArray());
+			return true;
+		}
 
-        for (var index = 0; index < size; index++)
-        {
-            children[index] = await stream.ReadLongAsync();
-        }
+		var children = new int[length];
 
-        return new LongCollectionTag()
-        {
-            Name = name,
-            Children = children
-        };
-    }
+		for (var index = 0; index < children.Length; index++)
+		{
+			if (!reader.TryRead(out int value))
+			{
+				return false;
+			}
+
+			children[index] = value;
+		}
+
+		tag = IntegerCollectionTag.Create(children);
+		return true;
+	}
+
+	private bool TryReadLongCollectionTag([NotNullWhen(true)] out LongCollectionTag? tag)
+	{
+		tag = null;
+
+		if (!reader.TryRead(out int length))
+		{
+			return false;
+		}
+
+		if (BitConverter.IsLittleEndian == littleEndian
+		    && reader.TryRead(length * sizeof(long), out var buffer))
+		{
+			tag = LongCollectionTag.Create(MemoryMarshal.Cast<byte, long>(buffer).ToArray());
+			return true;
+		}
+
+		var children = new long[length];
+
+		for (var index = 0; index < children.Length; index++)
+		{
+			if (!reader.TryRead(out long value))
+			{
+				return false;
+			}
+
+			children[index] = value;
+		}
+
+		tag = LongCollectionTag.Create(children);
+		return true;
+	}
 }

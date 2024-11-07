@@ -1,7 +1,19 @@
 ﻿namespace Raspite.Serializer.Tags;
 
-/// <inheritdoc cref="Tag{T}"/>
-public sealed class IntegerTag : Tag<int>
+public sealed record IntegerTag : Tag<int>
 {
-    internal override byte Type => 3;
+	public override byte Identifier => 3;
+
+	private IntegerTag()
+	{
+	}
+
+	public static IntegerTag Create(int value, string name = "")
+	{
+		return new IntegerTag
+		{
+			Name = name,
+			Value = value
+		};
+	}
 }

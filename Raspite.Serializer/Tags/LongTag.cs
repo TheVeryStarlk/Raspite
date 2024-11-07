@@ -1,7 +1,19 @@
 ﻿namespace Raspite.Serializer.Tags;
 
-/// <inheritdoc cref="Tag{T}"/>
-public sealed class LongTag : Tag<long>
+public sealed record LongTag : Tag<long>
 {
-    internal override byte Type => 4;
+	public override byte Identifier => 4;
+
+	private LongTag()
+	{
+	}
+
+	public static LongTag Create(long value, string name = "")
+	{
+		return new LongTag
+		{
+			Name = name,
+			Value = value
+		};
+	}
 }

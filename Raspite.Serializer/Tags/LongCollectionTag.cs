@@ -1,15 +1,26 @@
 ﻿namespace Raspite.Serializer.Tags;
 
-/// <inheritdoc cref="Tag{T}"/>
-public sealed class LongCollectionTag : CollectionTag<long>
+public sealed record LongCollectionTag : CollectionTag<long>
 {
-    internal override byte Type => 12;
+	public override byte Identifier => 12;
 
-    public static implicit operator LongCollectionTag(long[] children)
-    {
-        return new LongCollectionTag()
-        {
-            Children = children
-        };
-    }
+	private LongCollectionTag()
+	{
+	}
+
+	public static LongCollectionTag Create(long[] children, string name = "")
+	{
+		return new LongCollectionTag
+		{
+			Name = name,
+			Children = children
+		};
+	}
+
+	internal override int CalculateLength(bool nameless)
+	{
+		return base.CalculateLength(nameless)
+		       + sizeof(int)
+		       + sizeof(long) * Children.Length;
+	}
 }

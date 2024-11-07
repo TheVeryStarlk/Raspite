@@ -1,7 +1,19 @@
 ﻿namespace Raspite.Serializer.Tags;
 
-/// <inheritdoc cref="Tag{T}"/>
-public sealed class DoubleTag : Tag<double>
+public sealed record DoubleTag : Tag<double>
 {
-    internal override byte Type => 6;
+	public override byte Identifier => 6;
+
+	private DoubleTag()
+	{
+	}
+
+	public static DoubleTag Create(double value, string name = "")
+	{
+		return new DoubleTag
+		{
+			Name = name,
+			Value = value
+		};
+	}
 }
