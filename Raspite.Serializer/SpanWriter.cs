@@ -19,7 +19,7 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
 		value.CopyTo(span[Position..(Position += value.Length)]);
 	}
 
-	public void WriteByte(byte value)
+	public void Write(byte value)
 	{
 		BinaryTagSerializerException.ThrowIfGreaterThan(
 			Position + sizeof(byte),
@@ -29,7 +29,7 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
 		span[Position++] = value;
 	}
 
-	public void WriteShort(short value)
+	public void Write(short value)
 	{
 		BinaryTagSerializerException.ThrowIfGreaterThan(
 			Position + sizeof(short),
@@ -48,7 +48,7 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
 		}
 	}
 
-	public void WriteInteger(int value)
+	public void Write(int value)
 	{
 		BinaryTagSerializerException.ThrowIfGreaterThan(
 			Position + sizeof(int),
@@ -67,7 +67,7 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
 		}
 	}
 
-	public void WriteLong(long value)
+	public void Write(long value)
 	{
 		BinaryTagSerializerException.ThrowIfGreaterThan(
 			Position + sizeof(long),
@@ -86,7 +86,7 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
 		}
 	}
 
-	public void WriteFloat(float value)
+	public void Write(float value)
 	{
 		BinaryTagSerializerException.ThrowIfGreaterThan(
 			Position + sizeof(float),
@@ -105,7 +105,7 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
 		}
 	}
 
-	public void WriteDouble(double value)
+	public void Write(double value)
 	{
 		BinaryTagSerializerException.ThrowIfGreaterThan(
 			Position + sizeof(double),
@@ -124,7 +124,7 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
 		}
 	}
 
-	public void WriteString(string value)
+	public void Write(string value)
 	{
 		var source = Encoding.UTF8.GetBytes(value);
 		var length = (ushort) source.Length;

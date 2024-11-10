@@ -119,7 +119,7 @@ public static class BinaryTagSerializer
 		static int Write(bool littleEndian, uint maximumDepth, Tag tag, Span<byte> buffer)
 		{
 			var writer = new BinaryTagWriter(buffer, littleEndian, maximumDepth);
-			writer.WriteTag(tag);
+			writer.Write(tag);
 
 			return writer.Position;
 		}

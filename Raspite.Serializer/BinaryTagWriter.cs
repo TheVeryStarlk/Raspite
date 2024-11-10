@@ -11,54 +11,54 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, uint max
 	private uint maximumDepth = maximumDepth;
 	private bool nameless;
 
-	public void WriteTag(Tag tag)
+	public void Write(Tag tag)
 	{
 		if (!nameless)
 		{
-			writer.WriteByte(tag.Identifier);
-			writer.WriteString(tag.Name);
+			writer.Write(tag.Identifier);
+			writer.Write(tag.Name);
 		}
 
 		switch (tag)
 		{
 			case ByteTag current:
-				writer.WriteByte(current.Value);
+				writer.Write(current.Value);
 				break;
 
 			case ShortTag current:
-				writer.WriteShort(current.Value);
+				writer.Write(current.Value);
 				break;
 
 			case IntegerTag current:
-				writer.WriteInteger(current.Value);
+				writer.Write(current.Value);
 				break;
 
 			case LongTag current:
-				writer.WriteLong(current.Value);
+				writer.Write(current.Value);
 				break;
 
 			case FloatTag current:
-				writer.WriteFloat(current.Value);
+				writer.Write(current.Value);
 				break;
 
 			case DoubleTag current:
-				writer.WriteDouble(current.Value);
+				writer.Write(current.Value);
 				break;
 
 			case ByteCollectionTag current:
-				writer.WriteInteger(current.Children.Length);
+				writer.Write(current.Children.Length);
 				writer.Write(current.Children);
 				break;
 
 			case StringTag current:
-				writer.WriteString(current.Value);
+				writer.Write(current.Value);
 				break;
 
 			case ListTag current:
 				var identifier = (byte) (current.Children.Length > 0 ? current.Children[0].Identifier : 0);
 
-				writer.WriteByte(identifier);
-				writer.WriteInteger(current.Children.Length);
+				writer.Write(identifier);
+				writer.Write(current.Children.Length);
 
 				foreach (var child in current.Children)
 				{
@@ -68,7 +68,7 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, uint max
 					}
 
 					nameless = true;
-					WriteTag(child);
+					Write(child);
 				}
 
 				break;
@@ -77,14 +77,14 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, uint max
 				foreach (var child in current.Children)
 				{
 					nameless = false;
-					WriteTag(child);
+					Write(child);
 				}
 
-				writer.WriteByte(0);
+				writer.Write((byte) 0);
 				break;
 
 			case IntegerCollectionTag current:
-				writer.WriteInteger(current.Children.Length);
+				writer.Write(current.Children.Length);
 
 				if (BitConverter.IsLittleEndian == littleEndian)
 				{
@@ -94,13 +94,13 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, uint max
 
 				foreach (var child in current.Children)
 				{
-					writer.WriteInteger(child);
+					writer.Write(child);
 				}
 
 				break;
 
 			case LongCollectionTag current:
-				writer.WriteInteger(current.Children.Length);
+				writer.Write(current.Children.Length);
 
 				if (BitConverter.IsLittleEndian == littleEndian)
 				{
@@ -110,7 +110,7 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, uint max
 
 				foreach (var child in current.Children)
 				{
-					writer.WriteLong(child);
+					writer.Write(child);
 				}
 
 				break;
