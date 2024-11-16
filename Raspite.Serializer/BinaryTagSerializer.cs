@@ -27,7 +27,7 @@ public static class BinaryTagSerializer
 	public static int Serialize<T>(
 		Memory<byte> buffer,
 		T tag,
-		BinaryTagSerializerOptions options = default)  where T : Tag
+		BinaryTagSerializerOptions options = default) where T : Tag
 	{
 		options = options.Validate();
 
