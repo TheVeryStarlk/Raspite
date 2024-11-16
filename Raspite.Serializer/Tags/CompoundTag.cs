@@ -22,13 +22,13 @@ public sealed record CompoundTag : CollectionTag<Tag>
 		return new CompoundTagBuilder(name);
 	}
 
-	public T First<T>(string? name = "") where T : Tag
+	public T First<T>(string name = "") where T : Tag
 	{
 		var tag = Children.First(tag =>
 		{
 			var typeMatches = typeof(T) == tag.GetType();
 
-			return name is not null
+			return !string.IsNullOrWhiteSpace(name)
 				? typeMatches && tag.Name == name
 				: typeMatches;
 		});

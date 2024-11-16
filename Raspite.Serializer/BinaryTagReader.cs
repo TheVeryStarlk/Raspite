@@ -100,10 +100,10 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
 			maximumDepth,
 			"Children length can not be bigger than the maximum depth.");
 
-		var children = new Tag[length];
-		var index = 0;
+		var builder = ListTag.Create<Tag>();
+		var count = 0;
 
-		while (children.Length > index)
+		while (length > count)
 		{
 			current = type;
 
@@ -117,12 +117,13 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
 				throw new BinaryTagSerializerException("List tags can not hold different tag types.");
 			}
 
-			children[index++] = child;
+			builder.Add(child);
+			count++;
 		}
 
 		current = 0;
 
-		tag = ListTag.Create(children[..index]);
+		tag = builder.Build();
 		return true;
 	}
 
@@ -130,14 +131,17 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
 	{
 		tag = null;
 
-		var children = new List<Tag>();
+		var builder = CompoundTag.Create();
+		var count = 0;
 
 		while (true)
 		{
 			BinaryTagSerializerException.ThrowIfGreaterThan(
-				children.Count,
+				count,
 				maximumDepth,
 				"Maximum depth reached.");
+
+			count++;
 
 			if (!reader.TryRead(out current))
 			{
@@ -154,10 +158,10 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
 				return false;
 			}
 
-			children.Add(child with { Name = name });
+			builder.Add(child with { Name = name });
 		}
 
-		tag = CompoundTag.Create(children.ToArray());
+		tag = builder.Build();
 		return true;
 	}
 

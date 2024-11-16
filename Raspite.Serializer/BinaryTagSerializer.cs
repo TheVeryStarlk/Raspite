@@ -1,12 +1,48 @@
 ﻿using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Pipelines;
+using System.Text.Json;
 using Raspite.Serializer.Tags;
 
 namespace Raspite.Serializer;
 
 public static class BinaryTagSerializer
 {
+	public static T Deserialize<T>(
+		ReadOnlyMemory<byte> buffer,
+		BinaryTagSerializerOptions options = default) where T : Tag
+	{
+		options = options.Validate();
+
+		var reader = new BinaryTagReader(buffer.Span, options.LittleEndian, options.MaximumDepth);
+
+		if (reader.TryRead(out var tag))
+		{
+			return (T) tag;
+		}
+
+		throw new BinaryTagSerializerException("Could not deserialize tag.");
+	}
+
+	public static int Serialize<T>(
+		Memory<byte> buffer,
+		T tag,
+		BinaryTagSerializerOptions options = default)  where T : Tag
+	{
+		options = options.Validate();
+
+		if (tag.CalculateLength(tag is ListTag) > buffer.Length)
+		{
+			throw new BinaryTagSerializerException("Buffer is too small.");
+		}
+
+		var writer = new BinaryTagWriter(buffer.Span, options.LittleEndian, options.MaximumDepth);
+
+		writer.Write(tag);
+
+		return writer.Position;
+	}
+
 	public static async Task<T> DeserializeAsync<T>(
 		Stream stream,
 		BinaryTagSerializerOptions options = default,
@@ -94,8 +130,8 @@ public static class BinaryTagSerializer
 	}
 
 	public static async Task SerializeAsync<T>(
-		T tag,
 		Stream stream,
+		T tag,
 		BinaryTagSerializerOptions options = default,
 		CancellationToken cancellationToken = default) where T : Tag
 	{
