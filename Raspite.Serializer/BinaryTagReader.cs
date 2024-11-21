@@ -4,7 +4,7 @@ using Raspite.Serializer.Tags;
 
 namespace Raspite.Serializer;
 
-internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, uint maximumDepth)
+internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, int maximumDepth)
 {
 	public int Position => reader.Position;
 

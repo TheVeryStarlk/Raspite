@@ -3,12 +3,12 @@ using Raspite.Serializer.Tags;
 
 namespace Raspite.Serializer;
 
-internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, uint maximumDepth)
+internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, int maximumDepth)
 {
 	public int Position => writer.Position;
 
 	private SpanWriter writer = new(span, littleEndian);
-	private uint maximumDepth = maximumDepth;
+	private int maximumDepth = maximumDepth;
 	private bool nameless;
 
 	public void Write(Tag tag)
@@ -119,7 +119,7 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, uint max
 				throw new BinaryTagSerializerException($"Unknown tag: '{tag}'.");
 		}
 
-		if (maximumDepth <= 0)
+		if (maximumDepth < 0)
 		{
 			throw new BinaryTagSerializerException("Maximum depth reached.");
 		}
