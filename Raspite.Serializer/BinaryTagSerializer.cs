@@ -11,12 +11,12 @@ namespace Raspite.Serializer;
 public static class BinaryTagSerializer
 {
 	/// <summary>
-	/// Reads the buffer into a <see cref="Tag{T}"/>.
+	/// Reads the buffer as a <see cref="Tag{T}"/>.
 	/// </summary>
 	/// <param name="buffer">The buffer to read from.</param>
 	/// <param name="options">Options to control the deserializer.</param>
 	/// <typeparam name="T">The <see cref="Tag{T}"/> type to deserialize to.</typeparam>
-	/// <returns>The newly deserialized <see cref="Tag{T}"/>.</returns>
+	/// <returns>The deserialized <see cref="Tag{T}"/>.</returns>
 	/// <exception cref="BinaryTagSerializerException">An exception has occured during deserializing.</exception>
 	public static T Deserialize<T>(
 		ReadOnlySpan<byte> buffer,
@@ -68,6 +68,15 @@ public static class BinaryTagSerializer
 		return writer.Position;
 	}
 
+	/// <summary>
+	/// Reads the <see cref="Stream"/> as a <see cref="Tag{T}"/>.
+	/// </summary>
+	/// <param name="stream">The <see cref="Stream"/> to read from.</param>
+	/// <param name="options">Options to control the deserializer.</param>
+	/// <param name="cancellationToken">The <see cref="System.Threading.CancellationToken"/> that can be used to cancel the deserialize operation.</param>
+	/// <typeparam name="T">The <see cref="Tag{T}"/> type to deserialize to.</typeparam>
+	/// <returns>A task that represents the asynchronous deserialize operation.</returns>
+	/// <exception cref="BinaryTagSerializerException">An exception has occured during deserializing.</exception>
 	public static async Task<T> DeserializeAsync<T>(
 		Stream stream,
 		BinaryTagSerializerOptions? options = null,
@@ -157,6 +166,15 @@ public static class BinaryTagSerializer
 		}
 	}
 
+	/// <summary>
+	/// Writes the <see cref="Tag{T}"/> to the <see cref="Stream"/>.
+	/// </summary>
+	/// <param name="stream">The <see cref="Stream"/> to write to.</param>
+	/// <param name="tag">The <see cref="Tag{T}"/> to write to the <see cref="Stream"/>.</param>
+	/// <param name="options">Options to control the serializer.</param>
+	/// <param name="cancellationToken">The <see cref="System.Threading.CancellationToken"/> that can be used to cancel the serialize operation.</param>
+	/// <typeparam name="T">The <see cref="Tag{T}"/>'s type.</typeparam>
+	/// <exception cref="BinaryTagSerializerException">An exception has occured during serializing.</exception>
 	public static async Task SerializeAsync<T>(
 		Stream stream,
 		T tag,
@@ -202,7 +220,6 @@ public sealed class BinaryTagSerializerOptions
 	/// <remarks>
 	/// Defaults to false.
 	/// </remarks>
-
 	public bool LittleEndian { get; init; }
 
 	/// <summary>
