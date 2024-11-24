@@ -45,5 +45,5 @@ var tag = CompoundTag.Create("Parent")
 
 Querying children:
 ```cs
-var answer = result.First<StringTag>("Message").Value;
+var answer = tag.First<StringTag>("Message").Value;
 ```
