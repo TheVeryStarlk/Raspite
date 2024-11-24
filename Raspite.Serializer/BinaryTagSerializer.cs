@@ -192,6 +192,7 @@ public static class BinaryTagSerializer
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
 
 		var writer = PipeWriter.Create(stream);
+
 		var buffer = writer.GetMemory(tag.CalculateLength(tag is ListTag));
 		var written = Write(options.LittleEndian, options.MaximumDepth, tag, buffer.Span);
 
@@ -223,7 +224,7 @@ public sealed class BinaryTagSerializerOptions
 	public bool LittleEndian { get; init; }
 
 	/// <summary>
-	/// Represents the maximum depth of the buffer.
+	/// The maximum depth of the buffer.
 	/// This ensures to not read or write more children than the set <see cref="MaximumDepth"/>.
 	/// </summary>
 	/// <remarks>
@@ -232,7 +233,7 @@ public sealed class BinaryTagSerializerOptions
 	public int MaximumDepth { get; init; } = 256;
 
 	/// <summary>
-	/// Represents the length of which to read buffer from.
+	/// The minimum length of which to read from the buffer.
 	/// </summary>
 	/// <remarks>
 	/// Defaults to 2048.
