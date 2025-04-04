@@ -45,18 +45,18 @@ internal ref struct SpanReader(ReadOnlySpan<byte> span, bool littleEndian)
             : BinaryPrimitives.ReadUInt16BigEndian(span[position..(position += sizeof(ushort))]);
     }
 
-    public double ReadDouble()
-    {
-        return littleEndian
-            ? BinaryPrimitives.ReadDoubleLittleEndian(span[position..(position += sizeof(double))])
-            : BinaryPrimitives.ReadDoubleBigEndian(span[position..(position += sizeof(double))]);
-    }
-
     public float ReadFloat()
     {
         return littleEndian
             ? BinaryPrimitives.ReadSingleLittleEndian(span[position..(position += sizeof(float))])
             : BinaryPrimitives.ReadSingleBigEndian(span[position..(position += sizeof(float))]);
+    }
+
+    public double ReadDouble()
+    {
+        return littleEndian
+            ? BinaryPrimitives.ReadDoubleLittleEndian(span[position..(position += sizeof(double))])
+            : BinaryPrimitives.ReadDoubleBigEndian(span[position..(position += sizeof(double))]);
     }
 
     public long ReadLong()
