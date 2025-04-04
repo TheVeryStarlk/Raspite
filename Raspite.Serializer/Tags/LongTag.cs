@@ -2,18 +2,18 @@
 
 public sealed record LongTag : Tag<long>
 {
-	public override byte Identifier => 4;
+    public override byte Identifier => 4;
 
-	private LongTag()
-	{
-	}
+    private LongTag()
+    {
+    }
 
-	public static LongTag Create(long value, string name = "")
-	{
-		return new LongTag
-		{
-			Name = name,
-			Value = value
-		};
-	}
+    public static LongTag Create(long value, string name = "")
+    {
+        return new LongTag
+        {
+            Name = name,
+            Value = value
+        };
+    }
 }

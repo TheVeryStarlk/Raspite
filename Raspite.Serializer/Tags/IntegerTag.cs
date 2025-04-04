@@ -2,18 +2,18 @@
 
 public sealed record IntegerTag : Tag<int>
 {
-	public override byte Identifier => 3;
+    public override byte Identifier => 3;
 
-	private IntegerTag()
-	{
-	}
+    private IntegerTag()
+    {
+    }
 
-	public static IntegerTag Create(int value, string name = "")
-	{
-		return new IntegerTag
-		{
-			Name = name,
-			Value = value
-		};
-	}
+    public static IntegerTag Create(int value, string name = "")
+    {
+        return new IntegerTag
+        {
+            Name = name,
+            Value = value
+        };
+    }
 }

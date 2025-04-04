@@ -2,66 +2,66 @@
 
 public sealed record CompoundTag : CollectionTag<Tag>
 {
-	public override byte Identifier => 10;
+    public override byte Identifier => 10;
 
-	private CompoundTag()
-	{
-	}
+    private CompoundTag()
+    {
+    }
 
-	public static CompoundTag Create(Tag[] children, string name = "")
-	{
-		return new CompoundTag
-		{
-			Name = name,
-			Children = children
-		};
-	}
+    public static CompoundTag Create(Tag[] children, string name = "")
+    {
+        return new CompoundTag
+        {
+            Name = name,
+            Children = children
+        };
+    }
 
-	public static CompoundTagBuilder Create(string name = "")
-	{
-		return new CompoundTagBuilder(name);
-	}
+    public static CompoundTagBuilder Create(string name = "")
+    {
+        return new CompoundTagBuilder(name);
+    }
 
-	public T First<T>(string name = "") where T : Tag
-	{
-		var tag = Children.First(tag =>
-		{
-			var typeMatches = typeof(T) == tag.GetType();
+    public T First<T>(string name = "") where T : Tag
+    {
+        var tag = Children.First(tag =>
+        {
+            var typeMatches = typeof(T) == tag.GetType();
 
-			return !string.IsNullOrWhiteSpace(name)
-				? typeMatches && tag.Name == name
-				: typeMatches;
-		});
+            return !string.IsNullOrWhiteSpace(name)
+                ? typeMatches && tag.Name == name
+                : typeMatches;
+        });
 
-		return (T) tag;
-	}
+        return (T) tag;
+    }
 
-	internal override int CalculateLength(bool nameless)
-	{
-		return base.CalculateLength(nameless)
-		       + Children.Sum(child => child.CalculateLength(false))
-		       + sizeof(byte);
-	}
+    internal override int CalculateLength(bool nameless)
+    {
+        return base.CalculateLength(nameless)
+               + Children.Sum(child => child.CalculateLength(false))
+               + sizeof(byte);
+    }
 }
 
 public sealed class CompoundTagBuilder
 {
-	private readonly string name;
-	private readonly List<Tag> children = [];
+    private readonly string name;
+    private readonly List<Tag> children = [];
 
-	internal CompoundTagBuilder(string name)
-	{
-		this.name = name;
-	}
+    internal CompoundTagBuilder(string name)
+    {
+        this.name = name;
+    }
 
-	public CompoundTagBuilder Add(Tag tag)
-	{
-		children.Add(tag);
-		return this;
-	}
+    public CompoundTagBuilder Add(Tag tag)
+    {
+        children.Add(tag);
+        return this;
+    }
 
-	public CompoundTag Build()
-	{
-		return CompoundTag.Create(children.ToArray(), name);
-	}
+    public CompoundTag Build()
+    {
+        return CompoundTag.Create(children.ToArray(), name);
+    }
 }

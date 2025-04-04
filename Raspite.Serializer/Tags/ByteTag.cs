@@ -2,18 +2,18 @@
 
 public sealed record ByteTag : Tag<byte>
 {
-	public override byte Identifier => 1;
+    public override byte Identifier => 1;
 
-	private ByteTag()
-	{
-	}
+    private ByteTag()
+    {
+    }
 
-	public static ByteTag Create(byte value, string name = "")
-	{
-		return new ByteTag
-		{
-			Name = name,
-			Value = value
-		};
-	}
+    public static ByteTag Create(byte value, string name = "")
+    {
+        return new ByteTag
+        {
+            Name = name,
+            Value = value
+        };
+    }
 }
