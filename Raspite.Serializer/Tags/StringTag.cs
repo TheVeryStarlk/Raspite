@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Raspite.Serializer.Tags;
+﻿namespace Raspite.Serializer.Tags;
 
 public sealed record StringTag : Tag<string>
 {
@@ -17,11 +15,5 @@ public sealed record StringTag : Tag<string>
             Name = name,
             Value = value
         };
-    }
-
-    internal override int CalculateLength(bool nameless)
-    {
-        var name = nameless ? 0 : sizeof(byte) + sizeof(ushort) + Encoding.UTF8.GetByteCount(Name);
-        return name + sizeof(ushort) + Encoding.UTF8.GetByteCount(Value);
     }
 }

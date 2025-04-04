@@ -16,11 +16,4 @@ public sealed record IntegerCollectionTag : CollectionTag<int>
             Children = children
         };
     }
-
-    internal override int CalculateLength(bool nameless)
-    {
-        return base.CalculateLength(nameless)
-               + sizeof(int)
-               + sizeof(int) * Children.Length;
-    }
 }

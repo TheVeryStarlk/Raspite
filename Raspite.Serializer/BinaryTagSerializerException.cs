@@ -2,7 +2,7 @@
 
 public sealed class BinaryTagSerializerException(string message) : Exception(message)
 {
-    internal static void ThrowIfGreaterThan(int value, uint other, string message)
+    public static void ThrowIfGreaterThan(int value, uint other, string message)
     {
         if (value > other)
         {
@@ -10,7 +10,7 @@ public sealed class BinaryTagSerializerException(string message) : Exception(mes
         }
     }
 
-    internal static void ThrowIfGreaterThan(int value, int other, string message)
+    public static void ThrowIfGreaterThan(int value, int other, string message)
     {
         if (value > other)
         {
