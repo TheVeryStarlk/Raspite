@@ -1,16 +1,10 @@
-﻿namespace Raspite.Serializer;
+﻿using System.Numerics;
+
+namespace Raspite.Serializer;
 
 public sealed class BinaryTagSerializerException(string message) : Exception(message)
 {
-    public static void ThrowIfGreaterThan(int value, uint other, string message)
-    {
-        if (value > other)
-        {
-            throw new BinaryTagSerializerException(message);
-        }
-    }
-
-    public static void ThrowIfGreaterThan(int value, int other, string message)
+    public static void ThrowIfGreaterThan<T>(T value, T other, string message) where T : INumber<T>
     {
         if (value > other)
         {
