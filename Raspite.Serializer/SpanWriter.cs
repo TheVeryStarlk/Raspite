@@ -5,38 +5,38 @@ namespace Raspite.Serializer;
 
 internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
 {
-    private int position;
+    public int Position { get; private set; }
 
     private readonly Span<byte> span = span;
 
     public void Write(ReadOnlySpan<byte> value)
     {
         BinaryTagSerializerException.ThrowIfGreaterThan(
-            position + value.Length,
+            Position + value.Length,
             span.Length,
             "Reached the end of the buffer.");
 
-        value.CopyTo(span[position..(position += value.Length)]);
+        value.CopyTo(span[Position..(Position += value.Length)]);
     }
 
     public void WriteByte(byte value)
     {
         BinaryTagSerializerException.ThrowIfGreaterThan(
-            position + sizeof(byte),
+            Position + sizeof(byte),
             span.Length,
             "Reached the end of the buffer.");
 
-        span[position++] = value;
+        span[Position++] = value;
     }
 
     public void WriteShort(short value)
     {
         BinaryTagSerializerException.ThrowIfGreaterThan(
-            position + sizeof(short),
+            Position + sizeof(short),
             span.Length,
             "Reached the end of the buffer.");
 
-        var slice = span[position..(position += sizeof(short))];
+        var slice = span[Position..(Position += sizeof(short))];
 
         if (littleEndian)
         {
@@ -51,11 +51,11 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
     public void WriteInteger(int value)
     {
         BinaryTagSerializerException.ThrowIfGreaterThan(
-            position + sizeof(int),
+            Position + sizeof(int),
             span.Length,
             "Reached the end of the buffer.");
 
-        var slice = span[position..(position += sizeof(int))];
+        var slice = span[Position..(Position += sizeof(int))];
 
         if (littleEndian)
         {
@@ -67,15 +67,14 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
         }
     }
 
-
     public void WriteFloat(float value)
     {
         BinaryTagSerializerException.ThrowIfGreaterThan(
-            position + sizeof(float),
+            Position + sizeof(float),
             span.Length,
             "Reached the end of the buffer.");
 
-        var slice = span[position..(position += sizeof(float))];
+        var slice = span[Position..(Position += sizeof(float))];
 
         if (littleEndian)
         {
@@ -90,11 +89,11 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
     public void WriteDouble(double value)
     {
         BinaryTagSerializerException.ThrowIfGreaterThan(
-            position + sizeof(double),
+            Position + sizeof(double),
             span.Length,
             "Reached the end of the buffer.");
 
-        var slice = span[position..(position += sizeof(double))];
+        var slice = span[Position..(Position += sizeof(double))];
 
         if (littleEndian)
         {
@@ -109,11 +108,11 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
     public void WriteLong(long value)
     {
         BinaryTagSerializerException.ThrowIfGreaterThan(
-            position + sizeof(long),
+            Position + sizeof(long),
             span.Length,
             "Reached the end of the buffer.");
 
-        var slice = span[position..(position += sizeof(long))];
+        var slice = span[Position..(Position += sizeof(long))];
 
         if (littleEndian)
         {
@@ -131,7 +130,7 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
         var length = (ushort) source.Length;
 
         BinaryTagSerializerException.ThrowIfGreaterThan(
-            position + length + sizeof(ushort),
+            Position + length + sizeof(ushort),
             span.Length,
             "Reached the end of the buffer.");
 
@@ -140,7 +139,7 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
             ushort.MaxValue,
             "String is too big.");
 
-        var slice = span[position..(position += sizeof(ushort))];
+        var slice = span[Position..(Position += sizeof(ushort))];
 
         if (littleEndian)
         {
@@ -151,6 +150,6 @@ internal ref struct SpanWriter(Span<byte> span, bool littleEndian)
             BinaryPrimitives.WriteUInt16BigEndian(slice, length);
         }
 
-        source.CopyTo(span[position..(position += value.Length)]);
+        source.CopyTo(span[Position..(Position += value.Length)]);
     }
 }

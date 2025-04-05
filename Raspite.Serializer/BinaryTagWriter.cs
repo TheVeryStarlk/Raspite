@@ -5,8 +5,11 @@ namespace Raspite.Serializer;
 
 public ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, int maximumDepth)
 {
+    public int Position => writer.Position;
+
     private SpanWriter writer = new(span, littleEndian);
     private int maximumDepth = maximumDepth;
+
     private bool nameless;
 
     public void Write(Tag tag)
