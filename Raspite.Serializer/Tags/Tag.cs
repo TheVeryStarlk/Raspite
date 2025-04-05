@@ -1,21 +1,14 @@
 ﻿namespace Raspite.Serializer.Tags;
 
-public abstract record Tag
+public abstract record Tag(string Name)
 {
     public abstract byte Identifier { get; }
-
-    public string Name { get; set; } = string.Empty;
 }
 
-public abstract record Tag<T> : Tag
-{
-    public required T Value { get; set; }
-}
+public abstract record Tag<T>(T Value, string Name = "") : Tag(Name);
 
-public abstract record CollectionTag<T> : Tag
+public abstract record CollectionTag<T>(T[] Children, string Name = "") : Tag(Name)
 {
-    public required T[] Children { get; set; }
-
     public T this[int index]
     {
         get => Children[index];

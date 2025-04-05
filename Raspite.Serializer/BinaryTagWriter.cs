@@ -3,7 +3,7 @@ using Raspite.Serializer.Tags;
 
 namespace Raspite.Serializer;
 
-internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, int maximumDepth)
+public ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, int maximumDepth)
 {
     private SpanWriter writer = new(span, littleEndian);
     private int maximumDepth = maximumDepth;
@@ -13,7 +13,7 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, int maxi
     {
         if (!nameless)
         {
-            writer.WriteInteger(tag.Identifier);
+            writer.WriteByte(tag.Identifier);
             writer.WriteString(tag.Name);
         }
 
@@ -98,7 +98,7 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, int maxi
                 break;
 
             case LongCollectionTag current:
-                writer.WriteLong(current.Children.Length);
+                writer.WriteInteger(current.Children.Length);
 
                 if (BitConverter.IsLittleEndian == littleEndian)
                 {
