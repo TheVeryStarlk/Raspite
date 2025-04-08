@@ -2,8 +2,20 @@
 
 namespace Raspite.Serializer;
 
+/// <summary>
+/// Represents an <see cref="Exception"/> that is thrown when invalid NBT is encountered, or when the defined <see cref="BinaryTagSerializerOptions.MaximumDepth"/> is passed.
+/// </summary>
+/// <param name="message">The context specific exception message.</param>
 public sealed class BinaryTagSerializerException(string message) : Exception(message)
 {
+    /// <summary>
+    /// Throws a <see cref="BinaryTagSerializerException"/> if <paramref name="value"/> is not equal to <paramref name="other"/>.
+    /// </summary>
+    /// <param name="value">The argument to validate as equal to <paramref name="other"/>.</param>
+    /// <param name="other">The value to compare with <paramref name="value"/>.</param>
+    /// <param name="message">The context specific exception message.</param>
+    /// <typeparam name="T">An <see cref="INumber{TSelf}"/> for comparsion.</typeparam>
+    /// <exception cref="BinaryTagSerializerException">The thrown exception.</exception>
     public static void ThrowIfGreaterThan<T>(T value, T other, string message) where T : INumber<T>
     {
         if (value > other)
