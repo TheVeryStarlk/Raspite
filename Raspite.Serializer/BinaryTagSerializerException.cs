@@ -9,9 +9,9 @@ namespace Raspite.Serializer;
 public sealed class BinaryTagSerializerException(string message) : Exception(message)
 {
     /// <summary>
-    /// Throws a <see cref="BinaryTagSerializerException"/> if <paramref name="value"/> is not equal to <paramref name="other"/>.
+    /// Throws a <see cref="BinaryTagSerializerException"/> if <paramref name="value"/> is greater than <paramref name="other"/>.
     /// </summary>
-    /// <param name="value">The argument to validate as equal to <paramref name="other"/>.</param>
+    /// <param name="value">The argument to validate as less or equal than <paramref name="other"/>.</param>
     /// <param name="other">The value to compare with <paramref name="value"/>.</param>
     /// <param name="message">The context specific exception message.</param>
     /// <typeparam name="T">An <see cref="INumber{TSelf}"/> for comparsion.</typeparam>
