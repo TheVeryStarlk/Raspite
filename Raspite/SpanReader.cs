@@ -1,7 +1,6 @@
 ﻿using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using System.Text.Json;
 
 namespace Raspite;
 
@@ -148,7 +147,7 @@ internal ref struct SpanReader(ReadOnlySpan<byte> span, bool littleEndian)
 
     public bool TryRead([NotNullWhen(true)] out string? value)
     {
-        value = string.Empty;
+        value = null;
 
         if (!TryRead(out ushort length) || !TryRead(length, out var buffer))
         {
