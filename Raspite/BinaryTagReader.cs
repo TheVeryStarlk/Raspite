@@ -87,6 +87,11 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
             return false;
         }
 
+        BinaryTagSerializerException.ThrowIfGreaterThan(
+            length,
+            maximumDepth,
+            "Maximum depth reached.");
+
         if (type is 0)
         {
             tag = new ListTag([]);
