@@ -8,4 +8,4 @@
 An easy-to-use library for serializing/deserializing Minecraft's [named binary tag (NBT)](https://minecraft.fandom.com/wiki/NBT_format) format.
 
 # Usage
-The API is similar to System.Text.Json's:
+The API is similar to System.Text.Json:
