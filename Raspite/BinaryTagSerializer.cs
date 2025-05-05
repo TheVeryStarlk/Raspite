@@ -39,7 +39,7 @@ public static class BinaryTagSerializer
 
         var reader = PipeReader.Create(
             stream,
-            new StreamPipeReaderOptions(minimumReadSize: options.MinimumLength));
+            new StreamPipeReaderOptions(bufferSize: options.MinimumLength));
 
         while (true)
         {
