@@ -16,6 +16,8 @@ internal static class BufferWriterExtensions
             "Reached the end of the buffer.");
 
         value.CopyTo(span[..value.Length]);
+
+        writer.Advance(value.Length);
     }
 
     public static void Write(this IBufferWriter<byte> writer, byte value)
@@ -28,6 +30,8 @@ internal static class BufferWriterExtensions
             "Reached the end of the buffer.");
 
         span[0] = value;
+
+        writer.Advance(sizeof(byte));
     }
 
     public static void Write(this IBufferWriter<byte> writer, short value, bool littleEndian)
@@ -47,6 +51,8 @@ internal static class BufferWriterExtensions
         {
             BinaryPrimitives.WriteInt16BigEndian(span, value);
         }
+
+        writer.Advance(sizeof(short));
     }
 
     public static void Write(this IBufferWriter<byte> writer, int value, bool littleEndian)
@@ -66,6 +72,8 @@ internal static class BufferWriterExtensions
         {
             BinaryPrimitives.WriteInt32BigEndian(span, value);
         }
+
+        writer.Advance(sizeof(int));
     }
 
     public static void Write(this IBufferWriter<byte> writer, long value, bool littleEndian)
@@ -85,6 +93,9 @@ internal static class BufferWriterExtensions
         {
             BinaryPrimitives.WriteInt64BigEndian(span, value);
         }
+
+        writer.Advance(sizeof(long));
+
     }
 
     public static void Write(this IBufferWriter<byte> writer, float value, bool littleEndian)
@@ -104,6 +115,9 @@ internal static class BufferWriterExtensions
         {
             BinaryPrimitives.WriteSingleBigEndian(span, value);
         }
+
+        writer.Advance(sizeof(float));
+
     }
 
     public static void Write(this IBufferWriter<byte> writer, double value, bool littleEndian)
@@ -123,6 +137,9 @@ internal static class BufferWriterExtensions
         {
             BinaryPrimitives.WriteDoubleBigEndian(span, value);
         }
+
+        writer.Advance(sizeof(double));
+
     }
 
     public static void Write(this IBufferWriter<byte> writer, string value, bool littleEndian)
@@ -157,5 +174,7 @@ internal static class BufferWriterExtensions
             written,
             total,
             "Could not write the string.");
+
+        writer.Advance(total);
     }
 }
