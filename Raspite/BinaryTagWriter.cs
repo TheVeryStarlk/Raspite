@@ -1,11 +1,11 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Buffers;
+using System.Runtime.InteropServices;
 using Raspite.Tags;
 
 namespace Raspite;
 
-internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, int maximumDepth)
+internal ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian, int maximumDepth)
 {
-    private SpanWriter writer = new(span, littleEndian);
     private int maximumDepth = maximumDepth;
     private bool nameless;
 
@@ -13,8 +13,8 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, int maxi
     {
         if (!nameless)
         {
-            writer.Write(tag.Identifier);
-            writer.Write(tag.Name);
+            writer.Write(tag.Identifier, littleEndian);
+            writer.Write(tag.Name, littleEndian);
         }
 
         switch (tag)
@@ -24,39 +24,39 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, int maxi
                 break;
 
             case ShortTag current:
-                writer.Write(current.Value);
+                writer.Write(current.Value, littleEndian);
                 break;
 
             case IntegerTag current:
-                writer.Write(current.Value);
+                writer.Write(current.Value, littleEndian);
                 break;
 
             case LongTag current:
-                writer.Write(current.Value);
+                writer.Write(current.Value, littleEndian);
                 break;
 
             case FloatTag current:
-                writer.Write(current.Value);
+                writer.Write(current.Value, littleEndian);
                 break;
 
             case DoubleTag current:
-                writer.Write(current.Value);
+                writer.Write(current.Value, littleEndian);
                 break;
 
             case ByteCollectionTag current:
-                writer.Write(current.Value.Length);
+                writer.Write(current.Value.Length, littleEndian);
                 writer.Write(current.Value);
                 break;
 
             case StringTag current:
-                writer.Write(current.Value);
+                writer.Write(current.Value, littleEndian);
                 break;
 
             case ListTag current:
                 var identifier = (byte) (current.Value.Length > 0 ? current.Value[0].Identifier : 0);
 
                 writer.Write(identifier);
-                writer.Write(current.Value.Length);
+                writer.Write(current.Value.Length, littleEndian);
 
                 foreach (var child in current.Value)
                 {
@@ -78,11 +78,11 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, int maxi
                     Write(child);
                 }
 
-                writer.Write((byte) 0);
+                writer.Write(0);
                 break;
 
             case IntegerCollectionTag current:
-                writer.Write(current.Value.Length);
+                writer.Write(current.Value.Length, littleEndian);
 
                 if (BitConverter.IsLittleEndian == littleEndian)
                 {
@@ -92,13 +92,13 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, int maxi
 
                 foreach (var child in current.Value)
                 {
-                    writer.Write(child);
+                    writer.Write(child, littleEndian);
                 }
 
                 break;
 
             case LongCollectionTag current:
-                writer.Write(current.Value.Length);
+                writer.Write(current.Value.Length, littleEndian);
 
                 if (BitConverter.IsLittleEndian == littleEndian)
                 {
@@ -108,7 +108,7 @@ internal ref struct BinaryTagWriter(Span<byte> span, bool littleEndian, int maxi
 
                 foreach (var child in current.Value)
                 {
-                    writer.Write(child);
+                    writer.Write(child, littleEndian);
                 }
 
                 break;
