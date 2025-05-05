@@ -89,21 +89,16 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
             return false;
         }
 
-        BinaryTagSerializerException.ThrowIfGreaterThan(
-            length,
-            maximumDepth,
-            "Maximum depth reached.");
-
         if (type is 0)
         {
             tag = new ListTag([]);
             return true;
         }
 
-        BinaryTagSerializerException.ThrowIfGreaterThan(
-            length,
-            maximumDepth,
-            "List tag's length is bigger than the maximum depth.");
+        if (length > maximumDepth)
+        {
+            throw new BinaryTagSerializerException("Maximum depth reached.");
+        }
 
         var array = new Tag[length];
         var index = 0;
@@ -140,10 +135,10 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
 
         while (true)
         {
-            BinaryTagSerializerException.ThrowIfGreaterThan(
-                index,
-                maximumDepth,
-                "Maximum depth reached.");
+            if (index > maximumDepth)
+            {
+                throw new BinaryTagSerializerException("Maximum depth reached.");
+            }
 
             if (!reader.TryRead(out current))
             {

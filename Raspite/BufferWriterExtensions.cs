@@ -10,10 +10,10 @@ internal static class BufferWriterExtensions
     {
         var span = writer.GetSpan(value.Length);
 
-        BinaryTagSerializerException.ThrowIfGreaterThan(
-            value.Length,
-            span.Length,
-            "Reached the end of the buffer.");
+        if (value.Length > span.Length)
+        {
+            throw new BinaryTagSerializerException("Reached the end of the buffer.");
+        }
 
         value.CopyTo(span[..value.Length]);
 
@@ -24,10 +24,10 @@ internal static class BufferWriterExtensions
     {
         var span = writer.GetSpan(sizeof(byte));
 
-        BinaryTagSerializerException.ThrowIfGreaterThan(
-            sizeof(byte),
-            span.Length,
-            "Reached the end of the buffer.");
+        if (sizeof(byte) > span.Length)
+        {
+            throw new BinaryTagSerializerException("Reached the end of the buffer.");
+        }
 
         span[0] = value;
 
@@ -38,10 +38,10 @@ internal static class BufferWriterExtensions
     {
         var span = writer.GetSpan(sizeof(short));
 
-        BinaryTagSerializerException.ThrowIfGreaterThan(
-            sizeof(short),
-            span.Length,
-            "Reached the end of the buffer.");
+        if (sizeof(short) > span.Length)
+        {
+            throw new BinaryTagSerializerException("Reached the end of the buffer.");
+        }
 
         if (littleEndian)
         {
@@ -59,10 +59,10 @@ internal static class BufferWriterExtensions
     {
         var span = writer.GetSpan(sizeof(int));
 
-        BinaryTagSerializerException.ThrowIfGreaterThan(
-            sizeof(int),
-            span.Length,
-            "Reached the end of the buffer.");
+        if (sizeof(int) > span.Length)
+        {
+            throw new BinaryTagSerializerException("Reached the end of the buffer.");
+        }
 
         if (littleEndian)
         {
@@ -80,10 +80,10 @@ internal static class BufferWriterExtensions
     {
         var span = writer.GetSpan(sizeof(long));
 
-        BinaryTagSerializerException.ThrowIfGreaterThan(
-            sizeof(long),
-            span.Length,
-            "Reached the end of the buffer.");
+        if (sizeof(long) > span.Length)
+        {
+            throw new BinaryTagSerializerException("Reached the end of the buffer.");
+        }
 
         if (littleEndian)
         {
@@ -102,10 +102,10 @@ internal static class BufferWriterExtensions
     {
         var span = writer.GetSpan(sizeof(float));
 
-        BinaryTagSerializerException.ThrowIfGreaterThan(
-            sizeof(float),
-            span.Length,
-            "Reached the end of the buffer.");
+        if (sizeof(float) > span.Length)
+        {
+            throw new BinaryTagSerializerException("Reached the end of the buffer.");
+        }
 
         if (littleEndian)
         {
@@ -124,10 +124,10 @@ internal static class BufferWriterExtensions
     {
         var span = writer.GetSpan(sizeof(double));
 
-        BinaryTagSerializerException.ThrowIfGreaterThan(
-            sizeof(double),
-            span.Length,
-            "Reached the end of the buffer.");
+        if (sizeof(double) > span.Length)
+        {
+            throw new BinaryTagSerializerException("Reached the end of the buffer.");
+        }
 
         if (littleEndian)
         {
@@ -146,18 +146,18 @@ internal static class BufferWriterExtensions
     {
         var length = Encoding.UTF8.GetByteCount(value);
 
-        BinaryTagSerializerException.ThrowIfGreaterThan(
-            length,
-            ushort.MaxValue,
-            "String is too big.");
+        if (length > ushort.MaxValue)
+        {
+            throw new BinaryTagSerializerException("String is too big.");
+        }
 
         var total = sizeof(ushort) + length;
         var span = writer.GetSpan(total);
 
-        BinaryTagSerializerException.ThrowIfGreaterThan(
-            total,
-            span.Length,
-            "Reached the end of the buffer.");
+        if (total > span.Length)
+        {
+            throw new BinaryTagSerializerException("Reached the end of the buffer.");
+        }
 
         if (littleEndian)
         {
@@ -170,10 +170,10 @@ internal static class BufferWriterExtensions
 
         var written = Encoding.UTF8.GetBytes(value, span[sizeof(ushort)..]);
 
-        BinaryTagSerializerException.ThrowIfGreaterThan(
-            written,
-            total,
-            "Failed to write the string.");
+        if (written > total)
+        {
+            throw new BinaryTagSerializerException("Failed to write the string.");
+        }
 
         writer.Advance(total);
     }
