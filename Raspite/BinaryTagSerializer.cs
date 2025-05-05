@@ -97,6 +97,24 @@ public static class BinaryTagSerializer
         }
     }
 
+    public static void Serialize(Stream stream, Tag tag, BinaryTagSerializerOptions? options = null)
+    {
+        options ??= new BinaryTagSerializerOptions();
+
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaximumDepth, nameof(options.MaximumDepth));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
+
+        var writer = PipeWriter.Create(
+            stream,
+            new StreamPipeWriterOptions(minimumBufferSize: options.MinimumLength));
+
+        var self = new BinaryTagWriter(writer, options.LittleEndian, options.MaximumDepth);
+
+        self.Write(tag);
+
+        stream.Flush();
+    }
+
     public static T Deserialize<T>(ReadOnlySpan<byte> span, BinaryTagSerializerOptions? options = null) where T : Tag
     {
         options ??= new BinaryTagSerializerOptions();
