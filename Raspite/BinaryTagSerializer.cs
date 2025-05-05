@@ -101,8 +101,8 @@ public static class BinaryTagSerializer
     {
         options ??= new BinaryTagSerializerOptions();
 
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaximumDepth, nameof(options.MaximumDepth));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
 
         var reader = new BinaryTagReader(span, options.LittleEndian, options.MaximumDepth);
 
