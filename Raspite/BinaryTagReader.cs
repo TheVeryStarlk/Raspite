@@ -145,8 +145,6 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
                 maximumDepth,
                 "Maximum depth reached.");
 
-            index++;
-
             if (!reader.TryRead(out current))
             {
                 return false;
@@ -163,7 +161,7 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
             }
 
             child.Name = name;
-            array[index] = child;
+            array[index++] = child;
         }
 
         tag = new CompoundTag(array[..index]);
