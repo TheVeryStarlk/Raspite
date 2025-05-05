@@ -19,7 +19,7 @@ internal ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndia
     {
         if (!nameless)
         {
-            writer.Write(tag.Identifier, littleEndian);
+            writer.Write(tag.Identifier);
             writer.Write(tag.Name, littleEndian);
         }
 

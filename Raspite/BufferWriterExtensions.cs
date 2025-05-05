@@ -151,7 +151,7 @@ internal static class BufferWriterExtensions
             ushort.MaxValue,
             "String is too big.");
 
-        var total = (ushort) (sizeof(ushort) + length);
+        var total = sizeof(ushort) + length;
         var span = writer.GetSpan(total);
 
         BinaryTagSerializerException.ThrowIfGreaterThan(
@@ -161,11 +161,11 @@ internal static class BufferWriterExtensions
 
         if (littleEndian)
         {
-            BinaryPrimitives.WriteUInt16LittleEndian(span, total);
+            BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort) length);
         }
         else
         {
-            BinaryPrimitives.WriteUInt16BigEndian(span, total);
+            BinaryPrimitives.WriteUInt16BigEndian(span, (ushort) length);
         }
 
         var written = Encoding.UTF8.GetBytes(value, span[sizeof(ushort)..]);
