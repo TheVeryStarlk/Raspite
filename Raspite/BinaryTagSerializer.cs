@@ -8,9 +8,7 @@ public static class BinaryTagSerializer
     public static async Task SerializeAsync(Stream stream, Tag tag, BinaryTagSerializerOptions? options = null)
     {
         options ??= new BinaryTagSerializerOptions();
-
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaximumDepth, nameof(options.MaximumDepth));
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
+        options.Validate();
 
         var writer = PipeWriter.Create(stream);
         var self = new BinaryTagWriter(writer, options.LittleEndian, options.MaximumDepth);
@@ -28,9 +26,7 @@ public static class BinaryTagSerializer
     public static T Deserialize<T>(ReadOnlySpan<byte> span, BinaryTagSerializerOptions? options = null) where T : Tag
     {
         options ??= new BinaryTagSerializerOptions();
-
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaximumDepth, nameof(options.MaximumDepth));
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
+        options.Validate();
 
         var reader = new BinaryTagReader(span, options.LittleEndian, options.MaximumDepth);
 
@@ -50,4 +46,10 @@ public sealed class BinaryTagSerializerOptions
     public int MinimumLength { get; init; } = 2048;
 
     public bool LittleEndian { get; init; }
+
+    public void Validate()
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(MaximumDepth, nameof(MaximumDepth));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(MinimumLength, nameof(MinimumLength));
+    }
 }
