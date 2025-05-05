@@ -173,7 +173,7 @@ internal static class BufferWriterExtensions
         BinaryTagSerializerException.ThrowIfGreaterThan(
             written,
             total,
-            "Could not write the string.");
+            "Failed to write the string.");
 
         writer.Advance(total);
     }

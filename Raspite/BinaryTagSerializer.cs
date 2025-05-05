@@ -10,7 +10,9 @@ public static class BinaryTagSerializer
         options ??= new BinaryTagSerializerOptions();
 
         var writer = PipeWriter.Create(stream);
-        BinaryTagWriter.Write(writer, tag, options.LittleEndian, options.MaximumDepth);
+        var self = new BinaryTagWriter(writer, options.LittleEndian, options.MaximumDepth);
+
+        self.Write(tag);
 
         var result = await writer.FlushAsync();
 
@@ -19,13 +21,27 @@ public static class BinaryTagSerializer
             throw new BinaryTagSerializerException("Operation was cancelled.");
         }
     }
+
+    public static T Deserialize<T>(ReadOnlySpan<byte> span, BinaryTagSerializerOptions? options = null) where T : Tag
+    {
+        options ??= new BinaryTagSerializerOptions();
+
+        var reader = new BinaryTagReader(span, options.LittleEndian, options.MaximumDepth);
+
+        if (reader.TryRead(out var tag))
+        {
+            return (T) tag;
+        }
+
+        throw new BinaryTagSerializerException("Failed to deserialize tag.");
+    }
 }
 
 public sealed class BinaryTagSerializerOptions
 {
-    public bool LittleEndian { get; init; }
-
     public int MaximumDepth { get; init; } = 256;
 
     public int MinimumLength { get; init; } = 2048;
+
+    public bool LittleEndian { get; init; }
 }
