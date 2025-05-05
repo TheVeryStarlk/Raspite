@@ -14,15 +14,14 @@ public static class BinaryTagSerializer
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaximumDepth, nameof(options.MaximumDepth));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
 
-        var writer = PipeWriter.Create(
+        var pipeWriter = PipeWriter.Create(
             stream,
             new StreamPipeWriterOptions(minimumBufferSize: options.MinimumLength));
 
-        var self = new BinaryTagWriter(writer, options.LittleEndian, options.MaximumDepth);
+        var writer = new BinaryTagWriter(pipeWriter, options.LittleEndian, options.MaximumDepth);
+        writer.Write(tag);
 
-        self.Write(tag);
-
-        var result = await writer.FlushAsync(cancellationToken);
+        var result = await pipeWriter.FlushAsync(cancellationToken);
 
         if (result.IsCanceled)
         {
@@ -104,13 +103,12 @@ public static class BinaryTagSerializer
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaximumDepth, nameof(options.MaximumDepth));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
 
-        var writer = PipeWriter.Create(
+        var pipeWriter = PipeWriter.Create(
             stream,
             new StreamPipeWriterOptions(minimumBufferSize: options.MinimumLength));
 
-        var self = new BinaryTagWriter(writer, options.LittleEndian, options.MaximumDepth);
-
-        self.Write(tag);
+        var writer = new BinaryTagWriter(pipeWriter, options.LittleEndian, options.MaximumDepth);
+        writer.Write(tag);
 
         stream.Flush();
     }
