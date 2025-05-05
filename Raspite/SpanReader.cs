@@ -6,6 +6,8 @@ namespace Raspite;
 
 internal ref struct SpanReader(ReadOnlySpan<byte> span, bool littleEndian)
 {
+    public readonly int Consumed => index;
+
     private ReadOnlySpan<byte> span = span;
     private int index;
 

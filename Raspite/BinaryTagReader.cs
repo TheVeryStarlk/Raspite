@@ -6,6 +6,8 @@ namespace Raspite;
 
 internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, int maximumDepth)
 {
+    public readonly int Consumed => reader.Consumed;
+
     private SpanReader reader = new(span, littleEndian);
     private byte current;
 
