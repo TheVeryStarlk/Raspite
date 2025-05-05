@@ -13,8 +13,4 @@
 		<NeutralLanguage>en</NeutralLanguage>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="System.IO.Pipelines" Version="9.0.0"/>
-	</ItemGroup>
-
 </Project>
