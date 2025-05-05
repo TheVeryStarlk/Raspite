@@ -5,12 +5,19 @@ namespace Raspite;
 
 public static class BinaryTagSerializer
 {
-    public static void Serialize(Stream stream, Tag tag, BinaryTagSerializerOptions? options = null)
+    public static async Task SerializeAsync(Stream stream, Tag tag, BinaryTagSerializerOptions? options = null)
     {
         options ??= new BinaryTagSerializerOptions();
 
-        var writer = new BinaryTagWriter(PipeWriter.Create(stream), options.LittleEndian, options.MaximumDepth);
-        writer.Write(tag);
+        var writer = PipeWriter.Create(stream);
+        BinaryTagWriter.Write(writer, tag, options.LittleEndian, options.MaximumDepth);
+
+        var result = await writer.FlushAsync();
+
+        if (result.IsCanceled)
+        {
+            throw new BinaryTagSerializerException("Operation was cancelled.");
+        }
     }
 }
 

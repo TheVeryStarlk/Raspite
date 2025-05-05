@@ -9,6 +9,12 @@ internal ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndia
     private int maximumDepth = maximumDepth;
     private bool nameless;
 
+    public static void Write(IBufferWriter<byte> writer, Tag tag, bool littleEndian, int maximumDepth)
+    {
+        var self = new BinaryTagWriter(writer, littleEndian, maximumDepth);
+        self.Write(tag);
+    }
+
     public void Write(Tag tag)
     {
         if (!nameless)
