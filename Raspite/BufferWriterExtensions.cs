@@ -10,11 +10,6 @@ internal static class BufferWriterExtensions
     {
         var span = writer.GetSpan(value.Length);
 
-        if (value.Length > span.Length)
-        {
-            throw new BinaryTagSerializerException("Reached the end of the buffer.");
-        }
-
         value.CopyTo(span[..value.Length]);
 
         writer.Advance(value.Length);
@@ -23,12 +18,6 @@ internal static class BufferWriterExtensions
     public static void Write(this IBufferWriter<byte> writer, byte value)
     {
         var span = writer.GetSpan(sizeof(byte));
-
-        if (sizeof(byte) > span.Length)
-        {
-            throw new BinaryTagSerializerException("Reached the end of the buffer.");
-        }
-
         span[0] = value;
 
         writer.Advance(sizeof(byte));
@@ -37,11 +26,6 @@ internal static class BufferWriterExtensions
     public static void Write(this IBufferWriter<byte> writer, short value, bool littleEndian)
     {
         var span = writer.GetSpan(sizeof(short));
-
-        if (sizeof(short) > span.Length)
-        {
-            throw new BinaryTagSerializerException("Reached the end of the buffer.");
-        }
 
         if (littleEndian)
         {
@@ -59,11 +43,6 @@ internal static class BufferWriterExtensions
     {
         var span = writer.GetSpan(sizeof(int));
 
-        if (sizeof(int) > span.Length)
-        {
-            throw new BinaryTagSerializerException("Reached the end of the buffer.");
-        }
-
         if (littleEndian)
         {
             BinaryPrimitives.WriteInt32LittleEndian(span, value);
@@ -79,11 +58,6 @@ internal static class BufferWriterExtensions
     public static void Write(this IBufferWriter<byte> writer, long value, bool littleEndian)
     {
         var span = writer.GetSpan(sizeof(long));
-
-        if (sizeof(long) > span.Length)
-        {
-            throw new BinaryTagSerializerException("Reached the end of the buffer.");
-        }
 
         if (littleEndian)
         {
@@ -102,11 +76,6 @@ internal static class BufferWriterExtensions
     {
         var span = writer.GetSpan(sizeof(float));
 
-        if (sizeof(float) > span.Length)
-        {
-            throw new BinaryTagSerializerException("Reached the end of the buffer.");
-        }
-
         if (littleEndian)
         {
             BinaryPrimitives.WriteSingleLittleEndian(span, value);
@@ -124,11 +93,6 @@ internal static class BufferWriterExtensions
     {
         var span = writer.GetSpan(sizeof(double));
 
-        if (sizeof(double) > span.Length)
-        {
-            throw new BinaryTagSerializerException("Reached the end of the buffer.");
-        }
-
         if (littleEndian)
         {
             BinaryPrimitives.WriteDoubleLittleEndian(span, value);
@@ -139,25 +103,13 @@ internal static class BufferWriterExtensions
         }
 
         writer.Advance(sizeof(double));
-
     }
 
     public static void Write(this IBufferWriter<byte> writer, string value, bool littleEndian)
     {
         var length = Encoding.UTF8.GetByteCount(value);
-
-        if (length > ushort.MaxValue)
-        {
-            throw new BinaryTagSerializerException("String is too big.");
-        }
-
         var total = sizeof(ushort) + length;
         var span = writer.GetSpan(total);
-
-        if (total > span.Length)
-        {
-            throw new BinaryTagSerializerException("Reached the end of the buffer.");
-        }
 
         if (littleEndian)
         {
