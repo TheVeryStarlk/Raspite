@@ -48,8 +48,8 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
                 tag = new DoubleTag(value);
                 break;
 
-            case 7 when reader.TryRead(out int length) && reader.TryRead(length, out var children):
-                tag = new ByteCollectionTag(children.ToArray());
+            case 7 when reader.TryRead(out int length) && reader.TryRead(length, out var span):
+                tag = new ByteCollectionTag(span.ToArray());
                 break;
 
             case 8 when reader.TryRead(out string? value):
@@ -103,7 +103,7 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
         BinaryTagSerializerException.ThrowIfGreaterThan(
             length,
             maximumDepth,
-            "Children length can not be bigger than the maximum depth.");
+            "List tag's length is bigger than the maximum depth.");
 
         var array = new Tag[length];
         var index = 0;
@@ -127,7 +127,7 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
 
         current = 0;
 
-        tag = new ListTag(array);
+        tag = new ListTag(array[..index]);
         return true;
     }
 
@@ -166,7 +166,7 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
             array[index] = child;
         }
 
-        tag = new CompoundTag(array);
+        tag = new CompoundTag(array[..index]);
         return true;
     }
 
@@ -185,19 +185,19 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
             return true;
         }
 
-        var children = new int[length];
+        var array = new int[length];
 
-        for (var index = 0; index < children.Length; index++)
+        for (var index = 0; index < array.Length; index++)
         {
             if (!reader.TryRead(out int value))
             {
                 return false;
             }
 
-            children[index] = value;
+            array[index] = value;
         }
 
-        tag = new IntegerCollectionTag(children);
+        tag = new IntegerCollectionTag(array);
         return true;
     }
 
@@ -216,19 +216,19 @@ internal ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian, 
             return true;
         }
 
-        var children = new long[length];
+        var array = new long[length];
 
-        for (var index = 0; index < children.Length; index++)
+        for (var index = 0; index < array.Length; index++)
         {
             if (!reader.TryRead(out long value))
             {
                 return false;
             }
 
-            children[index] = value;
+            array[index] = value;
         }
 
-        tag = new LongCollectionTag(children);
+        tag = new LongCollectionTag(array);
         return true;
     }
 }
