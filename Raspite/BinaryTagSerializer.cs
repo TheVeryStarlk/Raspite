@@ -7,12 +7,12 @@ namespace Raspite;
 
 public static class BinaryTagSerializer
 {
-    public static async Task SerializeAsync(Stream stream, Tag tag, BinaryTagSerializerOptions? options = null)
+    public static async Task SerializeAsync(Stream stream, Tag tag, BinaryTagSerializerOptions? options = null, CancellationToken cancellationToken = default)
     {
         options ??= new BinaryTagSerializerOptions();
 
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaximumDepth, nameof(options.MaximumDepth));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
 
         var writer = PipeWriter.Create(
             stream,
@@ -22,20 +22,20 @@ public static class BinaryTagSerializer
 
         self.Write(tag);
 
-        var result = await writer.FlushAsync();
+        var result = await writer.FlushAsync(cancellationToken);
 
         if (result.IsCanceled)
         {
-            throw new BinaryTagSerializerException("Operation was cancelled.");
+            throw new OperationCanceledException();
         }
     }
 
-    public static async Task<T> DeserializeAsync<T>(Stream stream, BinaryTagSerializerOptions? options = null) where T : Tag
+    public static async Task<T> DeserializeAsync<T>(Stream stream, BinaryTagSerializerOptions? options = null, CancellationToken cancellationToken = default) where T : Tag
     {
         options ??= new BinaryTagSerializerOptions();
 
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaximumDepth, nameof(options.MaximumDepth));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
 
         var reader = PipeReader.Create(
             stream,
@@ -43,7 +43,7 @@ public static class BinaryTagSerializer
 
         while (true)
         {
-            var result = await reader.ReadAsync().ConfigureAwait(false);
+            var result = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
             var buffer = result.Buffer;
 
             var consumed = buffer.Start;
@@ -101,8 +101,8 @@ public static class BinaryTagSerializer
     {
         options ??= new BinaryTagSerializerOptions();
 
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaximumDepth, nameof(options.MaximumDepth));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MinimumLength, nameof(options.MinimumLength));
 
         var reader = new BinaryTagReader(span, options.LittleEndian, options.MaximumDepth);
 
@@ -117,9 +117,9 @@ public static class BinaryTagSerializer
 
 public sealed class BinaryTagSerializerOptions
 {
-    public int MinimumLength { get; init; } = 2048;
-
     public int MaximumDepth { get; init; } = 256;
+
+    public int MinimumLength { get; init; } = 2048;
 
     public bool LittleEndian { get; init; }
 }
