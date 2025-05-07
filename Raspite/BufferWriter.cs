@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Raspite;
 
-internal readonly ref struct BufferWriter(IBufferWriter<byte> writer, bool littleEndian)
+internal readonly ref struct BufferWriter(IBufferWriter<byte> writer)
 {
     public void Write(ReadOnlySpan<byte> value)
     {
@@ -25,15 +25,7 @@ internal readonly ref struct BufferWriter(IBufferWriter<byte> writer, bool littl
     public void Write(short value)
     {
         var span = writer.GetSpan(sizeof(short));
-
-        if (littleEndian)
-        {
-            BinaryPrimitives.WriteInt16LittleEndian(span, value);
-        }
-        else
-        {
-            BinaryPrimitives.WriteInt16BigEndian(span, value);
-        }
+        BinaryPrimitives.WriteInt16LittleEndian(span, value);
 
         writer.Advance(sizeof(short));
     }
@@ -41,15 +33,7 @@ internal readonly ref struct BufferWriter(IBufferWriter<byte> writer, bool littl
     public void Write(int value)
     {
         var span = writer.GetSpan(sizeof(int));
-
-        if (littleEndian)
-        {
-            BinaryPrimitives.WriteInt32LittleEndian(span, value);
-        }
-        else
-        {
-            BinaryPrimitives.WriteInt32BigEndian(span, value);
-        }
+        BinaryPrimitives.WriteInt32LittleEndian(span, value);
 
         writer.Advance(sizeof(int));
     }
@@ -57,15 +41,7 @@ internal readonly ref struct BufferWriter(IBufferWriter<byte> writer, bool littl
     public void Write(long value)
     {
         var span = writer.GetSpan(sizeof(long));
-
-        if (littleEndian)
-        {
-            BinaryPrimitives.WriteInt64LittleEndian(span, value);
-        }
-        else
-        {
-            BinaryPrimitives.WriteInt64BigEndian(span, value);
-        }
+        BinaryPrimitives.WriteInt64LittleEndian(span, value);
 
         writer.Advance(sizeof(long));
     }
@@ -73,15 +49,7 @@ internal readonly ref struct BufferWriter(IBufferWriter<byte> writer, bool littl
     public void Write(float value)
     {
         var span = writer.GetSpan(sizeof(float));
-
-        if (littleEndian)
-        {
-            BinaryPrimitives.WriteSingleLittleEndian(span, value);
-        }
-        else
-        {
-            BinaryPrimitives.WriteSingleBigEndian(span, value);
-        }
+        BinaryPrimitives.WriteSingleLittleEndian(span, value);
 
         writer.Advance(sizeof(float));
     }
@@ -89,15 +57,7 @@ internal readonly ref struct BufferWriter(IBufferWriter<byte> writer, bool littl
     public void Write(double value)
     {
         var span = writer.GetSpan(sizeof(double));
-
-        if (littleEndian)
-        {
-            BinaryPrimitives.WriteDoubleLittleEndian(span, value);
-        }
-        else
-        {
-            BinaryPrimitives.WriteDoubleBigEndian(span, value);
-        }
+        BinaryPrimitives.WriteDoubleLittleEndian(span, value);
 
         writer.Advance(sizeof(double));
     }
@@ -108,18 +68,9 @@ internal readonly ref struct BufferWriter(IBufferWriter<byte> writer, bool littl
         var total = sizeof(ushort) + length;
         var span = writer.GetSpan(total);
 
-        if (littleEndian)
-        {
-            BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort) length);
-        }
-        else
-        {
-            BinaryPrimitives.WriteUInt16BigEndian(span, (ushort) length);
-        }
+        BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort) length);
 
-        var written = Encoding.UTF8.GetBytes(value, span[sizeof(ushort)..]);
-
-        if (written > total)
+        if (Encoding.UTF8.GetBytes(value, span[sizeof(ushort)..]) > total)
         {
             throw new BinaryTagSerializerException("Failed to write the string.");
         }
