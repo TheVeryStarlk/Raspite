@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Raspite;
 
-public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
+public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian, bool variablePrefix)
 {
     private bool nameless;
 
@@ -21,45 +21,45 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
     public void WriteShort(short value, string name = "")
     {
         Write(Tag.Short, name);
-        writer.WriteShort(value);
+        writer.WriteShort(value, littleEndian);
     }
 
     public void WriteInteger(short value, string name = "")
     {
         Write(Tag.Integer, name);
-        writer.WriteInteger(value);
+        writer.WriteInteger(value, littleEndian);
     }
 
     public void WriteLong(short value, string name = "")
     {
         Write(Tag.Long, name);
-        writer.WriteLong(value);
+        writer.WriteLong(value, littleEndian);
     }
 
     public void WriteFloat(short value, string name = "")
     {
         Write(Tag.Float, name);
-        writer.WriteFloat(value);
+        writer.WriteFloat(value, littleEndian);
     }
 
     public void WriteDouble(short value, string name = "")
     {
         Write(Tag.Double, name);
-        writer.WriteDouble(value);
+        writer.WriteDouble(value, littleEndian);
     }
 
     public void WriteByteCollection(ReadOnlySpan<byte> value, string name = "")
     {
         Write(Tag.ByteCollection, name);
 
-        writer.WriteInteger(value.Length);
+        writer.WriteInteger(value.Length, littleEndian);
         writer.Write(value);
     }
 
     public void WriteString(string value, string name = "")
     {
         Write(Tag.String, name);
-        writer.WriteString(value);
+        writer.WriteString(value, littleEndian);
     }
 
     public void WriteList(byte identifier, int length, string name = "")
@@ -69,7 +69,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
         nameless = true;
 
         writer.WriteByte(identifier);
-        writer.WriteInteger(length);
+        writer.WriteInteger(length, littleEndian);
     }
 
     public void WriteCompound(string name = "")
@@ -82,7 +82,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
     {
         Write(Tag.IntegerCollection, name);
 
-        writer.WriteInteger(value.Length);
+        writer.WriteInteger(value.Length, littleEndian);
         writer.Write(MemoryMarshal.AsBytes(value));
     }
 
@@ -90,7 +90,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
     {
         Write(Tag.LongCollection, name);
 
-        writer.WriteInteger(value.Length);
+        writer.WriteInteger(value.Length, littleEndian);
         writer.Write(MemoryMarshal.AsBytes(value));
     }
 
@@ -102,7 +102,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
         }
 
         writer.WriteByte(identifier);
-        writer.WriteString(name);
+        writer.WriteString(name, littleEndian);
     }
 }
 

@@ -22,53 +22,101 @@ internal static class BufferWriterExtensions
         writer.Advance(sizeof(byte));
     }
 
-    public static void WriteShort(this IBufferWriter<byte> writer, short value)
+    public static void WriteShort(this IBufferWriter<byte> writer, short value, bool littleEndian)
     {
         var span = writer.GetSpan(sizeof(short));
-        BinaryPrimitives.WriteInt16LittleEndian(span, value);
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteInt16LittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteInt16BigEndian(span, value);
+        }
 
         writer.Advance(sizeof(short));
     }
 
-    public static void WriteInteger(this IBufferWriter<byte> writer, int value)
+    public static void WriteInteger(this IBufferWriter<byte> writer, int value, bool littleEndian)
     {
         var span = writer.GetSpan(sizeof(int));
-        BinaryPrimitives.WriteInt32LittleEndian(span, value);
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteInt32LittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteInt32BigEndian(span, value);
+        }
 
         writer.Advance(sizeof(int));
     }
 
-    public static void WriteLong(this IBufferWriter<byte> writer, long value)
+    public static void WriteLong(this IBufferWriter<byte> writer, long value, bool littleEndian)
     {
         var span = writer.GetSpan(sizeof(long));
-        BinaryPrimitives.WriteInt64LittleEndian(span, value);
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteInt64LittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteInt64BigEndian(span, value);
+        }
 
         writer.Advance(sizeof(long));
     }
 
-    public static void WriteFloat(this IBufferWriter<byte> writer, float value)
+    public static void WriteFloat(this IBufferWriter<byte> writer, float value, bool littleEndian)
     {
         var span = writer.GetSpan(sizeof(float));
-        BinaryPrimitives.WriteSingleLittleEndian(span, value);
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteSingleLittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteSingleBigEndian(span, value);
+        }
 
         writer.Advance(sizeof(float));
     }
 
-    public static void WriteDouble(this IBufferWriter<byte> writer, double value)
+    public static void WriteDouble(this IBufferWriter<byte> writer, double value, bool littleEndian)
     {
         var span = writer.GetSpan(sizeof(double));
-        BinaryPrimitives.WriteDoubleLittleEndian(span, value);
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteDoubleLittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteDoubleBigEndian(span, value);
+        }
 
         writer.Advance(sizeof(double));
     }
 
-    public static void WriteString(this IBufferWriter<byte> writer, string value)
+    // Refactor this a bit.
+    public static void WriteString(this IBufferWriter<byte> writer, string value, bool littleEndian)
     {
         var length = Encoding.UTF8.GetByteCount(value);
         var total = sizeof(ushort) + length;
         var span = writer.GetSpan(total);
 
-        BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort) length);
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort) length);
+        }
+        else
+        {
+            BinaryPrimitives.WriteUInt16BigEndian(span, (ushort) length);
+        }
 
         var written = Encoding.UTF8.GetBytes(value, span[sizeof(ushort)..]);
 
