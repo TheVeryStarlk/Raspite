@@ -83,7 +83,17 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
         Write(Tag.IntegerCollection, name);
 
         writer.WriteInteger(value.Length, littleEndian);
-        writer.Write(MemoryMarshal.AsBytes(value));
+
+        if (BitConverter.IsLittleEndian == littleEndian)
+        {
+            writer.Write(MemoryMarshal.AsBytes(value));
+            return;
+        }
+
+        foreach (var item in value)
+        {
+            writer.WriteInteger(item, littleEndian);
+        }
     }
 
     public void WriteLongCollection(ReadOnlySpan<long> value, string name = "")
@@ -91,7 +101,17 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
         Write(Tag.LongCollection, name);
 
         writer.WriteInteger(value.Length, littleEndian);
-        writer.Write(MemoryMarshal.AsBytes(value));
+
+        if (BitConverter.IsLittleEndian == littleEndian)
+        {
+            writer.Write(MemoryMarshal.AsBytes(value));
+            return;
+        }
+
+        foreach (var item in value)
+        {
+            writer.WriteLong(item, littleEndian);
+        }
     }
 
     private void Write(byte identifier, string name)
