@@ -12,43 +12,43 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
         writer.WriteByte(Tag.End);
     }
 
-    public void WriteByte(string name, byte value)
+    public void WriteByte(byte value, string name = "")
     {
         Write(Tag.Byte, name);
         writer.WriteByte(value);
     }
 
-    public void WriteShort(string name, short value)
+    public void WriteShort(short value, string name = "")
     {
         Write(Tag.Short, name);
         writer.WriteShort(value);
     }
 
-    public void WriteInteger(string name, short value)
+    public void WriteInteger(short value, string name = "")
     {
         Write(Tag.Integer, name);
         writer.WriteInteger(value);
     }
 
-    public void WriteLong(string name, short value)
+    public void WriteLong(short value, string name = "")
     {
         Write(Tag.Long, name);
         writer.WriteLong(value);
     }
 
-    public void WriteFloat(string name, short value)
+    public void WriteFloat(short value, string name = "")
     {
         Write(Tag.Float, name);
         writer.WriteFloat(value);
     }
 
-    public void WriteDouble(string name, short value)
+    public void WriteDouble(short value, string name = "")
     {
         Write(Tag.Double, name);
         writer.WriteDouble(value);
     }
 
-    public void WriteByteCollection(string name, ReadOnlySpan<byte> value)
+    public void WriteByteCollection(ReadOnlySpan<byte> value, string name = "")
     {
         Write(Tag.ByteCollection, name);
 
@@ -56,13 +56,13 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
         writer.Write(value);
     }
 
-    public void WriteString(string name, string value)
+    public void WriteString(string value, string name = "")
     {
         Write(Tag.String, name);
         writer.WriteString(value);
     }
 
-    public void WriteList(string name, byte identifier, int length)
+    public void WriteList(byte identifier, int length, string name = "")
     {
         Write(Tag.List, name);
 
@@ -72,13 +72,13 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
         writer.WriteInteger(length);
     }
 
-    public void WriteCompound(string name)
+    public void WriteCompound(string name = "")
     {
         nameless = false;
         Write(Tag.Compound, name);
     }
 
-    public void WriteIntegerCollection(string name, ReadOnlySpan<int> value)
+    public void WriteIntegerCollection(ReadOnlySpan<int> value, string name = "")
     {
         Write(Tag.IntegerCollection, name);
 
@@ -86,7 +86,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
         writer.Write(MemoryMarshal.AsBytes(value));
     }
 
-    public void WriteLongCollection(string name, ReadOnlySpan<long> value)
+    public void WriteLongCollection(ReadOnlySpan<long> value, string name = "")
     {
         Write(Tag.LongCollection, name);
 
