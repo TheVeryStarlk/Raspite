@@ -2,24 +2,48 @@
 
 namespace Raspite;
 
-internal readonly ref struct BinaryTagWriter(IBufferWriter<byte> writer)
+public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
 {
-    public void WriteCompound(string name)
-    {
-        writer.WriteByte(Tag.Compound);
-        writer.WriteString(name);
-    }
+    private bool nameless;
 
     public void WriteEnd()
     {
         writer.WriteByte(Tag.End);
     }
 
+    public void WriteByte(string name, byte value)
+    {
+        Write(Tag.Byte, name);
+        writer.WriteByte(value);
+    }
+
     public void WriteString(string name, string value)
     {
-        writer.WriteByte(Tag.String);
-        writer.WriteString(name);
+        Write(Tag.String, name);
         writer.WriteString(value);
+    }
+
+    public void WriteCompound(string name)
+    {
+        nameless = false;
+        Write(Tag.Compound, name);
+    }
+
+    public void WriteList(string name)
+    {
+        nameless = true;
+        Write(Tag.List, name);
+    }
+
+    private void Write(byte identifier, string name)
+    {
+        if (nameless)
+        {
+            return;
+        }
+
+        writer.WriteByte(identifier);
+        writer.WriteString(name);
     }
 }
 
