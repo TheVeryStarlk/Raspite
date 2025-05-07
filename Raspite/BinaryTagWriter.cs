@@ -17,6 +17,36 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
         writer.WriteByte(value);
     }
 
+    public void WriteShort(string name, short value)
+    {
+        Write(Tag.Short, name);
+        writer.WriteShort(value);
+    }
+
+    public void WriteInteger(string name, short value)
+    {
+        Write(Tag.Integer, name);
+        writer.WriteInteger(value);
+    }
+
+    public void WriteLong(string name, short value)
+    {
+        Write(Tag.Long, name);
+        writer.WriteLong(value);
+    }
+
+    public void WriteFloat(string name, short value)
+    {
+        Write(Tag.Float, name);
+        writer.WriteFloat(value);
+    }
+
+    public void WriteDouble(string name, short value)
+    {
+        Write(Tag.Double, name);
+        writer.WriteDouble(value);
+    }
+
     public void WriteString(string name, string value)
     {
         Write(Tag.String, name);
@@ -52,7 +82,7 @@ internal static class Tag
     public const byte End = 0;
     public const byte Byte = 1;
     public const byte Short = 2;
-    public const byte Int = 3;
+    public const byte Integer = 3;
     public const byte Long = 4;
     public const byte Float = 5;
     public const byte Double = 6;
