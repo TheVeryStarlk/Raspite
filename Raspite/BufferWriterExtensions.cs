@@ -9,7 +9,6 @@ internal static class BufferWriterExtensions
     public static void Write(this IBufferWriter<byte> writer, ReadOnlySpan<byte> value)
     {
         var span = writer.GetSpan(value.Length);
-
         value.CopyTo(span[..value.Length]);
 
         writer.Advance(value.Length);
@@ -23,100 +22,53 @@ internal static class BufferWriterExtensions
         writer.Advance(sizeof(byte));
     }
 
-    public static void Write(this IBufferWriter<byte> writer, short value, bool littleEndian)
+    public static void Write(this IBufferWriter<byte> writer, short value)
     {
         var span = writer.GetSpan(sizeof(short));
-
-        if (littleEndian)
-        {
-            BinaryPrimitives.WriteInt16LittleEndian(span, value);
-        }
-        else
-        {
-            BinaryPrimitives.WriteInt16BigEndian(span, value);
-        }
+        BinaryPrimitives.WriteInt16LittleEndian(span, value);
 
         writer.Advance(sizeof(short));
     }
 
-    public static void Write(this IBufferWriter<byte> writer, int value, bool littleEndian)
+    public static void Write(this IBufferWriter<byte> writer, int value)
     {
         var span = writer.GetSpan(sizeof(int));
-
-        if (littleEndian)
-        {
-            BinaryPrimitives.WriteInt32LittleEndian(span, value);
-        }
-        else
-        {
-            BinaryPrimitives.WriteInt32BigEndian(span, value);
-        }
+        BinaryPrimitives.WriteInt32LittleEndian(span, value);
 
         writer.Advance(sizeof(int));
     }
 
-    public static void Write(this IBufferWriter<byte> writer, long value, bool littleEndian)
+    public static void Write(this IBufferWriter<byte> writer, long value)
     {
         var span = writer.GetSpan(sizeof(long));
-
-        if (littleEndian)
-        {
-            BinaryPrimitives.WriteInt64LittleEndian(span, value);
-        }
-        else
-        {
-            BinaryPrimitives.WriteInt64BigEndian(span, value);
-        }
+        BinaryPrimitives.WriteInt64LittleEndian(span, value);
 
         writer.Advance(sizeof(long));
     }
 
-    public static void Write(this IBufferWriter<byte> writer, float value, bool littleEndian)
+    public static void Write(this IBufferWriter<byte> writer, float value)
     {
         var span = writer.GetSpan(sizeof(float));
-
-        if (littleEndian)
-        {
-            BinaryPrimitives.WriteSingleLittleEndian(span, value);
-        }
-        else
-        {
-            BinaryPrimitives.WriteSingleBigEndian(span, value);
-        }
+        BinaryPrimitives.WriteSingleLittleEndian(span, value);
 
         writer.Advance(sizeof(float));
     }
 
-    public static void Write(this IBufferWriter<byte> writer, double value, bool littleEndian)
+    public static void Write(this IBufferWriter<byte> writer, double value)
     {
         var span = writer.GetSpan(sizeof(double));
-
-        if (littleEndian)
-        {
-            BinaryPrimitives.WriteDoubleLittleEndian(span, value);
-        }
-        else
-        {
-            BinaryPrimitives.WriteDoubleBigEndian(span, value);
-        }
+        BinaryPrimitives.WriteDoubleLittleEndian(span, value);
 
         writer.Advance(sizeof(double));
     }
 
-    public static void Write(this IBufferWriter<byte> writer, string value, bool littleEndian)
+    public static void Write(this IBufferWriter<byte> writer, string value)
     {
         var length = Encoding.UTF8.GetByteCount(value);
         var total = sizeof(ushort) + length;
         var span = writer.GetSpan(total);
 
-        if (littleEndian)
-        {
-            BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort) length);
-        }
-        else
-        {
-            BinaryPrimitives.WriteUInt16BigEndian(span, (ushort) length);
-        }
+        BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort) length);
 
         var written = Encoding.UTF8.GetBytes(value, span[sizeof(ushort)..]);
 
