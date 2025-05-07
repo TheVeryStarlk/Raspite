@@ -119,10 +119,7 @@ internal static class BufferWriterExtensions
 
         var written = Encoding.UTF8.GetBytes(value, span[sizeof(ushort)..]);
 
-        if (written > total)
-        {
-            throw new BinaryTagSerializerException("Failed to write the string.");
-        }
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(written, total, nameof(written));
 
         writer.Advance(total);
     }
