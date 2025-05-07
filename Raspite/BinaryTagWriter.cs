@@ -51,6 +51,8 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
     public void WriteByteCollection(string name, ReadOnlySpan<byte> value)
     {
         Write(Tag.ByteCollection, name);
+
+        writer.WriteInteger(value.Length);
         writer.Write(value);
     }
 
@@ -60,11 +62,13 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
         writer.WriteString(value);
     }
 
-    public void WriteList(string name, int length)
+    public void WriteList(string name, byte identifier, int length)
     {
+        Write(Tag.List, name);
+
         nameless = true;
 
-        Write(Tag.List, name);
+        writer.WriteByte(identifier);
         writer.WriteInteger(length);
     }
 
@@ -77,12 +81,16 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
     public void WriteIntegerCollection(string name, ReadOnlySpan<int> value)
     {
         Write(Tag.IntegerCollection, name);
+
+        writer.WriteInteger(value.Length);
         writer.Write(MemoryMarshal.AsBytes(value));
     }
 
     public void WriteLongCollection(string name, ReadOnlySpan<long> value)
     {
         Write(Tag.LongCollection, name);
+
+        writer.WriteInteger(value.Length);
         writer.Write(MemoryMarshal.AsBytes(value));
     }
 
