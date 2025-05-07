@@ -69,7 +69,6 @@ internal static class BufferWriterExtensions
         }
 
         writer.Advance(sizeof(long));
-
     }
 
     public static void Write(this IBufferWriter<byte> writer, float value, bool littleEndian)
@@ -86,7 +85,6 @@ internal static class BufferWriterExtensions
         }
 
         writer.Advance(sizeof(float));
-
     }
 
     public static void Write(this IBufferWriter<byte> writer, double value, bool littleEndian)
