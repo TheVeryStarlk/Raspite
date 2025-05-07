@@ -54,18 +54,18 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
         writer.Write(value);
     }
 
+    public void WriteString(string name, string value)
+    {
+        Write(Tag.String, name);
+        writer.WriteString(value);
+    }
+
     public void WriteList(string name, int length)
     {
         nameless = true;
 
         Write(Tag.List, name);
         writer.WriteInteger(length);
-    }
-
-    public void WriteString(string name, string value)
-    {
-        Write(Tag.String, name);
-        writer.WriteString(value);
     }
 
     public void WriteCompound(string name)
