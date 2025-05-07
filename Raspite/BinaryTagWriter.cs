@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Runtime.InteropServices;
 
 namespace Raspite;
 
@@ -47,6 +48,20 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
         writer.WriteDouble(value);
     }
 
+    public void WriteByteCollection(string name, ReadOnlySpan<byte> value)
+    {
+        Write(Tag.ByteCollection, name);
+        writer.Write(value);
+    }
+
+    public void WriteList(string name, int length)
+    {
+        nameless = true;
+
+        Write(Tag.List, name);
+        writer.WriteInteger(length);
+    }
+
     public void WriteString(string name, string value)
     {
         Write(Tag.String, name);
@@ -59,10 +74,16 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer)
         Write(Tag.Compound, name);
     }
 
-    public void WriteList(string name)
+    public void WriteIntegerCollection(string name, ReadOnlySpan<int> value)
     {
-        nameless = true;
-        Write(Tag.List, name);
+        Write(Tag.IntegerCollection, name);
+        writer.Write(MemoryMarshal.AsBytes(value));
+    }
+
+    public void WriteLongCollection(string name, ReadOnlySpan<long> value)
+    {
+        Write(Tag.LongCollection, name);
+        writer.Write(MemoryMarshal.AsBytes(value));
     }
 
     private void Write(byte identifier, string name)
