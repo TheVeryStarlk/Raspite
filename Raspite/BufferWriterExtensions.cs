@@ -14,7 +14,7 @@ internal static class BufferWriterExtensions
         writer.Advance(value.Length);
     }
 
-    public static void Write(this IBufferWriter<byte> writer, byte value)
+    public static void WriteByte(this IBufferWriter<byte> writer, byte value)
     {
         var span = writer.GetSpan(sizeof(byte));
         span[0] = value;
@@ -22,7 +22,7 @@ internal static class BufferWriterExtensions
         writer.Advance(sizeof(byte));
     }
 
-    public static void Write(this IBufferWriter<byte> writer, short value)
+    public static void WriteShort(this IBufferWriter<byte> writer, short value)
     {
         var span = writer.GetSpan(sizeof(short));
         BinaryPrimitives.WriteInt16LittleEndian(span, value);
@@ -30,7 +30,7 @@ internal static class BufferWriterExtensions
         writer.Advance(sizeof(short));
     }
 
-    public static void Write(this IBufferWriter<byte> writer, int value)
+    public static void WriteInteger(this IBufferWriter<byte> writer, int value)
     {
         var span = writer.GetSpan(sizeof(int));
         BinaryPrimitives.WriteInt32LittleEndian(span, value);
@@ -38,7 +38,7 @@ internal static class BufferWriterExtensions
         writer.Advance(sizeof(int));
     }
 
-    public static void Write(this IBufferWriter<byte> writer, long value)
+    public static void WriteLong(this IBufferWriter<byte> writer, long value)
     {
         var span = writer.GetSpan(sizeof(long));
         BinaryPrimitives.WriteInt64LittleEndian(span, value);
@@ -46,7 +46,7 @@ internal static class BufferWriterExtensions
         writer.Advance(sizeof(long));
     }
 
-    public static void Write(this IBufferWriter<byte> writer, float value)
+    public static void WriteFloat(this IBufferWriter<byte> writer, float value)
     {
         var span = writer.GetSpan(sizeof(float));
         BinaryPrimitives.WriteSingleLittleEndian(span, value);
@@ -54,7 +54,7 @@ internal static class BufferWriterExtensions
         writer.Advance(sizeof(float));
     }
 
-    public static void Write(this IBufferWriter<byte> writer, double value)
+    public static void WriteDouble(this IBufferWriter<byte> writer, double value)
     {
         var span = writer.GetSpan(sizeof(double));
         BinaryPrimitives.WriteDoubleLittleEndian(span, value);
@@ -62,7 +62,7 @@ internal static class BufferWriterExtensions
         writer.Advance(sizeof(double));
     }
 
-    public static void Write(this IBufferWriter<byte> writer, string value)
+    public static void WriteString(this IBufferWriter<byte> writer, string value)
     {
         var length = Encoding.UTF8.GetByteCount(value);
         var total = sizeof(ushort) + length;
