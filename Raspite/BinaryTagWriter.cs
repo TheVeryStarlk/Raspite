@@ -1,69 +1,106 @@
 ﻿using System.Buffers;
+using System.Buffers.Binary;
 using System.Runtime.InteropServices;
+using System.Text;
 using Raspite.Tags;
 
 namespace Raspite;
 
-public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian, bool variablePrefix)
+public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian, bool variablePrefix, bool includeHeader)
 {
     private bool nameless;
 
-    public void WriteEnd()
+    public void WriteEndTag()
     {
-        writer.WriteByte(Tag.End);
+        WriteByte(Tag.End);
     }
 
-    public void WriteByte(byte value, string name = "")
+    public void WriteByteTag(byte value, string name = "")
     {
         Write(Tag.Byte, name);
-        writer.WriteByte(value);
+        WriteByte(value);
     }
 
-    public void WriteShort(short value, string name = "")
+    public void WriteShortTag(short value, string name = "")
     {
         Write(Tag.Short, name);
-        writer.WriteShort(value, littleEndian);
+
+        var span = writer.GetSpan(sizeof(short));
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteInt16LittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteInt16BigEndian(span, value);
+        }
+
+        writer.Advance(sizeof(short));
     }
 
-    public void WriteInteger(int value, string name = "")
+    public void WriteIntegerTag(int value, string name = "")
     {
         Write(Tag.Integer, name);
-        writer.WriteInteger(value, littleEndian);
+        WriteInteger(value);
     }
 
-    public void WriteLong(long value, string name = "")
+    public void WriteLongTag(long value, string name = "")
     {
         Write(Tag.Long, name);
-        writer.WriteLong(value, littleEndian);
+        WriteLong(value);
     }
 
-    public void WriteFloat(float value, string name = "")
+    public void WriteFloatTag(float value, string name = "")
     {
         Write(Tag.Float, name);
-        writer.WriteFloat(value, littleEndian);
+
+        var span = writer.GetSpan(sizeof(float));
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteSingleLittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteSingleBigEndian(span, value);
+        }
+
+        writer.Advance(sizeof(float));
     }
 
-    public void WriteDouble(double value, string name = "")
+    public void WriteDoubleTag(double value, string name = "")
     {
         Write(Tag.Double, name);
-        writer.WriteDouble(value, littleEndian);
+
+        var span = writer.GetSpan(sizeof(double));
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteDoubleLittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteDoubleBigEndian(span, value);
+        }
+
+        writer.Advance(sizeof(double));
     }
 
-    public void WriteByteCollection(ReadOnlySpan<byte> value, string name = "")
+    public void WriteByteCollectionTag(ReadOnlySpan<byte> value, string name = "")
     {
         Write(Tag.ByteCollection, name);
-
-        writer.WriteInteger(value.Length, littleEndian);
-        writer.Write(value);
+        WriteInteger(value.Length);
+        Write(value);
     }
 
-    public void WriteString(string value, string name = "")
+    public void WriteStringTag(string value, string name = "")
     {
         Write(Tag.String, name);
-        writer.WriteString(value, littleEndian);
+        WriteString(value);
     }
 
-    public void WriteList(byte identifier, int length, string name = "")
+    public void WriteListTag(byte identifier, int length, string name = "")
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(Tag.LongCollection, identifier);
 
@@ -71,49 +108,47 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
 
         nameless = true;
 
-        writer.WriteByte(identifier);
-        writer.WriteInteger(length, littleEndian);
+        WriteByte(identifier);
+        WriteInteger(length);
     }
 
-    public void WriteCompound(string name = "")
+    public void WriteCompoundTag(string name = "")
     {
         nameless = false;
         Write(Tag.Compound, name);
     }
 
-    public void WriteIntegerCollection(ReadOnlySpan<int> value, string name = "")
+    public void WriteIntegerCollectionTag(ReadOnlySpan<int> value, string name = "")
     {
         Write(Tag.IntegerCollection, name);
-
-        writer.WriteInteger(value.Length, littleEndian);
+        WriteInteger(value.Length);
 
         if (BitConverter.IsLittleEndian == littleEndian)
         {
-            writer.Write(MemoryMarshal.AsBytes(value));
+            Write(MemoryMarshal.AsBytes(value));
             return;
         }
 
         foreach (var item in value)
         {
-            writer.WriteInteger(item, littleEndian);
+            WriteInteger(item);
         }
     }
 
-    public void WriteLongCollection(ReadOnlySpan<long> value, string name = "")
+    public void WriteLongCollectionTag(ReadOnlySpan<long> value, string name = "")
     {
         Write(Tag.LongCollection, name);
-
-        writer.WriteInteger(value.Length, littleEndian);
+        WriteInteger(value.Length);
 
         if (BitConverter.IsLittleEndian == littleEndian)
         {
-            writer.Write(MemoryMarshal.AsBytes(value));
+            Write(MemoryMarshal.AsBytes(value));
             return;
         }
 
         foreach (var item in value)
         {
-            writer.WriteLong(item, littleEndian);
+            WriteLong(item);
         }
     }
 
@@ -124,7 +159,77 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
             return;
         }
 
-        writer.WriteByte(identifier);
-        writer.WriteString(name, littleEndian);
+        WriteByte(identifier);
+        WriteString(name);
+    }
+
+    private void Write(ReadOnlySpan<byte> value)
+    {
+        var span = writer.GetSpan(value.Length);
+        value.CopyTo(span[..value.Length]);
+
+        writer.Advance(value.Length);
+    }
+
+    private void WriteByte(byte value)
+    {
+        var span = writer.GetSpan(sizeof(byte));
+        span[0] = value;
+
+        writer.Advance(sizeof(byte));
+    }
+
+    private void WriteInteger(int value)
+    {
+        var span = writer.GetSpan(sizeof(int));
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteInt32LittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteInt32BigEndian(span, value);
+        }
+
+        writer.Advance(sizeof(int));
+    }
+
+    private void WriteLong(long value)
+    {
+        var span = writer.GetSpan(sizeof(long));
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteInt64LittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteInt64BigEndian(span, value);
+        }
+
+        writer.Advance(sizeof(long));
+    }
+
+    private void WriteString(string value)
+    {
+        var length = Encoding.UTF8.GetByteCount(value);
+        var total = sizeof(ushort) + length;
+        var span = writer.GetSpan(total);
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort) length);
+        }
+        else
+        {
+            BinaryPrimitives.WriteUInt16BigEndian(span, (ushort) length);
+        }
+
+        var written = Encoding.UTF8.GetBytes(value, span[sizeof(ushort)..]);
+
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(written, total, nameof(written));
+
+        writer.Advance(total);
     }
 }
