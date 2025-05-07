@@ -102,7 +102,6 @@ internal static class BufferWriterExtensions
         writer.Advance(sizeof(double));
     }
 
-    // Refactor this a bit.
     public static void WriteString(this IBufferWriter<byte> writer, string value, bool littleEndian)
     {
         var length = Encoding.UTF8.GetByteCount(value);
