@@ -1,6 +1,3 @@
 ﻿namespace Raspite.Tags;
 
-public sealed class CompoundTag(Tag[] value, string name = "") : Tag<Tag[]>(value, name)
-{
-    public override byte Identifier => 10;
-}
+public sealed class CompoundTag(TagBase[] value, string name = "") : TagBase<TagBase[]>(value, name);

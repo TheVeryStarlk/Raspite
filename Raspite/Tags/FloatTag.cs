@@ -1,6 +1,3 @@
 ﻿namespace Raspite.Tags;
 
-public sealed class FloatTag(float value, string name = "") : Tag<float>(value, name)
-{
-    public override byte Identifier => 5;
-}
+public sealed class FloatTag(float value, string name = "") : TagBase<float>(value, name);
