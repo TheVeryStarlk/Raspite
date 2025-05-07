@@ -24,25 +24,25 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
         writer.WriteShort(value, littleEndian);
     }
 
-    public void WriteInteger(short value, string name = "")
+    public void WriteInteger(int value, string name = "")
     {
         Write(Tag.Integer, name);
         writer.WriteInteger(value, littleEndian);
     }
 
-    public void WriteLong(short value, string name = "")
+    public void WriteLong(long value, string name = "")
     {
         Write(Tag.Long, name);
         writer.WriteLong(value, littleEndian);
     }
 
-    public void WriteFloat(short value, string name = "")
+    public void WriteFloat(float value, string name = "")
     {
         Write(Tag.Float, name);
         writer.WriteFloat(value, littleEndian);
     }
 
-    public void WriteDouble(short value, string name = "")
+    public void WriteDouble(double value, string name = "")
     {
         Write(Tag.Double, name);
         writer.WriteDouble(value, littleEndian);
