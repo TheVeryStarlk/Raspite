@@ -20,6 +20,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return TryRead(Tags.Byte, out name) && TryReadByte(out value);
     }
 
+    // This should store the identifier and throw if a different identifier was read.
     public bool TryReadListTag(out byte identifier, out int length, out string name)
     {
         identifier = 0;
@@ -40,7 +41,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     {
         name = string.Empty;
 
-        // Should probably check for the identifier.
         if (nameless)
         {
             return true;
