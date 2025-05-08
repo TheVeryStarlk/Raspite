@@ -6,7 +6,7 @@ namespace Raspite;
 public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
 {
     public readonly int Remaining => span.Length - position;
-    
+
     private readonly ReadOnlySpan<byte> span = span;
 
     private int position;
@@ -17,13 +17,30 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         value = 0;
         name = string.Empty;
 
-        return TryRead(Tag.Byte, out name) && !TryReadByte(out value);
+        return TryRead(Tags.Byte, out name) && TryReadByte(out value);
+    }
+
+    public bool TryReadListTag(out byte identifier, out int length, out string name)
+    {
+        identifier = 0;
+        length = 0;
+        name = string.Empty;
+
+        if (!TryRead(Tags.List, out name))
+        {
+            return false;
+        }
+
+        nameless = true;
+
+        return TryReadByte(out identifier) && TryReadInteger(out length);
     }
 
     private bool TryRead(byte identifier, out string name)
     {
         name = string.Empty;
 
+        // Should probably check for the identifier.
         if (nameless)
         {
             return true;
@@ -50,7 +67,22 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    private bool TryReadString( out string value)
+    private bool TryReadInteger(out int value)
+    {
+        value = 0;
+
+        if (sizeof(int) > Remaining)
+        {
+            return false;
+        }
+
+        var slice = span[position..(position += sizeof(int))];
+        value = littleEndian ? BinaryPrimitives.ReadInt32LittleEndian(slice) : BinaryPrimitives.ReadInt32BigEndian(slice);
+
+        return true;
+    }
+
+    private bool TryReadString(out string value)
     {
         value = string.Empty;
 
