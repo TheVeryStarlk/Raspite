@@ -2,31 +2,30 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using System.Text;
-using Raspite.Tags;
 
 namespace Raspite;
 
 /// <summary>
-/// Provides high-performance API for writing binary <see cref="Tag"/>s (NBTs).
+/// Provides high-performance API for writing named binary tags (NBTs).
 /// </summary>
-/// <param name="writer">The destination for writing the binary <see cref="Tag"/>s</param>
+/// <param name="writer">The destination for writing the named binary tags (NBTs).</param>
 /// <param name="littleEndian">Whether to write as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
 /// <param name="variablePrefix">Whether to use Bedrock's variable-integer types <c>true</c> or use Java's <c>false</c> for prefixes.</param>
 public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian, bool variablePrefix)
 {
     /// <summary>
-    /// Whether to write the <see cref="Tag"/>'s identifier and name properties (<c>true</c>) or not (<c>false</c>).
+    /// Whether to write The tag's identifier and name properties (<c>true</c>) or not (<c>false</c>).
     /// </summary>
     /// <remarks>
-    /// Only <c>true</c> if inside a <see cref="ListTag"/>.
+    /// Only <c>true</c> if inside a list tag.
     /// </remarks>
     private bool nameless;
 
     /// <summary>
-    /// Writes an end <see cref="Tag"/>.
+    /// Writes an end tag.
     /// </summary>
     /// <remarks>
-    /// Used only to end a <see cref="CompoundTag"/> or as an identifier in a <see cref="ListTag"/>.
+    /// Used only to end a compound tag or as an identifier in a list tag.
     /// </remarks>
     public void WriteEndTag()
     {
@@ -34,10 +33,10 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a <see cref="ByteTag"/>.
+    /// Writes a <see cref="byte"/> tag.
     /// </summary>
-    /// <param name="value">The <see cref="Tag"/>'s value.</param>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
     public void WriteByteTag(byte value, string name = "")
     {
         Write(Tag.Byte, name);
@@ -45,10 +44,10 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a <see cref="ShortTag"/>.
+    /// Writes a <see cref="short"/> tag.
     /// </summary>
-    /// <param name="value">The <see cref="Tag"/>'s value.</param>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
     public void WriteShortTag(short value, string name = "")
     {
         Write(Tag.Short, name);
@@ -68,10 +67,10 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes an <see cref="IntegerTag"/>.
+    /// Writes an <see cref="int"/> tag.
     /// </summary>
-    /// <param name="value">The <see cref="Tag"/>'s value.</param>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
     public void WriteIntegerTag(int value, string name = "")
     {
         Write(Tag.Integer, name);
@@ -79,10 +78,10 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a <see cref="LongTag"/>.
+    /// Writes a <see cref="long"/> tag.
     /// </summary>
-    /// <param name="value">The <see cref="Tag"/>'s value.</param>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
     public void WriteLongTag(long value, string name = "")
     {
         Write(Tag.Long, name);
@@ -90,10 +89,10 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a <see cref="FloatTag"/>.
+    /// Writes a <see cref="float"/> tag.
     /// </summary>
-    /// <param name="value">The <see cref="Tag"/>'s value.</param>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
     public void WriteFloatTag(float value, string name = "")
     {
         Write(Tag.Float, name);
@@ -113,10 +112,10 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a <see cref="DoubleTag"/>.
+    /// Writes a <see cref="double"/> tag.
     /// </summary>
-    /// <param name="value">The <see cref="Tag"/>'s value.</param>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
     public void WriteDoubleTag(double value, string name = "")
     {
         Write(Tag.Double, name);
@@ -136,10 +135,10 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a <see cref="ByteCollectionTag"/>.
+    /// Writes a <see cref="byte"/>-collection tag.
     /// </summary>
-    /// <param name="value">The <see cref="Tag"/>'s value.</param>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
     public void WriteByteCollectionTag(ReadOnlySpan<byte> value, string name = "")
     {
         Write(Tag.ByteCollection, name);
@@ -148,10 +147,10 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a <see cref="StringTag"/>.
+    /// Writes a <see cref="string"/> tag.
     /// </summary>
-    /// <param name="value">The <see cref="Tag"/>'s value.</param>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
     public void WriteStringTag(string value, string name = "")
     {
         Write(Tag.String, name);
@@ -159,11 +158,11 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a <see cref="ListTag"/>.
+    /// Writes a list tag.
     /// </summary>
-    /// <param name="identifier">The <see cref="Tag"/>s the <see cref="ListTag"/> contains.</param>
-    /// <param name="length">The amount of tags inside the <see cref="ListTag"/>.</param>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="identifier">The tags the list tag contains.</param>
+    /// <param name="length">The amount of tags inside the list tag.</param>
+    /// <param name="name">The tag's name.</param>
     public void WriteListTag(byte identifier, int length, string name = "")
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(Tag.LongCollection, identifier);
@@ -177,9 +176,9 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a <see cref="CompoundTag"/>.
+    /// Writes a compound tag.
     /// </summary>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="name">The tag's name.</param>
     public void WriteCompoundTag(string name = "")
     {
         nameless = false;
@@ -187,10 +186,10 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes an <see cref="IntegerCollectionTag"/>.
+    /// Writes an <see cref="int"/>-collection tag.
     /// </summary>
-    /// <param name="value">The <see cref="Tag"/>'s value.</param>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
     public void WriteIntegerCollectionTag(ReadOnlySpan<int> value, string name = "")
     {
         Write(Tag.IntegerCollection, name);
@@ -209,10 +208,10 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a <see cref="LongCollectionTag"/>.
+    /// Writes a <see cref="long"/>-collection tag.
     /// </summary>
-    /// <param name="value">The <see cref="Tag"/>'s value.</param>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
     public void WriteLongCollectionTag(ReadOnlySpan<long> value, string name = "")
     {
         Write(Tag.LongCollection, name);
@@ -231,10 +230,10 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a <see cref="Tag"/>.
+    /// Writes a tag's prefix.
     /// </summary>
-    /// <param name="identifier">The <see cref="Tag"/>'s identifier.</param>
-    /// <param name="name">The <see cref="Tag"/>'s name.</param>
+    /// <param name="identifier">The tag's identifier.</param>
+    /// <param name="name">The tag's name.</param>
     private void Write(byte identifier, string name)
     {
         if (nameless)
@@ -247,7 +246,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Copies the <see cref="value"/> to the <see cref="IBufferWriter{T}"/>.
+    /// Copies the <see cref="ReadOnlySpan{T}"/> to the <see cref="IBufferWriter{T}"/>.
     /// </summary>
     /// <param name="value">The <see cref="ReadOnlySpan{T}"/> to copy.</param>
     private void Write(ReadOnlySpan<byte> value)
@@ -259,7 +258,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a single <see cref="byte"/>.
+    /// Writes a <see cref="byte"/>.
     /// </summary>
     /// <param name="value">The <see cref="byte"/> to write.</param>
     private void WriteByte(byte value)
@@ -271,7 +270,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a single <see cref="int"/>.
+    /// Writes an <see cref="int"/>.
     /// </summary>
     /// <param name="value">The <see cref="int"/> to write.</param>
     private void WriteInteger(int value)
@@ -291,7 +290,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a single <see cref="long"/>.
+    /// Writes a <see cref="long"/>.
     /// </summary>
     /// <param name="value">The <see cref="long"/> to write.</param>
     private void WriteLong(long value)
@@ -311,7 +310,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian,
     }
 
     /// <summary>
-    /// Writes a <see cref="ushort"/>-prefixed <see cref="string"/>.
+    /// Writes an <see cref="ushort"/>-prefixed <see cref="string"/>.
     /// </summary>
     /// <param name="value">The <see cref="ushort"/>-prefixed <see cref="string"/> to write.</param>
     private void WriteString(string value)

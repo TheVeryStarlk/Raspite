@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
+﻿namespace Raspite;
 
-namespace Raspite.Tags;
-
-public static class Tag
+internal static class Tag
 {
     public const byte End = 0;
     public const byte Byte = 1;
@@ -17,16 +15,4 @@ public static class Tag
     public const byte Compound = 10;
     public const byte IntegerCollection = 11;
     public const byte LongCollection = 12;
-}
-
-[DebuggerDisplay("{Name}")]
-public abstract class TagBase(string name = "")
-{
-    public string Name { get; set; } = name;
-}
-
-[DebuggerDisplay("{Name} = {Value}")]
-public abstract class TagBase<T>(T value, string name = "") : TagBase(name)
-{
-    public T Value => value;
 }
