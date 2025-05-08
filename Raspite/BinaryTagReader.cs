@@ -28,7 +28,10 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     public bool TryReadCompoundTag(out string name)
     {
         name = string.Empty;
-        return TryReadString(out name);
+
+        nameless = false;
+
+        return TryRead(Tags.Compound, out name);
     }
 
     // This should store the identifier and throw if a different identifier was read.
