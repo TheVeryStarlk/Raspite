@@ -55,15 +55,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         value = 0;
         name = string.Empty;
 
-        if (!TryRead(Tags.Long, out name) || sizeof(long) > Remaining)
-        {
-            return false;
-        }
-
-        var slice = span[position..(position += sizeof(long))];
-        value = littleEndian ? BinaryPrimitives.ReadInt64LittleEndian(slice) : BinaryPrimitives.ReadInt64BigEndian(slice);
-
-        return true;
+        return TryRead(Tags.Integer, out name) && TryReadLong(out value);
     }
 
     public bool TryReadFloatTag(out float value, out string name)
@@ -87,7 +79,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         value = 0;
         name = string.Empty;
 
-        if (!TryRead(Tags.Float, out name) || sizeof(double) > Remaining)
+        if (!TryRead(Tags.Double, out name) || sizeof(double) > Remaining)
         {
             return false;
         }
