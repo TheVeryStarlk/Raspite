@@ -1,4 +1,5 @@
 ﻿using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Raspite;
@@ -30,7 +31,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         value = 0;
         name = string.Empty;
 
-        if (!TryRead(Tags.Short, out name) && sizeof(short) > Remaining)
+        if (!TryRead(Tags.Short, out name) || sizeof(short) > Remaining)
         {
             return false;
         }
@@ -54,7 +55,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         value = 0;
         name = string.Empty;
 
-        if (!TryRead(Tags.Long, out name) && sizeof(long) > Remaining)
+        if (!TryRead(Tags.Long, out name) || sizeof(long) > Remaining)
         {
             return false;
         }
@@ -70,7 +71,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         value = 0;
         name = string.Empty;
 
-        if (!TryRead(Tags.Float, out name) && sizeof(float) > Remaining)
+        if (!TryRead(Tags.Float, out name) || sizeof(float) > Remaining)
         {
             return false;
         }
@@ -86,7 +87,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         value = 0;
         name = string.Empty;
 
-        if (!TryRead(Tags.Float, out name) && sizeof(double) > Remaining)
+        if (!TryRead(Tags.Float, out name) || sizeof(double) > Remaining)
         {
             return false;
         }
@@ -130,6 +131,102 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return TryRead(Tags.Compound, out name);
     }
 
+    public bool TryReadByteCollectionTag(out ReadOnlySpan<byte> value, out string name)
+    {
+        value = default;
+        name = string.Empty;
+
+        if (!TryRead(Tags.ByteCollection, out name) || !TryReadInteger(out var length) && length > Remaining)
+        {
+            return false;
+        }
+
+        value = span[position..(position += length)];
+        return true;
+    }
+
+    public bool TryReadIntegerCollectionTag(out ReadOnlySpan<int> value, out string name)
+    {
+        value = default;
+        name = string.Empty;
+
+        if (!TryRead(Tags.IntegerCollection, out name) || !TryReadInteger(out var length))
+        {
+            return false;
+        }
+
+        var actual = length * sizeof(int);
+
+        if (actual > Remaining)
+        {
+            return false;
+        }
+
+        var slice = span[position..(position += actual)];
+
+        if (BitConverter.IsLittleEndian == littleEndian)
+        {
+            value = MemoryMarshal.Cast<byte, int>(slice);
+            return true;
+        }
+
+        var items = new int[length];
+
+        for (var index = 0; index < length; index++)
+        {
+            if (!TryReadInteger(out var current))
+            {
+                return false;
+            }
+
+            items[index] = current;
+        }
+
+        value = items;
+        return true;
+    }
+
+    public bool TryReadLongCollectionTag(out ReadOnlySpan<long> value, out string name)
+    {
+        value = default;
+        name = string.Empty;
+
+        if (!TryRead(Tags.IntegerCollection, out name) || !TryReadInteger(out var length))
+        {
+            return false;
+        }
+
+        var actual = length * sizeof(long);
+
+        if (actual > Remaining)
+        {
+            return false;
+        }
+
+        var slice = span[position..(position += actual)];
+
+        if (BitConverter.IsLittleEndian == littleEndian)
+        {
+            value = MemoryMarshal.Cast<byte, long>(slice);
+            return true;
+        }
+
+        var items = new long[length];
+
+        for (var index = 0; index < length; index++)
+        {
+            if (!TryReadLong(out var current))
+            {
+                return false;
+            }
+
+            items[index] = current;
+        }
+
+        value = items;
+        return true;
+    }
+
     private bool TryRead(byte identifier, out string name)
     {
         name = string.Empty;
@@ -171,6 +268,21 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
 
         var slice = span[position..(position += sizeof(int))];
         value = littleEndian ? BinaryPrimitives.ReadInt32LittleEndian(slice) : BinaryPrimitives.ReadInt32BigEndian(slice);
+
+        return true;
+    }
+
+    private bool TryReadLong(out long value)
+    {
+        value = 0;
+
+        if (sizeof(long) > Remaining)
+        {
+            return false;
+        }
+
+        var slice = span[position..(position += sizeof(long))];
+        value = littleEndian ? BinaryPrimitives.ReadInt64LittleEndian(slice) : BinaryPrimitives.ReadInt64BigEndian(slice);
 
         return true;
     }
