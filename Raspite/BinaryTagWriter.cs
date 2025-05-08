@@ -9,7 +9,7 @@ namespace Raspite;
 /// Provides high-performance API for writing named binary tags (NBTs).
 /// </summary>
 /// <param name="writer">The destination for writing the named binary tags (NBTs).</param>
-/// <param name="littleEndian">Whether to write as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
+/// <param name="littleEndian">Whether to write the named binary tags (NBTs) as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
 public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
 {
     /// <summary>
