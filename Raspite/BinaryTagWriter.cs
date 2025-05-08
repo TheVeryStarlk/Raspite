@@ -10,8 +10,7 @@ namespace Raspite;
 /// </summary>
 /// <param name="writer">The destination for writing the named binary tags (NBTs).</param>
 /// <param name="littleEndian">Whether to write as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
-/// <param name="variablePrefix">Whether to use Bedrock's variable-integer types <c>true</c> or use Java's <c>false</c> for prefixes.</param>
-public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian, bool variablePrefix)
+public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
 {
     /// <summary>
     /// Whether to write The tag's identifier and name properties (<c>true</c>) or not (<c>false</c>).

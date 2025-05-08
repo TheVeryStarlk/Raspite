@@ -9,7 +9,7 @@ public class BinaryTagWriterBenchmark
     public int Simple()
     {
         var buffer = new ArrayBufferWriter<byte>(16);
-        var writer = new BinaryTagWriter(buffer, false, false);
+        var writer = new BinaryTagWriter(buffer, false);
 
         writer.WriteByteTag(byte.MaxValue);
         writer.WriteShortTag(short.MaxValue);
