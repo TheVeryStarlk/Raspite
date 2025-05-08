@@ -25,6 +25,78 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return TryRead(Tags.Byte, out name) && TryReadByte(out value);
     }
 
+    public bool TryReadShortTag(out short value, out string name)
+    {
+        value = 0;
+        name = string.Empty;
+
+        if (!TryRead(Tags.Short, out name) && sizeof(short) > Remaining)
+        {
+            return false;
+        }
+
+        var slice = span[position..(position += sizeof(short))];
+        value = littleEndian ? BinaryPrimitives.ReadInt16LittleEndian(slice) : BinaryPrimitives.ReadInt16BigEndian(slice);
+
+        return true;
+    }
+
+    public bool TryReadIntegerTag(out int value, out string name)
+    {
+        value = 0;
+        name = string.Empty;
+
+        return TryRead(Tags.Integer, out name) && TryReadInteger(out value);
+    }
+
+    public bool TryReadLongTag(out long value, out string name)
+    {
+        value = 0;
+        name = string.Empty;
+
+        if (!TryRead(Tags.Long, out name) && sizeof(long) > Remaining)
+        {
+            return false;
+        }
+
+        var slice = span[position..(position += sizeof(long))];
+        value = littleEndian ? BinaryPrimitives.ReadInt64LittleEndian(slice) : BinaryPrimitives.ReadInt64BigEndian(slice);
+
+        return true;
+    }
+
+    public bool TryReadFloatTag(out float value, out string name)
+    {
+        value = 0;
+        name = string.Empty;
+
+        if (!TryRead(Tags.Float, out name) && sizeof(float) > Remaining)
+        {
+            return false;
+        }
+
+        var slice = span[position..(position += sizeof(float))];
+        value = littleEndian ? BinaryPrimitives.ReadSingleLittleEndian(slice) : BinaryPrimitives.ReadSingleBigEndian(slice);
+
+        return true;
+    }
+
+    public bool TryReadDoubleTag(out double value, out string name)
+    {
+        value = 0;
+        name = string.Empty;
+
+        if (!TryRead(Tags.Float, out name) && sizeof(double) > Remaining)
+        {
+            return false;
+        }
+
+        var slice = span[position..(position += sizeof(double))];
+        value = littleEndian ? BinaryPrimitives.ReadDoubleLittleEndian(slice) : BinaryPrimitives.ReadDoubleBigEndian(slice);
+
+        return true;
+    }
+
     public bool TryReadStringTag(out string value, out string name)
     {
         value = string.Empty;
