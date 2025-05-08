@@ -154,11 +154,11 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
             return false;
         }
 
-        var slice = span[position..(position += actual)];
-
         if (BitConverter.IsLittleEndian == littleEndian)
         {
+            var slice = span[position..(position += actual)];
             value = MemoryMarshal.Cast<byte, int>(slice);
+
             return true;
         }
 
@@ -195,11 +195,12 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
             return false;
         }
 
-        var slice = span[position..(position += actual)];
 
         if (BitConverter.IsLittleEndian == littleEndian)
         {
+            var slice = span[position..(position += actual)];
             value = MemoryMarshal.Cast<byte, long>(slice);
+
             return true;
         }
 
