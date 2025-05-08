@@ -25,13 +25,12 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return TryRead(Tags.Byte, out name) && TryReadByte(out value);
     }
 
-    public bool TryReadCompoundTag(out string name)
+    public bool TryReadStringTag(out string value, out string name)
     {
+        value = string.Empty;
         name = string.Empty;
 
-        nameless = false;
-
-        return TryRead(Tags.Compound, out name);
+        return TryRead(Tags.String, out name) && TryReadString(out value);
     }
 
     public bool TryReadListTag(out byte identifier, out int length, out string name)
@@ -48,6 +47,15 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         nameless = true;
 
         return TryReadByte(out identifier) && TryReadInteger(out length);
+    }
+
+    public bool TryReadCompoundTag(out string name)
+    {
+        name = string.Empty;
+
+        nameless = false;
+
+        return TryRead(Tags.Compound, out name);
     }
 
     private bool TryRead(byte identifier, out string name)
