@@ -1,6 +1,6 @@
 ﻿namespace Raspite;
 
-internal static class Tag
+public static class Tags
 {
     public const byte End = 0;
     public const byte Byte = 1;
