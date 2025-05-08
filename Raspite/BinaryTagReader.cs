@@ -15,7 +15,14 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
 
     public bool TryReadEndTag()
     {
-        return TryReadByte(out var identifier) && identifier is Tags.End;
+        if (!TryReadByte(out var identifier))
+        {
+            return false;
+        }
+
+        ArgumentOutOfRangeException.ThrowIfNotEqual(Tags.End, identifier, nameof(identifier));
+
+        return true;
     }
 
     public bool TryReadByteTag(out byte value, out string name)
@@ -55,7 +62,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         value = 0;
         name = string.Empty;
 
-        return TryRead(Tags.Integer, out name) && TryReadLong(out value);
+        return TryRead(Tags.Long, out name) && TryReadLong(out value);
     }
 
     public bool TryReadFloatTag(out float value, out string name)
@@ -128,7 +135,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         value = default;
         name = string.Empty;
 
-        if (!TryRead(Tags.ByteCollection, out name) || !TryReadInteger(out var length) && length > Remaining)
+        if (!TryRead(Tags.ByteCollection, out name) || !TryReadInteger(out var length) || length > Remaining)
         {
             return false;
         }
@@ -195,7 +202,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
             return false;
         }
 
-
         if (BitConverter.IsLittleEndian == littleEndian)
         {
             var slice = span[position..(position += actual)];
@@ -220,7 +226,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    private bool TryRead(byte identifier, out string name)
+    private bool TryRead(byte expected, out string name)
     {
         name = string.Empty;
 
@@ -229,12 +235,14 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
             return true;
         }
 
-        if (!TryReadByte(out var expected))
+        if (!TryReadByte(out var identifier))
         {
             return false;
         }
 
-        return identifier == expected && TryReadString(out name);
+        ArgumentOutOfRangeException.ThrowIfNotEqual(expected, identifier, nameof(identifier));
+
+        return TryReadString(out name);
     }
 
     private bool TryReadByte(out byte value)
