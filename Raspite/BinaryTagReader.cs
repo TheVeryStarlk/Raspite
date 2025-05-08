@@ -12,12 +12,23 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     private int position;
     private bool nameless;
 
+    public bool TryReadEndTag()
+    {
+        return TryReadByte(out var identifier) && identifier is Tags.End;
+    }
+
     public bool TryReadByteTag(out byte value, out string name)
     {
         value = 0;
         name = string.Empty;
 
         return TryRead(Tags.Byte, out name) && TryReadByte(out value);
+    }
+
+    public bool TryReadCompoundTag(out string name)
+    {
+        name = string.Empty;
+        return TryReadString(out name);
     }
 
     // This should store the identifier and throw if a different identifier was read.
