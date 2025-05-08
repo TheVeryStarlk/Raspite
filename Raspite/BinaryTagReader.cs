@@ -28,15 +28,12 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     public bool TryReadByteTag(out byte value, out string name)
     {
         value = 0;
-        name = string.Empty;
-
         return TryRead(Tags.Byte, out name) && TryReadByte(out value);
     }
 
     public bool TryReadShortTag(out short value, out string name)
     {
         value = 0;
-        name = string.Empty;
 
         if (!TryRead(Tags.Short, out name) || sizeof(short) > Remaining)
         {
@@ -52,23 +49,18 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     public bool TryReadIntegerTag(out int value, out string name)
     {
         value = 0;
-        name = string.Empty;
-
         return TryRead(Tags.Integer, out name) && TryReadInteger(out value);
     }
 
     public bool TryReadLongTag(out long value, out string name)
     {
         value = 0;
-        name = string.Empty;
-
         return TryRead(Tags.Long, out name) && TryReadLong(out value);
     }
 
     public bool TryReadFloatTag(out float value, out string name)
     {
         value = 0;
-        name = string.Empty;
 
         if (!TryRead(Tags.Float, out name) || sizeof(float) > Remaining)
         {
@@ -84,7 +76,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     public bool TryReadDoubleTag(out double value, out string name)
     {
         value = 0;
-        name = string.Empty;
 
         if (!TryRead(Tags.Double, out name) || sizeof(double) > Remaining)
         {
@@ -100,8 +91,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     public bool TryReadStringTag(out string value, out string name)
     {
         value = string.Empty;
-        name = string.Empty;
-
         return TryRead(Tags.String, out name) && TryReadString(out value);
     }
 
@@ -109,7 +98,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     {
         identifier = 0;
         length = 0;
-        name = string.Empty;
 
         if (!TryRead(Tags.List, out name))
         {
@@ -123,8 +111,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
 
     public bool TryReadCompoundTag(out string name)
     {
-        name = string.Empty;
-
         nameless = false;
 
         return TryRead(Tags.Compound, out name);
@@ -133,7 +119,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     public bool TryReadByteCollectionTag(out ReadOnlySpan<byte> value, out string name)
     {
         value = default;
-        name = string.Empty;
 
         if (!TryRead(Tags.ByteCollection, out name) || !TryReadInteger(out var length) || length > Remaining)
         {
@@ -147,7 +132,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     public bool TryReadIntegerCollectionTag(out ReadOnlySpan<int> value, out string name)
     {
         value = default;
-        name = string.Empty;
 
         if (!TryRead(Tags.IntegerCollection, out name) || !TryReadInteger(out var length))
         {
@@ -188,7 +172,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     public bool TryReadLongCollectionTag(out ReadOnlySpan<long> value, out string name)
     {
         value = default;
-        name = string.Empty;
 
         if (!TryRead(Tags.LongCollection, out name) || !TryReadInteger(out var length))
         {
