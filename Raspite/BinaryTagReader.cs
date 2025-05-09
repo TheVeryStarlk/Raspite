@@ -21,7 +21,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         ArgumentOutOfRangeException.ThrowIfNotEqual(Tags.End, identifier, nameof(identifier));
-
         return true;
     }
 
@@ -105,14 +104,12 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         nameless = true;
-
         return TryReadByte(out identifier) && TryReadInteger(out length);
     }
 
     public bool TryReadCompoundTag(out string name)
     {
         nameless = false;
-
         return TryRead(Tags.Compound, out name);
     }
 
@@ -133,12 +130,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     {
         value = default;
 
-        if (!TryRead(Tags.IntegerCollection, out name) || !TryReadInteger(out var length))
-        {
-            return false;
-        }
-
-        if (length * sizeof(int) > Remaining)
+        if (!TryRead(Tags.IntegerCollection, out name) || !TryReadInteger(out var length) || length * sizeof(int) > Remaining)
         {
             return false;
         }
@@ -171,19 +163,14 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     {
         value = default;
 
-        if (!TryRead(Tags.LongCollection, out name) || !TryReadInteger(out var length))
-        {
-            return false;
-        }
-
-        if (sizeof(long) > Remaining)
+        if (!TryRead(Tags.LongCollection, out name) || !TryReadInteger(out var length) || length * sizeof(long) > Remaining)
         {
             return false;
         }
 
         if (BitConverter.IsLittleEndian == littleEndian)
         {
-            var slice = span[position..(position += sizeof(long))];
+            var slice = span[position..(position += length * sizeof(long))];
             value = MemoryMarshal.Cast<byte, long>(slice);
 
             return true;
@@ -220,7 +207,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         ArgumentOutOfRangeException.ThrowIfNotEqual(expected, identifier, nameof(identifier));
-
         return TryReadString(out name);
     }
 
