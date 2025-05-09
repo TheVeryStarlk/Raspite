@@ -7,7 +7,6 @@
 		<IsAotCompatible>true</IsAotCompatible>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Authors>Starlk</Authors>
-		<Description>An AOT-friendly NBT serializing tool.</Description>
 		<RepositoryUrl>https://github.com/TheVeryStarlk/Raspite</RepositoryUrl>
 		<PackageTags>Minecraft, Serializer, NBT, AOT</PackageTags>
 		<NeutralLanguage>en</NeutralLanguage>
