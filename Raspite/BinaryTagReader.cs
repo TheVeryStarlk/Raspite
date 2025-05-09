@@ -22,6 +22,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         ArgumentOutOfRangeException.ThrowIfNotEqual(Tags.End, identifier);
+
         return true;
     }
 
@@ -105,8 +106,8 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         ArgumentOutOfRangeException.ThrowIfNegative(length);
-
         nameless = true;
+
         return true;
     }
 
@@ -126,8 +127,8 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         ArgumentOutOfRangeException.ThrowIfNegative(length);
-
         value = span[position..(position += length)];
+
         return true;
     }
 
@@ -166,6 +167,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         value = items;
+
         return true;
     }
 
@@ -204,6 +206,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         value = items;
+
         return true;
     }
 
@@ -222,6 +225,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         ArgumentOutOfRangeException.ThrowIfNotEqual(expected, identifier);
+
         return TryReadString(out name);
     }
 
@@ -254,6 +258,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         value = span[position++];
+
         return true;
     }
 
@@ -305,6 +310,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         value = Encoding.UTF8.GetString(span[position..(position += length)]);
+
         return true;
     }
 }

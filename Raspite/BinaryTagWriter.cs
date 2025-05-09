@@ -106,8 +106,8 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
 
     public void WriteCompoundTag(string name = "")
     {
-        nameless = false;
         Write(Tags.Compound, name);
+        nameless = false;
     }
 
     public readonly void WriteByteCollectionTag(ReadOnlySpan<byte> value, string name = "")
