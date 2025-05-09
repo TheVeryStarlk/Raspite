@@ -3,7 +3,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Raspite.Benchmarks;
 
-public class BinaryTagWriterBenchmark
+public class BinaryTagWriterBenchmarks
 {
     [Benchmark]
     public int Simple()
