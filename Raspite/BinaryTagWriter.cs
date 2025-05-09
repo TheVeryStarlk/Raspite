@@ -9,18 +9,18 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
 {
     private bool nameless;
 
-    public void WriteEndTag()
+    public readonly void WriteEndTag()
     {
         WriteByte(Tags.End);
     }
 
-    public void WriteByteTag(byte value, string name = "")
+    public readonly void WriteByteTag(byte value, string name = "")
     {
         Write(Tags.Byte, name);
         WriteByte(value);
     }
 
-    public void WriteShortTag(short value, string name = "")
+    public readonly void WriteShortTag(short value, string name = "")
     {
         Write(Tags.Short, name);
 
@@ -38,19 +38,19 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         writer.Advance(sizeof(short));
     }
 
-    public void WriteIntegerTag(int value, string name = "")
+    public readonly void WriteIntegerTag(int value, string name = "")
     {
         Write(Tags.Integer, name);
         WriteInteger(value);
     }
 
-    public void WriteLongTag(long value, string name = "")
+    public readonly void WriteLongTag(long value, string name = "")
     {
         Write(Tags.Long, name);
         WriteLong(value);
     }
 
-    public void WriteFloatTag(float value, string name = "")
+    public readonly void WriteFloatTag(float value, string name = "")
     {
         Write(Tags.Float, name);
 
@@ -68,7 +68,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         writer.Advance(sizeof(float));
     }
 
-    public void WriteDoubleTag(double value, string name = "")
+    public readonly void WriteDoubleTag(double value, string name = "")
     {
         Write(Tags.Double, name);
 
@@ -86,7 +86,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         writer.Advance(sizeof(double));
     }
 
-    public void WriteStringTag(string value, string name = "")
+    public readonly void WriteStringTag(string value, string name = "")
     {
         Write(Tags.String, name);
         WriteString(value);
@@ -110,14 +110,14 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         Write(Tags.Compound, name);
     }
 
-    public void WriteByteCollectionTag(ReadOnlySpan<byte> value, string name = "")
+    public readonly void WriteByteCollectionTag(ReadOnlySpan<byte> value, string name = "")
     {
         Write(Tags.ByteCollection, name);
         WriteInteger(value.Length);
         Write(value);
     }
 
-    public void WriteIntegerCollectionTag(ReadOnlySpan<int> value, string name = "")
+    public readonly void WriteIntegerCollectionTag(ReadOnlySpan<int> value, string name = "")
     {
         Write(Tags.IntegerCollection, name);
         WriteInteger(value.Length);
@@ -134,7 +134,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         }
     }
 
-    public void WriteLongCollectionTag(ReadOnlySpan<long> value, string name = "")
+    public readonly void WriteLongCollectionTag(ReadOnlySpan<long> value, string name = "")
     {
         Write(Tags.LongCollection, name);
         WriteInteger(value.Length);
@@ -151,7 +151,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         }
     }
 
-    private void Write(byte identifier, string name)
+    private readonly void Write(byte identifier, string name)
     {
         if (nameless)
         {
@@ -162,7 +162,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         WriteString(name);
     }
 
-    private void Write(ReadOnlySpan<byte> value)
+    private readonly void Write(ReadOnlySpan<byte> value)
     {
         var span = writer.GetSpan(value.Length);
         value.CopyTo(span[..value.Length]);
@@ -170,7 +170,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         writer.Advance(value.Length);
     }
 
-    private void WriteByte(byte value)
+    private readonly void WriteByte(byte value)
     {
         var span = writer.GetSpan(sizeof(byte));
         span[0] = value;
@@ -178,7 +178,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         writer.Advance(sizeof(byte));
     }
 
-    private void WriteInteger(int value)
+    private readonly void WriteInteger(int value)
     {
         var span = writer.GetSpan(sizeof(int));
 
@@ -194,7 +194,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         writer.Advance(sizeof(int));
     }
 
-    private void WriteLong(long value)
+    private readonly void WriteLong(long value)
     {
         var span = writer.GetSpan(sizeof(long));
 
@@ -210,7 +210,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         writer.Advance(sizeof(long));
     }
 
-    private void WriteString(string value)
+    private readonly void WriteString(string value)
     {
         var length = Encoding.UTF8.GetByteCount(value);
         var total = sizeof(ushort) + length;
