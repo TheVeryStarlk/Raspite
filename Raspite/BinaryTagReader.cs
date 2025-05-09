@@ -5,15 +5,42 @@ using System.Text;
 
 namespace Raspite;
 
+/// <summary>
+/// Provides a reader for reading named binary tags (NBTs).
+/// </summary>
+/// <param name="span">The <see cref="ReadOnlySpan{T}"/> to read the named binary tags (NBTs) from.</param>
+/// <param name="littleEndian">Whether to read the named binary tags (NBTs) as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
 public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
 {
+    /// <summary>
+    /// The total number of <see cref="byte"/>s left in the <see cref="ReadOnlySpan{T}"/>.
+    /// </summary>
     public readonly int Remaining => span.Length - position;
 
+    /// <summary>
+    /// The <see cref="ReadOnlySpan{T}"/> to read the named binary tags (NBTs) from.
+    /// </summary>
     private readonly ReadOnlySpan<byte> span = span;
 
+    /// <summary>
+    /// The current position of the reader.
+    /// </summary>
     private int position;
+
+    /// <summary>
+    /// Whether to read the tag's identifier and name (<c>true</c>) or not (<c>false</c>).
+    /// </summary>
+    /// <remarks>
+    /// This is only <c>true</c> inside a <see cref="Tags.List"/>.
+    /// </remarks>
     private bool nameless;
 
+    /// <summary>
+    /// Tries to read an <see cref="Tags.End"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadEndTag()
     {
         if (!TryReadByte(out var identifier))
@@ -26,12 +53,24 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
+    /// <summary>
+    /// Tries to read an <see cref="Tags.Byte"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadByteTag(out byte value, out string name)
     {
         value = 0;
         return TryRead(Tags.Byte, out name) && TryReadByte(out value);
     }
 
+    /// <summary>
+    /// Tries to read an <see cref="Tags.Short"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadShortTag(out short value, out string name)
     {
         value = 0;
@@ -47,18 +86,36 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
+    /// <summary>
+    /// Tries to read an <see cref="Tags.Integer"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadIntegerTag(out int value, out string name)
     {
         value = 0;
         return TryRead(Tags.Integer, out name) && TryReadInteger(out value);
     }
 
+    /// <summary>
+    /// Tries to read an <see cref="Tags.Long"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadLongTag(out long value, out string name)
     {
         value = 0;
         return TryRead(Tags.Long, out name) && TryReadLong(out value);
     }
 
+    /// <summary>
+    /// Tries to read an <see cref="Tags.Float"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadFloatTag(out float value, out string name)
     {
         value = 0;
@@ -74,6 +131,12 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
+    /// <summary>
+    /// Tries to read an <see cref="Tags.Double"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadDoubleTag(out double value, out string name)
     {
         value = 0;
@@ -89,12 +152,27 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
+    /// <summary>
+    /// Tries to read an <see cref="Tags.String"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadStringTag(out string value, out string name)
     {
         value = string.Empty;
         return TryRead(Tags.String, out name) && TryReadString(out value);
     }
 
+    /// <summary>
+    /// Tries to read the starting of a <see cref="Tags.List"/>.
+    /// </summary>
+    /// <param name="identifier">The tag's identifier that the <see cref="Tags.List"/> contains.</param>
+    /// <param name="length">The number of tags inside the <see cref="Tags.List"/>.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadListTag(out byte identifier, out int length, out string name)
     {
         identifier = 0;
@@ -111,12 +189,25 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
+    /// <summary>
+    /// Tries to read the starting of a <see cref="Tags.Compound"/>.
+    /// </summary>
+    /// <param name="name">The tag's name.</param>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadCompoundTag(out string name)
     {
         nameless = false;
         return TryRead(Tags.Compound, out name);
     }
 
+    /// <summary>
+    /// Tries to read an <see cref="Tags.ByteCollection"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadByteCollectionTag(out ReadOnlySpan<byte> value, out string name)
     {
         value = default;
@@ -132,6 +223,12 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
+    /// <summary>
+    /// Tries to read an <see cref="Tags.IntegerCollection"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadIntegerCollectionTag(out ReadOnlySpan<int> value, out string name)
     {
         value = default;
@@ -171,6 +268,12 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
+    /// <summary>
+    /// Tries to read an <see cref="Tags.LongCollection"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryReadLongCollectionTag(out ReadOnlySpan<long> value, out string name)
     {
         value = default;
@@ -210,6 +313,14 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
+    /// <summary>
+    /// Tries to read the identifier and name of a tag.
+    /// </summary>
+    /// <param name="expected">The expected tag identifier.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <returns>
+    /// Whether the tag's identifier and name were read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     private bool TryRead(byte expected, out string name)
     {
         name = string.Empty;
@@ -229,6 +340,14 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return TryReadString(out name);
     }
 
+    /// <summary>
+    /// Tries to read a <see cref="ReadOnlySpan{T}"/>.
+    /// </summary>
+    /// <param name="value">The <see cref="ReadOnlySpan{T}"/> to read.</param>
+    /// <typeparam name="T">The type of the <see cref="ReadOnlySpan{T}"/>.</typeparam>
+    /// <returns>
+    /// Whether was the <see cref="ReadOnlySpan{T}"/> read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     private bool TryRead<T>(out ReadOnlySpan<T> value) where T : struct
     {
         value = default;
@@ -248,6 +367,13 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
+    /// <summary>
+    /// Tries to read a <see cref="byte"/>.
+    /// </summary>
+    /// <param name="value">The <see cref="byte"/> to read.</param>
+    /// <returns>
+    /// Whether was the <see cref="byte"/> read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     private bool TryReadByte(out byte value)
     {
         value = 0;
@@ -262,6 +388,13 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
+    /// <summary>
+    /// Tries to read a <see cref="int"/>.
+    /// </summary>
+    /// <param name="value">The <see cref="int"/> to read.</param>
+    /// <returns>
+    /// Whether was the <see cref="int"/> read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     private bool TryReadInteger(out int value)
     {
         value = 0;
@@ -277,6 +410,13 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
+    /// <summary>
+    /// Tries to read a <see cref="long"/>.
+    /// </summary>
+    /// <param name="value">The <see cref="long"/> to read.</param>
+    /// <returns>
+    /// Whether was the <see cref="long"/> read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     private bool TryReadLong(out long value)
     {
         value = 0;
@@ -292,6 +432,13 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
+    /// <summary>
+    /// Tries to read a <see cref="ushort"/>-prefixed <see cref="string"/>.
+    /// </summary>
+    /// <param name="value">The <see cref="string"/> to read.</param>
+    /// <returns>
+    /// Whether was the <see cref="string"/> read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     private bool TryReadString(out string value)
     {
         value = string.Empty;

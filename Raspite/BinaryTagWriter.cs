@@ -13,7 +13,7 @@ namespace Raspite;
 public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
 {
     /// <summary>
-    /// Whether to write the tag's identifier names (<c>true</c>) or not (<c>false</c>).
+    /// Whether to write the tag's identifier and name (<c>true</c>) or not (<c>false</c>).
     /// </summary>
     /// <remarks>
     /// This is only <c>true</c> inside a <see cref="Tags.List"/>.
@@ -265,7 +265,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     }
 
     /// <summary>
-    /// Writes the heading of a tag.
+    /// Writes the identifier and name of a tag.
     /// </summary>
     /// <param name="identifier">The tag's identifier.</param>
     /// <param name="name">The tag's name.</param>
@@ -308,7 +308,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     }
 
     /// <summary>
-    /// Writes a <see cref="int"/>.
+    /// Writes an <see cref="int"/>.
     /// </summary>
     /// <param name="value">The <see cref="int"/> to write.</param>
     private readonly void WriteInteger(int value)
