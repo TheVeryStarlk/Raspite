@@ -274,7 +274,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         // Fast path.
         if (BitConverter.IsLittleEndian == littleEndian)
         {
-            return TryRead(out value);
+            return TryRead(sizeof(int), out value);
         }
 
         if (!TryReadInteger(out var length) || length * sizeof(int) > Remaining)
@@ -322,7 +322,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         // Fast path.
         if (BitConverter.IsLittleEndian == littleEndian)
         {
-            return TryRead(out value);
+            return TryRead(sizeof(long), out value);
         }
 
         if (!TryReadInteger(out var length) || length * sizeof(long) > Remaining)
@@ -382,16 +382,15 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     /// <summary>
     /// Tries to read a <see cref="ReadOnlySpan{T}"/>.
     /// </summary>
+    /// <param name="size">The size of the type.</param>
     /// <param name="value">The <see cref="ReadOnlySpan{T}"/> to read.</param>
     /// <typeparam name="T">The type of the <see cref="ReadOnlySpan{T}"/>.</typeparam>
     /// <returns>
     /// Whether was the <see cref="ReadOnlySpan{T}"/> read successfully (<c>true</c>) or not (<c>false</c>).
     /// </returns>
-    private bool TryRead<T>(out ReadOnlySpan<T> value) where T : struct
+    private bool TryRead<T>(int size, out ReadOnlySpan<T> value) where T : struct
     {
         value = default;
-
-        var size = Unsafe.SizeOf<T>();
 
         if (!TryReadInteger(out var length) || length * size > Remaining)
         {
