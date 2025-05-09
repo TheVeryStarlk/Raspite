@@ -1,127 +1,375 @@
 ﻿using System.Buffers;
+using System.Buffers.Binary;
 using System.Runtime.InteropServices;
-using Raspite.Tags;
+using System.Text;
 
 namespace Raspite;
 
-internal ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian, int maximumDepth)
+/// <summary>
+/// Provides a writer for writing named binary tags (NBTs).
+/// </summary>
+/// <param name="writer">The destination for writing the named binary tags (NBTs).</param>
+/// <param name="littleEndian">Whether to write the named binary tags (NBTs) as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
+public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
 {
-    private int maximumDepth = maximumDepth;
+    /// <summary>
+    /// Whether to write the tag's identifier and name (<c>true</c>) or not (<c>false</c>).
+    /// </summary>
+    /// <remarks>
+    /// This is only <c>true</c> inside a <see cref="Tags.List"/>.
+    /// </remarks>
     private bool nameless;
 
-    public void Write(Tag tag)
+    /// <summary>
+    /// Writes an <see cref="Tags.End"/>.
+    /// </summary>
+    /// <remarks>
+    /// Used to close a <see cref="Tags.Compound"/>, or as an identifier in a <see cref="Tags.List"/>.
+    /// </remarks>
+    public readonly void WriteEndTag()
     {
-        if (!nameless)
+        WriteByte(Tags.End);
+    }
+
+    /// <summary>
+    /// Writes a <see cref="Tags.Byte"/>.
+    /// </summary>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    public readonly void WriteByteTag(byte value, string name = "")
+    {
+        Write(Tags.Byte, name);
+        WriteByte(value);
+    }
+
+    /// <summary>
+    /// Writes a <see cref="Tags.Short"/>.
+    /// </summary>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    public readonly void WriteShortTag(short value, string name = "")
+    {
+        Write(Tags.Short, name);
+
+        var span = writer.GetSpan(sizeof(short));
+
+        if (littleEndian)
         {
-            writer.Write(tag.Identifier);
-            writer.Write(tag.Name, littleEndian);
+            BinaryPrimitives.WriteInt16LittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteInt16BigEndian(span, value);
         }
 
-        switch (tag)
+        writer.Advance(sizeof(short));
+    }
+
+    /// <summary>
+    /// Writes a <see cref="Tags.Integer"/>.
+    /// </summary>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    public readonly void WriteIntegerTag(int value, string name = "")
+    {
+        Write(Tags.Integer, name);
+        WriteInteger(value);
+    }
+
+    /// <summary>
+    /// Writes a <see cref="Tags.Long"/>.
+    /// </summary>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    public readonly void WriteLongTag(long value, string name = "")
+    {
+        Write(Tags.Long, name);
+        WriteLong(value);
+    }
+
+    /// <summary>
+    /// Writes a <see cref="Tags.Float"/>.
+    /// </summary>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    public readonly void WriteFloatTag(float value, string name = "")
+    {
+        Write(Tags.Float, name);
+
+        var span = writer.GetSpan(sizeof(float));
+
+        if (littleEndian)
         {
-            case ByteTag current:
-                writer.Write(current.Value);
-                break;
-
-            case ShortTag current:
-                writer.Write(current.Value, littleEndian);
-                break;
-
-            case IntegerTag current:
-                writer.Write(current.Value, littleEndian);
-                break;
-
-            case LongTag current:
-                writer.Write(current.Value, littleEndian);
-                break;
-
-            case FloatTag current:
-                writer.Write(current.Value, littleEndian);
-                break;
-
-            case DoubleTag current:
-                writer.Write(current.Value, littleEndian);
-                break;
-
-            case ByteCollectionTag current:
-                writer.Write(current.Value.Length, littleEndian);
-                writer.Write(current.Value);
-                break;
-
-            case StringTag current:
-                writer.Write(current.Value, littleEndian);
-                break;
-
-            case ListTag current:
-                var identifier = (byte) (current.Value.Length > 0 ? current.Value[0].Identifier : 0);
-
-                writer.Write(identifier);
-                writer.Write(current.Value.Length, littleEndian);
-
-                foreach (var child in current.Value)
-                {
-                    if (child.Identifier != identifier)
-                    {
-                        throw new BinaryTagSerializerException("List tag can only hold one type.");
-                    }
-
-                    nameless = true;
-                    Write(child);
-                }
-
-                break;
-
-            case CompoundTag current:
-                foreach (var child in current.Value)
-                {
-                    nameless = false;
-                    Write(child);
-                }
-
-                writer.Write(0);
-                break;
-
-            case IntegerCollectionTag current:
-                writer.Write(current.Value.Length, littleEndian);
-
-                if (BitConverter.IsLittleEndian == littleEndian)
-                {
-                    writer.Write(MemoryMarshal.AsBytes(current.Value.AsSpan()));
-                    break;
-                }
-
-                foreach (var child in current.Value)
-                {
-                    writer.Write(child, littleEndian);
-                }
-
-                break;
-
-            case LongCollectionTag current:
-                writer.Write(current.Value.Length, littleEndian);
-
-                if (BitConverter.IsLittleEndian == littleEndian)
-                {
-                    writer.Write(MemoryMarshal.AsBytes(current.Value.AsSpan()));
-                    break;
-                }
-
-                foreach (var child in current.Value)
-                {
-                    writer.Write(child, littleEndian);
-                }
-
-                break;
-
-            default:
-                throw new BinaryTagSerializerException("Unknown tag.");
+            BinaryPrimitives.WriteSingleLittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteSingleBigEndian(span, value);
         }
 
-        if (maximumDepth < 0)
+        writer.Advance(sizeof(float));
+    }
+
+    /// <summary>
+    /// Writes a <see cref="Tags.Double"/>.
+    /// </summary>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    public readonly void WriteDoubleTag(double value, string name = "")
+    {
+        Write(Tags.Double, name);
+
+        var span = writer.GetSpan(sizeof(double));
+
+        if (littleEndian)
         {
-            throw new BinaryTagSerializerException("Maximum depth reached.");
+            BinaryPrimitives.WriteDoubleLittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteDoubleBigEndian(span, value);
         }
 
-        maximumDepth--;
+        writer.Advance(sizeof(double));
+    }
+
+    /// <summary>
+    /// Writes a <see cref="Tags.String"/>.
+    /// </summary>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    public readonly void WriteStringTag(string value, string name = "")
+    {
+        Write(Tags.String, name);
+        WriteString(value);
+    }
+
+    /// <summary>
+    /// Writes the starting of a <see cref="Tags.List"/>.
+    /// </summary>
+    /// <param name="identifier">The tag's identifier that the <see cref="Tags.List"/> contains.</param>
+    /// <param name="length">The number of tags inside the <see cref="Tags.List"/>.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    public void WriteListTag(byte identifier, int length, string name = "")
+    {
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(identifier, Tags.LongCollection);
+        ArgumentOutOfRangeException.ThrowIfNegative(length);
+
+        Write(Tags.List, name);
+        WriteByte(identifier);
+        WriteInteger(length);
+
+        nameless = true;
+    }
+
+    /// <summary>
+    /// Writes the starting of a <see cref="Tags.Compound"/>.
+    /// </summary>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    public void WriteCompoundTag(string name = "")
+    {
+        Write(Tags.Compound, name);
+        nameless = false;
+    }
+
+    /// <summary>
+    /// Writes a <see cref="Tags.ByteCollection"/>.
+    /// </summary>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    public readonly void WriteByteCollectionTag(ReadOnlySpan<byte> value, string name = "")
+    {
+        Write(Tags.ByteCollection, name);
+        WriteInteger(value.Length);
+        Write(value);
+    }
+
+    /// <summary>
+    /// Writes a <see cref="Tags.IntegerCollection"/>.
+    /// </summary>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    public readonly void WriteIntegerCollectionTag(ReadOnlySpan<int> value, string name = "")
+    {
+        Write(Tags.IntegerCollection, name);
+        WriteInteger(value.Length);
+
+        if (BitConverter.IsLittleEndian == littleEndian)
+        {
+            Write(MemoryMarshal.AsBytes(value));
+            return;
+        }
+
+        foreach (var item in value)
+        {
+            WriteInteger(item);
+        }
+    }
+
+    /// <summary>
+    /// Writes a <see cref="Tags.LongCollection"/>.
+    /// </summary>
+    /// <param name="value">The tag's value.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    public readonly void WriteLongCollectionTag(ReadOnlySpan<long> value, string name = "")
+    {
+        Write(Tags.LongCollection, name);
+        WriteInteger(value.Length);
+
+        if (BitConverter.IsLittleEndian == littleEndian)
+        {
+            Write(MemoryMarshal.AsBytes(value));
+            return;
+        }
+
+        foreach (var item in value)
+        {
+            WriteLong(item);
+        }
+    }
+
+    /// <summary>
+    /// Writes the identifier and name of a tag.
+    /// </summary>
+    /// <param name="identifier">The tag's identifier.</param>
+    /// <param name="name">The tag's name.</param>
+    /// <remarks>
+    /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
+    /// </remarks>
+    private readonly void Write(byte identifier, string name)
+    {
+        if (nameless)
+        {
+            return;
+        }
+
+        WriteByte(identifier);
+        WriteString(name);
+    }
+
+    /// <summary>
+    /// Copies a <see cref="ReadOnlySpan{T}"/> to the <see cref="IBufferWriter{T}"/>.
+    /// </summary>
+    /// <param name="value">The <see cref="ReadOnlySpan{T}"/> to copy.</param>
+    private readonly void Write(ReadOnlySpan<byte> value)
+    {
+        var span = writer.GetSpan(value.Length);
+        value.CopyTo(span[..value.Length]);
+
+        writer.Advance(value.Length);
+    }
+
+    /// <summary>
+    /// Writes a <see cref="byte"/>.
+    /// </summary>
+    /// <param name="value">The <see cref="byte"/> to write.</param>
+    private readonly void WriteByte(byte value)
+    {
+        var span = writer.GetSpan(sizeof(byte));
+        span[0] = value;
+
+        writer.Advance(sizeof(byte));
+    }
+
+    /// <summary>
+    /// Writes an <see cref="int"/>.
+    /// </summary>
+    /// <param name="value">The <see cref="int"/> to write.</param>
+    private readonly void WriteInteger(int value)
+    {
+        var span = writer.GetSpan(sizeof(int));
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteInt32LittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteInt32BigEndian(span, value);
+        }
+
+        writer.Advance(sizeof(int));
+    }
+
+    /// <summary>
+    /// Writes a <see cref="long"/>.
+    /// </summary>
+    /// <param name="value">The <see cref="long"/> to write.</param>
+    private readonly void WriteLong(long value)
+    {
+        var span = writer.GetSpan(sizeof(long));
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteInt64LittleEndian(span, value);
+        }
+        else
+        {
+            BinaryPrimitives.WriteInt64BigEndian(span, value);
+        }
+
+        writer.Advance(sizeof(long));
+    }
+
+    /// <summary>
+    /// Writes a <see cref="ushort"/>-prefixed <see cref="string"/>.
+    /// </summary>
+    /// <param name="value">The <see cref="string"/> to write.</param>
+    private readonly void WriteString(string value)
+    {
+        var length = Encoding.UTF8.GetByteCount(value);
+        var total = sizeof(ushort) + length;
+        var span = writer.GetSpan(total);
+
+        if (littleEndian)
+        {
+            BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort) length);
+        }
+        else
+        {
+            BinaryPrimitives.WriteUInt16BigEndian(span, (ushort) length);
+        }
+
+        var written = Encoding.UTF8.GetBytes(value, span[sizeof(ushort)..]);
+
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(written, total, nameof(written));
+
+        writer.Advance(total);
     }
 }
