@@ -97,11 +97,10 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         ArgumentOutOfRangeException.ThrowIfGreaterThan(identifier, Tags.LongCollection);
 
         Write(Tags.List, name);
-
-        nameless = true;
-
         WriteByte(identifier);
         WriteInteger(length);
+
+        nameless = true;
     }
 
     public void WriteCompoundTag(string name = "")
