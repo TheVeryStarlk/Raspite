@@ -37,7 +37,15 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
 
     public bool TryPeek(out byte identifier)
     {
+        identifier = 0;
+
+        if (position >= span.Length)
+        {
+            return false;
+        }
+
         identifier = span[position];
+
         return true;
     }
 
