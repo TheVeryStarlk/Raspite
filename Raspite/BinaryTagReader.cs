@@ -1,4 +1,5 @@
 ﻿using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -130,17 +131,20 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     {
         value = default;
 
-        if (!TryRead(Tags.IntegerCollection, out name) || !TryReadInteger(out var length) || length * sizeof(int) > Remaining)
+        if (!TryRead(Tags.IntegerCollection, out name))
         {
             return false;
         }
 
+        // Fast path.
         if (BitConverter.IsLittleEndian == littleEndian)
         {
-            var slice = span[position..(position += length * sizeof(int))];
-            value = MemoryMarshal.Cast<byte, int>(slice);
+            return TryRead(out value);
+        }
 
-            return true;
+        if (!TryReadInteger(out var length) || length * sizeof(int) > Remaining)
+        {
+            return false;
         }
 
         var items = new int[length];
@@ -163,17 +167,20 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     {
         value = default;
 
-        if (!TryRead(Tags.LongCollection, out name) || !TryReadInteger(out var length) || length * sizeof(long) > Remaining)
+        if (!TryRead(Tags.LongCollection, out name))
         {
             return false;
         }
 
+        // Fast path.
         if (BitConverter.IsLittleEndian == littleEndian)
         {
-            var slice = span[position..(position += length * sizeof(long))];
-            value = MemoryMarshal.Cast<byte, long>(slice);
+            return TryRead(out value);
+        }
 
-            return true;
+        if (!TryReadInteger(out var length) || length * sizeof(long) > Remaining)
+        {
+            return false;
         }
 
         var items = new long[length];
@@ -208,6 +215,23 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
 
         ArgumentOutOfRangeException.ThrowIfNotEqual(expected, identifier, nameof(identifier));
         return TryReadString(out name);
+    }
+
+    private bool TryRead<T>(out ReadOnlySpan<T> value) where T : struct
+    {
+        value = default;
+
+        var size = Unsafe.SizeOf<T>();
+
+        if (!TryReadInteger(out var length) || length * size > Remaining)
+        {
+            return false;
+        }
+
+        var slice = span[position..(position += length * size)];
+        value = MemoryMarshal.Cast<byte, T>(slice);
+
+        return true;
     }
 
     private bool TryReadByte(out byte value)
