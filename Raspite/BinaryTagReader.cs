@@ -280,23 +280,21 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     {
         value = default;
 
-        if (!TryRead(Tag.IntegerCollection, out name))
-        {
-            return false;
-        }
-
-        // Fast path.
-        if (BitConverter.IsLittleEndian == littleEndian)
-        {
-            return TryRead(sizeof(int), out value);
-        }
-
-        if (!TryReadInteger(out var length) || length * sizeof(int) > Remaining)
+        if (!TryRead(Tag.IntegerCollection, out name) || !TryReadInteger(out var length) || length * sizeof(int) > Remaining)
         {
             return false;
         }
 
         ArgumentOutOfRangeException.ThrowIfNegative(length);
+
+        // Fast path.
+        if (BitConverter.IsLittleEndian == littleEndian)
+        {
+            var slice = span[position..(position += length * sizeof(int))];
+            value = MemoryMarshal.Cast<byte, int>(slice);
+
+            return true;
+        }
 
         var items = new int[length];
 
@@ -328,23 +326,21 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     {
         value = default;
 
-        if (!TryRead(Tag.LongCollection, out name))
-        {
-            return false;
-        }
-
-        // Fast path.
-        if (BitConverter.IsLittleEndian == littleEndian)
-        {
-            return TryRead(sizeof(long), out value);
-        }
-
-        if (!TryReadInteger(out var length) || length * sizeof(long) > Remaining)
+        if (!TryRead(Tag.LongCollection, out name) || !TryReadInteger(out var length) || length * sizeof(long) > Remaining)
         {
             return false;
         }
 
         ArgumentOutOfRangeException.ThrowIfNegative(length);
+
+        // Fast path.
+        if (BitConverter.IsLittleEndian == littleEndian)
+        {
+            var slice = span[position..(position += length * sizeof(long))];
+            value = MemoryMarshal.Cast<byte, long>(slice);
+
+            return true;
+        }
 
         var items = new long[length];
 
@@ -391,32 +387,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         ArgumentOutOfRangeException.ThrowIfNotEqual(expected, identifier);
 
         return TryReadString(out name);
-    }
-
-    /// <summary>
-    /// Tries to read a <see cref="ReadOnlySpan{T}"/>.
-    /// </summary>
-    /// <param name="size">The size of the type.</param>
-    /// <param name="value">The <see cref="ReadOnlySpan{T}"/> to read.</param>
-    /// <typeparam name="T">The type of the <see cref="ReadOnlySpan{T}"/>.</typeparam>
-    /// <returns>
-    /// Whether was the <see cref="ReadOnlySpan{T}"/> read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    private bool TryRead<T>(int size, out ReadOnlySpan<T> value) where T : struct
-    {
-        value = default;
-
-        if (!TryReadInteger(out var length) || length * size > Remaining)
-        {
-            return false;
-        }
-
-        ArgumentOutOfRangeException.ThrowIfNegative(length);
-
-        var slice = span[position..(position += length * size)];
-        value = MemoryMarshal.Cast<byte, T>(slice);
-
-        return true;
     }
 
     /// <summary>
