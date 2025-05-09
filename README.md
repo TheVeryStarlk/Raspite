@@ -3,4 +3,4 @@
 </p>
 
 # Raspite
-A high-performance library for writing and reading named binary tags (NBTs).
+A high-performance library for reading and writing named binary tags (NBTs).
