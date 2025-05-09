@@ -21,7 +21,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
             return false;
         }
 
-        ArgumentOutOfRangeException.ThrowIfNotEqual(Tags.End, identifier, nameof(identifier));
+        ArgumentOutOfRangeException.ThrowIfNotEqual(Tags.End, identifier);
         return true;
     }
 
@@ -99,13 +99,15 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         identifier = 0;
         length = 0;
 
-        if (!TryRead(Tags.List, out name))
+        if (!TryRead(Tags.List, out name) || TryReadByte(out identifier) || TryReadInteger(out length))
         {
             return false;
         }
 
+        ArgumentOutOfRangeException.ThrowIfNegative(length);
+
         nameless = true;
-        return TryReadByte(out identifier) && TryReadInteger(out length);
+        return true;
     }
 
     public bool TryReadCompoundTag(out string name)
@@ -122,6 +124,8 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         {
             return false;
         }
+
+        ArgumentOutOfRangeException.ThrowIfNegative(length);
 
         value = span[position..(position += length)];
         return true;
@@ -146,6 +150,8 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         {
             return false;
         }
+
+        ArgumentOutOfRangeException.ThrowIfNegative(length);
 
         var items = new int[length];
 
@@ -183,6 +189,8 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
             return false;
         }
 
+        ArgumentOutOfRangeException.ThrowIfNegative(length);
+
         var items = new long[length];
 
         for (var index = 0; index < length; index++)
@@ -213,7 +221,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
             return false;
         }
 
-        ArgumentOutOfRangeException.ThrowIfNotEqual(expected, identifier, nameof(identifier));
+        ArgumentOutOfRangeException.ThrowIfNotEqual(expected, identifier);
         return TryReadString(out name);
     }
 
@@ -227,6 +235,8 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         {
             return false;
         }
+
+        ArgumentOutOfRangeException.ThrowIfNegative(length);
 
         var slice = span[position..(position += length * size)];
         value = MemoryMarshal.Cast<byte, T>(slice);

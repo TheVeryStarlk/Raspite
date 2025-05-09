@@ -95,6 +95,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     public void WriteListTag(byte identifier, int length, string name = "")
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(identifier, Tags.LongCollection);
+        ArgumentOutOfRangeException.ThrowIfNegative(length);
 
         Write(Tags.List, name);
         WriteByte(identifier);
