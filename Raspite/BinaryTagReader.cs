@@ -57,24 +57,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     }
 
     /// <summary>
-    /// Tries to read an <see cref="Tag.End"/>.
-    /// </summary>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    public bool TryReadEndTag()
-    {
-        if (!TryReadByte(out var identifier))
-        {
-            return false;
-        }
-
-        ArgumentOutOfRangeException.ThrowIfNotEqual(Tag.End, identifier);
-
-        return true;
-    }
-
-    /// <summary>
     /// Tries to read an <see cref="Tag.Byte"/>.
     /// </summary>
     /// <returns>
@@ -218,7 +200,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     /// <remarks>
     /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
     /// </remarks>
-    public bool TryReadListTag(out byte identifier, out int length, out string name)
+    public bool TryReadStartingListTag(out byte identifier, out int length, out string name)
     {
         identifier = 0;
         length = 0;
@@ -235,6 +217,18 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     }
 
     /// <summary>
+    /// Tries to read the ending of a <see cref="Tag.List"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag ending was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
+    public bool TryReadEndingListTag()
+    {
+        nameless = false;
+        return true;
+    }
+
+    /// <summary>
     /// Tries to read the starting of a <see cref="Tag.Compound"/>.
     /// </summary>
     /// <param name="name">The tag's name.</param>
@@ -244,10 +238,28 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     /// <remarks>
     /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
     /// </remarks>
-    public bool TryReadCompoundTag(out string name)
+    public bool TryReadStartingCompoundTag(out string name)
     {
         nameless = false;
         return TryRead(Tag.Compound, out name);
+    }
+
+    /// <summary>
+    /// Tries to read the ending of a <see cref="Tag.Compound"/>.
+    /// </summary>
+    /// <returns>
+    /// Whether the tag ending was read successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
+    public bool TryReadEndingCompoundTag()
+    {
+        if (!TryReadByte(out var identifier))
+        {
+            return false;
+        }
+
+        ArgumentOutOfRangeException.ThrowIfNotEqual(Tag.End, identifier);
+
+        return true;
     }
 
     /// <summary>

@@ -22,17 +22,6 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     private bool nameless;
 
     /// <summary>
-    /// Writes an <see cref="Tag.End"/>.
-    /// </summary>
-    /// <remarks>
-    /// Used to close a <see cref="Tag.Compound"/>.
-    /// </remarks>
-    public readonly void WriteEndTag()
-    {
-        WriteByte(Tag.End);
-    }
-
-    /// <summary>
     /// Writes a <see cref="Tag.Byte"/>.
     /// </summary>
     /// <param name="value">The tag's value.</param>
@@ -175,7 +164,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tag.List"/>.
     /// </remarks>
-    public void WriteListTag(byte identifier, int length, string name = "")
+    public void WriteStartingListTag(byte identifier, int length, string name = "")
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(identifier, Tag.LongCollection);
         ArgumentOutOfRangeException.ThrowIfNegative(length);
@@ -188,16 +177,32 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     }
 
     /// <summary>
+    /// Writes the ending of a <see cref="Tag.List"/>.
+    /// </summary>
+    public void WriteClosingListTag()
+    {
+        nameless = false;
+    }
+
+    /// <summary>
     /// Writes the starting of a <see cref="Tag.Compound"/>.
     /// </summary>
     /// <param name="name">The tag's name.</param>
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tag.List"/>.
     /// </remarks>
-    public void WriteCompoundTag(string name = "")
+    public void WriteStartingCompoundTag(string name = "")
     {
         Write(Tag.Compound, name);
         nameless = false;
+    }
+
+    /// <summary>
+    /// Writes the closing of a <see cref="Tag.Compound"/>.
+    /// </summary>
+    public readonly void WriteClosingCompoundTag()
+    {
+        WriteByte(Tag.End);
     }
 
     /// <summary>
