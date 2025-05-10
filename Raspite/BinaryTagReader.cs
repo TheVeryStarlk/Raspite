@@ -18,14 +18,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     public readonly int Remaining => span.Length - position;
 
     /// <summary>
-    /// Whether to read the tag's identifier and name (<c>true</c>) or not (<c>false</c>).
-    /// </summary>
-    /// <remarks>
-    /// This should be set to <c>true</c> only when inside a <see cref="Tag.List"/>.
-    /// </remarks>
-    public bool Nameless { get; set; }
-
-    /// <summary>
     /// The <see cref="ReadOnlySpan{T}"/> to read the named binary tags (NBTs) from.
     /// </summary>
     private readonly ReadOnlySpan<byte> span = span;
@@ -34,6 +26,14 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     /// The current position of the reader.
     /// </summary>
     private int position;
+
+    /// <summary>
+    /// Whether to read the tag's identifier and name (<c>true</c>) or not (<c>false</c>).
+    /// </summary>
+    /// <remarks>
+    /// This should be set to <c>true</c> only when inside a <see cref="Tag.List"/>.
+    /// </remarks>
+    private bool nameless;
 
     /// <summary>
     /// Tries to get the current tag identifier but does not consume it.
@@ -229,7 +229,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         ArgumentOutOfRangeException.ThrowIfNegative(length);
-        Nameless = true;
+        nameless = true;
 
         return true;
     }
@@ -246,7 +246,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     /// </remarks>
     public bool TryReadCompoundTag(out string name)
     {
-        Nameless = false;
+        nameless = false;
         return TryRead(Tag.Compound, out name);
     }
 
@@ -381,7 +381,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     {
         name = string.Empty;
 
-        if (Nameless)
+        if (nameless)
         {
             return true;
         }
