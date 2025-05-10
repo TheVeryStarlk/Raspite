@@ -201,7 +201,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         identifier = 0;
         length = 0;
 
-        if (!TryRead(Tags.List, out name) || TryReadByte(out identifier) || TryReadInteger(out length))
+        if (!TryRead(Tags.List, out name) || !TryReadByte(out identifier) || !TryReadInteger(out length))
         {
             return false;
         }
