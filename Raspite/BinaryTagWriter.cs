@@ -30,7 +30,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// Writes an <see cref="Tag.End"/>.
     /// </summary>
     /// <remarks>
-    /// Used to close a <see cref="Tag.Compound"/>, or as an identifier in a <see cref="Tag.List"/>.
+    /// Used to close a <see cref="Tag.Compound"/>.
     /// </remarks>
     public void WriteEndTag()
     {

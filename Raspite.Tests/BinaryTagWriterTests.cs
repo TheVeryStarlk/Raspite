@@ -12,7 +12,7 @@ internal sealed class BinaryTagWriterTests
             8, 0, 4, 83, 101, 101, 110, 0, 3, 72, 101, 121
         ];
 
-        var buffer = new ArrayBufferWriter<byte>(correct.Length);
+        var buffer = new ArrayBufferWriter<byte>();
         var writer = new BinaryTagWriter(buffer, false);
 
         writer.WriteStringTag("Hey", "Seen");
