@@ -217,6 +217,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
             return false;
         }
 
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(identifier, Tag.LongCollection);
         ArgumentOutOfRangeException.ThrowIfNegative(length);
 
         nameless = true;
