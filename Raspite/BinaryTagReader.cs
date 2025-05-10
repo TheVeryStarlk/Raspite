@@ -35,6 +35,11 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     private bool nameless;
 
     /// <summary>
+    /// The amount of tags that are under a possibly current <see cref="Tags.List"/>.
+    /// </summary>
+    private int waiting;
+
+    /// <summary>
     /// Tries to read an <see cref="Tags.End"/>.
     /// </summary>
     /// <returns>
@@ -45,6 +50,11 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         if (!TryReadByte(out var identifier))
         {
             return false;
+        }
+
+        if (waiting > 0)
+        {
+            nameless = true;
         }
 
         ArgumentOutOfRangeException.ThrowIfNotEqual(Tags.End, identifier);
@@ -207,7 +217,9 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         ArgumentOutOfRangeException.ThrowIfNegative(length);
+
         nameless = true;
+        waiting = length;
 
         return true;
     }
@@ -224,8 +236,14 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     /// </remarks>
     public bool TryReadCompoundTag(out string name)
     {
+        if (!TryRead(Tags.Compound, out name))
+        {
+            return false;
+        }
+
         nameless = false;
-        return TryRead(Tags.Compound, out name);
+
+        return true;
     }
 
     /// <summary>
@@ -365,6 +383,16 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
 
         if (nameless)
         {
+            waiting -= 1;
+
+            if (waiting > 0)
+            {
+                return true;
+            }
+
+            nameless = false;
+            waiting = 0;
+
             return true;
         }
 

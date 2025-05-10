@@ -21,13 +21,23 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     private bool nameless;
 
     /// <summary>
+    /// The amount of tags that are under a possibly current <see cref="Tags.List"/>.
+    /// </summary>
+    private int waiting;
+
+    /// <summary>
     /// Writes an <see cref="Tags.End"/>.
     /// </summary>
     /// <remarks>
     /// Used to close a <see cref="Tags.Compound"/>, or as an identifier in a <see cref="Tags.List"/>.
     /// </remarks>
-    public readonly void WriteEndTag()
+    public void WriteEndTag()
     {
+        if (waiting > 0)
+        {
+            nameless = true;
+        }
+
         WriteByte(Tags.End);
     }
 
@@ -39,7 +49,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
     /// </remarks>
-    public readonly void WriteByteTag(byte value, string name = "")
+    public void WriteByteTag(byte value, string name = "")
     {
         Write(Tags.Byte, name);
         WriteByte(value);
@@ -53,7 +63,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
     /// </remarks>
-    public readonly void WriteShortTag(short value, string name = "")
+    public void WriteShortTag(short value, string name = "")
     {
         Write(Tags.Short, name);
 
@@ -79,7 +89,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
     /// </remarks>
-    public readonly void WriteIntegerTag(int value, string name = "")
+    public void WriteIntegerTag(int value, string name = "")
     {
         Write(Tags.Integer, name);
         WriteInteger(value);
@@ -93,7 +103,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
     /// </remarks>
-    public readonly void WriteLongTag(long value, string name = "")
+    public void WriteLongTag(long value, string name = "")
     {
         Write(Tags.Long, name);
         WriteLong(value);
@@ -107,7 +117,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
     /// </remarks>
-    public readonly void WriteFloatTag(float value, string name = "")
+    public void WriteFloatTag(float value, string name = "")
     {
         Write(Tags.Float, name);
 
@@ -133,7 +143,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
     /// </remarks>
-    public readonly void WriteDoubleTag(double value, string name = "")
+    public void WriteDoubleTag(double value, string name = "")
     {
         Write(Tags.Double, name);
 
@@ -159,7 +169,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
     /// </remarks>
-    public readonly void WriteStringTag(string value, string name = "")
+    public void WriteStringTag(string value, string name = "")
     {
         Write(Tags.String, name);
         WriteString(value);
@@ -184,6 +194,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         WriteInteger(length);
 
         nameless = true;
+        waiting = length;
     }
 
     /// <summary>
@@ -207,7 +218,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
     /// </remarks>
-    public readonly void WriteByteCollectionTag(ReadOnlySpan<byte> value, string name = "")
+    public void WriteByteCollectionTag(ReadOnlySpan<byte> value, string name = "")
     {
         Write(Tags.ByteCollection, name);
         WriteInteger(value.Length);
@@ -222,7 +233,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
     /// </remarks>
-    public readonly void WriteIntegerCollectionTag(ReadOnlySpan<int> value, string name = "")
+    public void WriteIntegerCollectionTag(ReadOnlySpan<int> value, string name = "")
     {
         Write(Tags.IntegerCollection, name);
         WriteInteger(value.Length);
@@ -247,7 +258,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
     /// </remarks>
-    public readonly void WriteLongCollectionTag(ReadOnlySpan<long> value, string name = "")
+    public void WriteLongCollectionTag(ReadOnlySpan<long> value, string name = "")
     {
         Write(Tags.LongCollection, name);
         WriteInteger(value.Length);
@@ -272,10 +283,20 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// <remarks>
     /// The tag's name will not be written if it were inside a <see cref="Tags.List"/>.
     /// </remarks>
-    private readonly void Write(byte identifier, string name)
+    private void Write(byte identifier, string name)
     {
         if (nameless)
         {
+            waiting -= 1;
+
+            if (waiting > 0)
+            {
+                return;
+            }
+
+            nameless = false;
+            waiting = 0;
+
             return;
         }
 
@@ -287,7 +308,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// Copies a <see cref="ReadOnlySpan{T}"/> to the <see cref="IBufferWriter{T}"/>.
     /// </summary>
     /// <param name="value">The <see cref="ReadOnlySpan{T}"/> to copy.</param>
-    private readonly void Write(ReadOnlySpan<byte> value)
+    private void Write(ReadOnlySpan<byte> value)
     {
         var span = writer.GetSpan(value.Length);
         value.CopyTo(span[..value.Length]);
@@ -299,7 +320,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// Writes a <see cref="byte"/>.
     /// </summary>
     /// <param name="value">The <see cref="byte"/> to write.</param>
-    private readonly void WriteByte(byte value)
+    private void WriteByte(byte value)
     {
         var span = writer.GetSpan(sizeof(byte));
         span[0] = value;
@@ -311,7 +332,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// Writes an <see cref="int"/>.
     /// </summary>
     /// <param name="value">The <see cref="int"/> to write.</param>
-    private readonly void WriteInteger(int value)
+    private void WriteInteger(int value)
     {
         var span = writer.GetSpan(sizeof(int));
 
@@ -331,7 +352,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// Writes a <see cref="long"/>.
     /// </summary>
     /// <param name="value">The <see cref="long"/> to write.</param>
-    private readonly void WriteLong(long value)
+    private void WriteLong(long value)
     {
         var span = writer.GetSpan(sizeof(long));
 
@@ -351,7 +372,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// Writes a <see cref="ushort"/>-prefixed <see cref="string"/>.
     /// </summary>
     /// <param name="value">The <see cref="string"/> to write.</param>
-    private readonly void WriteString(string value)
+    private void WriteString(string value)
     {
         var length = Encoding.UTF8.GetByteCount(value);
         var total = sizeof(ushort) + length;
