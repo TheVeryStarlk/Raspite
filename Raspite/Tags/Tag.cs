@@ -68,7 +68,7 @@ public abstract class Tag(string name = "")
     public const byte String = 8;
 
     /// <summary>
-    /// The identifier of a <see cref="ListTag"/>.
+    /// The identifier of a <see cref="ListTag{T}"/>.
     /// </summary>
     public const byte List = 9;
 

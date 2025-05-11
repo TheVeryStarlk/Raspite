@@ -48,7 +48,6 @@ public static class BinaryTagSerializer
 
                 case DoubleTag current:
                     writer.WriteDoubleTag(current.Value, current.Name);
-
                     break;
 
                 case StringTag current:
