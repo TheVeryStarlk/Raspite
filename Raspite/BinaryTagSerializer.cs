@@ -55,7 +55,7 @@ public static class BinaryTagSerializer
                     writer.WriteStringTag(current.Value, current.Name);
                     break;
 
-                case ListTag current:
+                case ListTag<Tag> current:
                     if (current.Value.Length is 0)
                     {
                         writer.WriteListTag(Tag.End, 0, current.Name);
@@ -151,7 +151,7 @@ public static class BinaryTagSerializer
                 {
                     if (identifier is Tag.End || length < 1)
                     {
-                        return new ListTag([], name);
+                        return new ListTag<Tag>([], name);
                     }
 
                     var items = new Tag[length];
@@ -162,7 +162,7 @@ public static class BinaryTagSerializer
                         items[index] = Read(ref reader, identifier);
                     }
 
-                    return new ListTag(items, name);
+                    return new ListTag<Tag>(items, name);
                 }
 
                 case Tag.Compound when reader.TryReadCompoundTag(out var name):
