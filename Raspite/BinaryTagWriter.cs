@@ -22,9 +22,9 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     private bool nameless;
 
     /// <summary>
-    /// The amount of tags that are under a possibly current <see cref="List{T}"/>.
+    /// The amount of tags that are inside a possibly current <see cref="List{T}"/>.
     /// </summary>
-    private int waiting;
+    private int left;
 
     /// <summary>
     /// Writes an <see cref="Tag.End"/>.
@@ -34,7 +34,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// </remarks>
     public void WriteEndTag()
     {
-        if (waiting > 0)
+        if (left > 0)
         {
             nameless = true;
         }
@@ -195,7 +195,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         WriteInteger(length);
 
         nameless = true;
-        waiting = length;
+        left = length;
     }
 
     /// <summary>
@@ -288,15 +288,15 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     {
         if (nameless)
         {
-            waiting -= 1;
+            left -= 1;
 
-            if (waiting > 0)
+            if (left > 0)
             {
                 return;
             }
 
             nameless = false;
-            waiting = 0;
+            left = 0;
 
             return;
         }
