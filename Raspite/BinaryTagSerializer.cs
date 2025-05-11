@@ -3,8 +3,18 @@ using Raspite.Tags;
 
 namespace Raspite;
 
+/// <summary>
+/// Provides functionality to serialize or deserialize <see cref="Tag"/>s.
+/// </summary>
 public static class BinaryTagSerializer
 {
+    /// <summary>
+    /// Serializes the provided <see cref="Tag"/>.
+    /// </summary>
+    /// <param name="buffer">The <see cref="IBufferWriter{T}"/> to serialize to.</param>
+    /// <param name="tag">The <see cref="Tag"/> to serialize.</param>
+    /// <param name="littleEndian">Whether to serialize as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
+    /// <exception cref="ArgumentOutOfRangeException">Unknown <see cref="Tag"/>.</exception>
     public static void Serialize(IBufferWriter<byte> buffer, Tag tag, bool littleEndian)
     {
         var writer = new BinaryTagWriter(buffer, littleEndian);
@@ -90,13 +100,24 @@ public static class BinaryTagSerializer
         }
     }
 
+    /// <summary>
+    /// Deserializes the provided <see cref="ReadOnlySpan{T}"/>.
+    /// </summary>
+    /// <param name="span">The <see cref="ReadOnlySpan{T}"/> to deserialize.</param>
+    /// <param name="littleEndian"></param>
+    /// <typeparam name="T">Whether to deserialize as little-endian (<c>true</c>) or big-endian (<c>false</c>).</typeparam>
+    /// <returns>
+    /// The deserialized <see cref="Tag"/>.
+    /// </returns>
+    /// <exception cref="ArgumentException">Failed to start deserialize the tag.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Unknown <see cref="Tag"/>.</exception>
     public static T Deserialize<T>(ReadOnlySpan<byte> span, bool littleEndian) where T : Tag
     {
         var reader = new BinaryTagReader(span, littleEndian);
 
         if (!reader.TryPeek(out var identifier))
         {
-            throw new ArgumentException("Failed to start reading the tag.");
+            throw new ArgumentException("Failed to start deserialize the tag.");
         }
 
         return (T) Read(ref reader, identifier);

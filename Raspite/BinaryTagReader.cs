@@ -40,9 +40,24 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     /// </summary>
     private int waiting;
 
+    /// <summary>
+    /// Tries to get the current tag identifier without consuming it.
+    /// </summary>
+    /// <param name="value">The current tag identifier.</param>
+    /// <returns>
+    /// Whether the tag identifier was peeked successfully (<c>true</c>) or not (<c>false</c>).
+    /// </returns>
     public bool TryPeek(out byte value)
     {
+        value = 0;
+
+        if (position == span.Length)
+        {
+            return false;
+        }
+
         value = span[position];
+
         return true;
     }
 
