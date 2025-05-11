@@ -18,6 +18,14 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     public readonly int Remaining => span.Length - position;
 
     /// <summary>
+    /// Whether to read the tag's identifier and name (<c>true</c>) or not (<c>false</c>).
+    /// </summary>
+    /// <remarks>
+    /// Tags <c>true</c> inside a <see cref="List{T}"/> are nameless.
+    /// </remarks>
+    public bool Nameless { get; set; }
+
+    /// <summary>
     /// The <see cref="ReadOnlySpan{T}"/> to read the named binary tags (NBTs) from.
     /// </summary>
     private readonly ReadOnlySpan<byte> span = span;
@@ -26,19 +34,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     /// The current position of the reader.
     /// </summary>
     private int position;
-
-    /// <summary>
-    /// Whether to read the tag's identifier and name (<c>true</c>) or not (<c>false</c>).
-    /// </summary>
-    /// <remarks>
-    /// This is only <c>true</c> inside a <see cref="List{T}"/>.
-    /// </remarks>
-    private bool nameless;
-
-    /// <summary>
-    /// The amount of tags that are inside a possibly current <see cref="List{T}"/>.
-    /// </summary>
-    private int left;
 
     /// <summary>
     /// Tries to get the current tag identifier without consuming it.
@@ -72,11 +67,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         if (!TryReadByte(out var identifier))
         {
             return false;
-        }
-
-        if (left > 0)
-        {
-            nameless = true;
         }
 
         ArgumentOutOfRangeException.ThrowIfNotEqual(Tag.End, identifier);
@@ -241,8 +231,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         ArgumentOutOfRangeException.ThrowIfGreaterThan(identifier, Tag.LongCollection);
         ArgumentOutOfRangeException.ThrowIfNegative(length);
 
-        nameless = true;
-        left = length;
+        Nameless = true;
 
         return true;
     }
@@ -264,7 +253,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
             return false;
         }
 
-        nameless = false;
+        Nameless = false;
 
         return true;
     }
@@ -404,18 +393,8 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     {
         name = string.Empty;
 
-        if (nameless)
+        if (Nameless)
         {
-            left -= 1;
-
-            if (left > 0)
-            {
-                return true;
-            }
-
-            nameless = false;
-            left = 0;
-
             return true;
         }
 

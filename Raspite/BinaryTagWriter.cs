@@ -17,14 +17,9 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// Whether to write the tag's identifier and name (<c>true</c>) or not (<c>false</c>).
     /// </summary>
     /// <remarks>
-    /// This is only <c>true</c> inside a <see cref="List{T}"/>.
+    /// Tags <c>true</c> inside a <see cref="List{T}"/> are nameless.
     /// </remarks>
-    private bool nameless;
-
-    /// <summary>
-    /// The amount of tags that are inside a possibly current <see cref="List{T}"/>.
-    /// </summary>
-    private int left;
+    public bool Nameless { get; set; }
 
     /// <summary>
     /// Writes an <see cref="Tag.End"/>.
@@ -34,11 +29,6 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// </remarks>
     public void WriteEndTag()
     {
-        if (left > 0)
-        {
-            nameless = true;
-        }
-
         WriteByte(Tag.End);
     }
 
@@ -194,8 +184,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
         WriteByte(identifier);
         WriteInteger(length);
 
-        nameless = true;
-        left = length;
+        Nameless = true;
     }
 
     /// <summary>
@@ -208,7 +197,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     public void WriteCompoundTag(string name = "")
     {
         Write(Tag.Compound, name);
-        nameless = false;
+        Nameless = false;
     }
 
     /// <summary>
@@ -286,18 +275,8 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     /// </remarks>
     private void Write(byte identifier, string name)
     {
-        if (nameless)
+        if (Nameless)
         {
-            left -= 1;
-
-            if (left > 0)
-            {
-                return;
-            }
-
-            nameless = false;
-            left = 0;
-
             return;
         }
 

@@ -158,6 +158,7 @@ public static class BinaryTagSerializer
 
                     for (var index = 0; index < length; index++)
                     {
+                        reader.Nameless = true;
                         items[index] = Read(ref reader, identifier);
                     }
 
@@ -181,6 +182,8 @@ public static class BinaryTagSerializer
                         {
                             break;
                         }
+
+                        reader.Nameless = false;
 
                         items[index++] = Read(ref reader, identifier);
                     }
