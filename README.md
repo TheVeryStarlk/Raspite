@@ -3,4 +3,4 @@
 </p>
 
 # Raspite
-A high-performance library for reading and writing Minecraft [named binary tags (NBTs)](https://minecraft.wiki/w/NBT_format).
+A fast, lightweight, and easy-to-use [NBT](https://minecraft.wiki/w/NBT_format) serialization library.
