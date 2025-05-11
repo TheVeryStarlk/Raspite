@@ -40,6 +40,12 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     /// </summary>
     private int waiting;
 
+    public bool TryPeek(out byte value)
+    {
+        value = span[position];
+        return true;
+    }
+
     /// <summary>
     /// Tries to read an <see cref="Tag.End"/>.
     /// </summary>
