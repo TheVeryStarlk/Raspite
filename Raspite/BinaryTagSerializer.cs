@@ -14,11 +14,18 @@ public static class BinaryTagSerializer
     /// <param name="buffer">The <see cref="IBufferWriter{T}"/> to serialize to.</param>
     /// <param name="tag">The <see cref="Tag"/> to serialize.</param>
     /// <param name="littleEndian">Whether to serialize as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
-    /// <exception cref="ArgumentOutOfRangeException">Unknown <see cref="Tag"/>.</exception>
     public static void Serialize(IBufferWriter<byte> buffer, Tag tag, bool littleEndian)
     {
-        var writer = new BinaryTagWriter(buffer, littleEndian);
-        Write(writer, tag);
+        try
+        {
+            var writer = new BinaryTagWriter(buffer, littleEndian);
+            Write(writer, tag);
+        }
+        catch (ArgumentException exception)
+        {
+            // To make it easier to just catch one exception.
+            throw new BinaryTagSerializerException(exception);
+        }
 
         return;
 
@@ -55,12 +62,6 @@ public static class BinaryTagSerializer
                     break;
 
                 case ListTag current:
-                    if (current.Value.Length is 0)
-                    {
-                        writer.WriteListTag(Tag.End, 0, current.Name);
-                        return;
-                    }
-
                     writer.WriteListTag(current.Value.First().Identifier, current.Value.Length, current.Name);
 
                     foreach (var item in current.Value)
@@ -112,14 +113,22 @@ public static class BinaryTagSerializer
     /// <exception cref="ArgumentOutOfRangeException">Unknown <see cref="Tag"/>.</exception>
     public static T Deserialize<T>(ReadOnlySpan<byte> span, bool littleEndian) where T : Tag
     {
-        var reader = new BinaryTagReader(span, littleEndian);
-
-        if (!reader.TryPeek(out var identifier))
+        try
         {
-            throw new ArgumentException("Failed to start deserialize the tag.");
-        }
+            var reader = new BinaryTagReader(span, littleEndian);
 
-        return (T) Read(ref reader, identifier);
+            if (!reader.TryPeek(out var identifier))
+            {
+                throw new ArgumentException("Failed to start deserialize the tag.");
+            }
+
+            return (T) Read(ref reader, identifier);
+        }
+        catch (ArgumentException exception)
+        {
+            // To make it easier to just catch one exception.
+            throw new BinaryTagSerializerException(exception);
+        }
 
         static Tag Read(ref BinaryTagReader reader, byte current)
         {
