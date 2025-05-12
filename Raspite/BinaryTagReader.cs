@@ -295,7 +295,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     {
         value = default;
 
-        if (!TryRead(Tag.IntegerCollection, out name))
+        if (!TryRead(Tag.IntegerCollection, out name) || !TryReadInteger(out var length) || length * sizeof(int) > Remaining)
         {
             return false;
         }
@@ -303,12 +303,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         // Fast path.
         if (BitConverter.IsLittleEndian == littleEndian)
         {
-            return TryRead(sizeof(int), out value);
-        }
-
-        if (!TryReadInteger(out var length) || length * sizeof(int) > Remaining)
-        {
-            return false;
+            return TryRead(length * sizeof(int), out value);
         }
 
         ArgumentOutOfRangeException.ThrowIfNegative(length);
@@ -343,7 +338,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     {
         value = default;
 
-        if (!TryRead(Tag.LongCollection, out name))
+        if (!TryRead(Tag.LongCollection, out name) || !TryReadInteger(out var length) || length * sizeof(long) > Remaining)
         {
             return false;
         }
@@ -351,12 +346,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         // Fast path.
         if (BitConverter.IsLittleEndian == littleEndian)
         {
-            return TryRead(sizeof(long), out value);
-        }
-
-        if (!TryReadInteger(out var length) || length * sizeof(long) > Remaining)
-        {
-            return false;
+            return TryRead(length * sizeof(long), out value);
         }
 
         ArgumentOutOfRangeException.ThrowIfNegative(length);
@@ -411,24 +401,15 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
     /// <summary>
     /// Tries to read a <see cref="ReadOnlySpan{T}"/>.
     /// </summary>
-    /// <param name="size">The size of the type.</param>
-    /// <param name="value">The <see cref="ReadOnlySpan{T}"/> to read.</param>
+    /// <param name="length">The length of the <see cref="ReadOnlySpan{T}"/>.</param>
+    /// <param name="value">The read <see cref="ReadOnlySpan{T}"/>.</param>
     /// <typeparam name="T">The type of the <see cref="ReadOnlySpan{T}"/>.</typeparam>
     /// <returns>
     /// Whether was the <see cref="ReadOnlySpan{T}"/> read successfully (<c>true</c>) or not (<c>false</c>).
     /// </returns>
-    private bool TryRead<T>(int size, out ReadOnlySpan<T> value) where T : struct
+    private bool TryRead<T>(int length, out ReadOnlySpan<T> value) where T : struct
     {
-        value = default;
-
-        if (!TryReadInteger(out var length) || length * size > Remaining)
-        {
-            return false;
-        }
-
-        ArgumentOutOfRangeException.ThrowIfNegative(length);
-
-        var slice = span[position..(position += length * size)];
+        var slice = span[position..(position += length)];
         value = MemoryMarshal.Cast<byte, T>(slice);
 
         return true;
