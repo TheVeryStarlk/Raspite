@@ -17,7 +17,7 @@ public static class BinaryTagSerializer
         catch (ArgumentException exception)
         {
             // To make it easier to just catch one exception.
-            throw new BinaryTagSerializerException(exception);
+            throw new BinaryTagSerializerException(exception.Message);
         }
 
         return;
@@ -90,7 +90,7 @@ public static class BinaryTagSerializer
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(tag));
+                    throw new BinaryTagSerializerException(nameof(tag));
             }
         }
     }
@@ -105,7 +105,7 @@ public static class BinaryTagSerializer
 
             if (!reader.TryPeek(out var identifier))
             {
-                throw new ArgumentException("Failed to start deserialize the tag.");
+                throw new BinaryTagSerializerException("Failed to start deserialize the tag.");
             }
 
             return (T) Read(ref reader, identifier, options.MaximumDepth);
@@ -113,7 +113,7 @@ public static class BinaryTagSerializer
         catch (ArgumentException exception)
         {
             // To make it easier to just catch one exception.
-            throw new BinaryTagSerializerException(exception);
+            throw new BinaryTagSerializerException(exception.Message);
         }
 
         static Tag Read(ref BinaryTagReader reader, byte current, int maximumDepth)
@@ -172,7 +172,7 @@ public static class BinaryTagSerializer
                     {
                         if (!reader.TryPeek(out var identifier))
                         {
-                            throw new ArgumentException("Failed to create a compound tag.");
+                            throw new BinaryTagSerializerException("Failed to create a compound tag.");
                         }
 
                         if (identifier is Tag.End)
@@ -186,7 +186,7 @@ public static class BinaryTagSerializer
 
                     if (!reader.TryReadEndTag())
                     {
-                        throw new ArgumentException("Failed to close a compound tag.");
+                        throw new BinaryTagSerializerException("Failed to close a compound tag.");
                     }
 
                     return new CompoundTag(items[..index], name);
@@ -202,7 +202,7 @@ public static class BinaryTagSerializer
                     return new LongCollectionTag(value.ToArray(), name);
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(current));
+                    throw new BinaryTagSerializerException(nameof(current));
             }
         }
     }
