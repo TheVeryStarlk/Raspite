@@ -5,12 +5,14 @@ namespace Raspite;
 
 public static class BinaryTagSerializer
 {
-    public static void Serialize(IBufferWriter<byte> buffer, Tag tag, bool littleEndian)
+    public static void Serialize(IBufferWriter<byte> buffer, Tag tag, BinaryTagSerializerOptions? options = null)
     {
+        options ??= new BinaryTagSerializerOptions();
+
         try
         {
-            var writer = new BinaryTagWriter(buffer, littleEndian);
-            Write(writer, tag);
+            var writer = new BinaryTagWriter(buffer, options.LittleEndian);
+            Write(writer, tag, options.MaximumDepth);
         }
         catch (ArgumentException exception)
         {
@@ -20,8 +22,10 @@ public static class BinaryTagSerializer
 
         return;
 
-        static void Write(BinaryTagWriter writer, Tag tag)
+        static void Write(BinaryTagWriter writer, Tag tag, int maximumDepth)
         {
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
+
             switch (tag)
             {
                 case ByteTag current:
@@ -57,7 +61,7 @@ public static class BinaryTagSerializer
 
                     foreach (var item in current.Value)
                     {
-                        Write(writer, item);
+                        Write(writer, item, maximumDepth--);
                     }
 
                     break;
@@ -67,7 +71,7 @@ public static class BinaryTagSerializer
 
                     foreach (var item in current.Value)
                     {
-                        Write(writer, item);
+                        Write(writer, item, maximumDepth--);
                     }
 
                     writer.WriteEndTag();
@@ -91,18 +95,20 @@ public static class BinaryTagSerializer
         }
     }
 
-    public static T Deserialize<T>(ReadOnlySpan<byte> span, bool littleEndian) where T : Tag
+    public static T Deserialize<T>(ReadOnlySpan<byte> span, BinaryTagSerializerOptions? options = null) where T : Tag
     {
+        options ??= new BinaryTagSerializerOptions();
+
         try
         {
-            var reader = new BinaryTagReader(span, littleEndian);
+            var reader = new BinaryTagReader(span, options.LittleEndian);
 
             if (!reader.TryPeek(out var identifier))
             {
                 throw new ArgumentException("Failed to start deserialize the tag.");
             }
 
-            return (T) Read(ref reader, identifier);
+            return (T) Read(ref reader, identifier, options.MaximumDepth);
         }
         catch (ArgumentException exception)
         {
@@ -110,8 +116,10 @@ public static class BinaryTagSerializer
             throw new BinaryTagSerializerException(exception);
         }
 
-        static Tag Read(ref BinaryTagReader reader, byte current)
+        static Tag Read(ref BinaryTagReader reader, byte current, int maximumDepth)
         {
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
+
             switch (current)
             {
                 case Tag.Byte when reader.TryReadByteTag(out var value, out var name):
@@ -147,7 +155,7 @@ public static class BinaryTagSerializer
                     for (var index = 0; index < length; index++)
                     {
                         reader.Nameless = true;
-                        items[index] = Read(ref reader, identifier);
+                        items[index] = Read(ref reader, identifier, maximumDepth--);
                     }
 
                     return new ListTag(items, name);
@@ -172,8 +180,7 @@ public static class BinaryTagSerializer
                         }
 
                         reader.Nameless = false;
-
-                        items[index++] = Read(ref reader, identifier);
+                        items[index++] = Read(ref reader, identifier, maximumDepth--);
                     }
 
                     if (!reader.TryReadEndTag())
@@ -198,4 +205,11 @@ public static class BinaryTagSerializer
             }
         }
     }
+}
+
+public sealed class BinaryTagSerializerOptions
+{
+    public int MaximumDepth { get; init; } = byte.MaxValue;
+
+    public bool LittleEndian { get; init; } = false;
 }
