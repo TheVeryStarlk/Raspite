@@ -5,7 +5,7 @@ public sealed class ListTagBuilder<T> where T : Tag
     private readonly string parent;
 
     // Arbitrary length;
-    private readonly T[] children = new T[byte.MaxValue];
+    private readonly Tag[] children = new Tag[byte.MaxValue];
 
     private int index;
 
@@ -25,8 +25,8 @@ public sealed class ListTagBuilder<T> where T : Tag
         return this;
     }
 
-    public ListTag<T> Build()
+    public ListTag Build()
     {
-        return new ListTag<T>(children[..index], parent);
+        return new ListTag(children[..index], parent);
     }
 }

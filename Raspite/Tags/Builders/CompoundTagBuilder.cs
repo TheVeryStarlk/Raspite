@@ -61,15 +61,15 @@ public sealed class CompoundTagBuilder
         return this;
     }
 
-    public CompoundTagBuilder AddListTag<T>(T[] value, string name = "") where T : Tag
+    public CompoundTagBuilder AddListTag(ListTag value, string name = "")
     {
-        children[index++] = new ListTag<T>(value, name);
+        children[index++] = value;
         return this;
     }
 
-    public CompoundTagBuilder AddCompoundTag(Tag[] value, string name = "")
+    public CompoundTagBuilder AddCompoundTag(CompoundTag value, string name = "")
     {
-        children[index++] = new CompoundTag(value, name);
+        children[index++] = value;
         return this;
     }
 
