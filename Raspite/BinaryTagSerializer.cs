@@ -150,6 +150,8 @@ public static class BinaryTagSerializer
                         return new ListTag([], name);
                     }
 
+                    ArgumentOutOfRangeException.ThrowIfGreaterThan(length, maximumDepth);
+
                     var items = new Tag[length];
 
                     for (var index = 0; index < length; index++)
@@ -163,8 +165,7 @@ public static class BinaryTagSerializer
 
                 case Tag.Compound when reader.TryReadCompoundTag(out var name):
                 {
-                    // Arbitrary length.
-                    var items = new Tag[byte.MaxValue];
+                    var items = new Tag[maximumDepth];
                     var index = 0;
 
                     while (true)

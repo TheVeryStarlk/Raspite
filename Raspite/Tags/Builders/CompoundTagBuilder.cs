@@ -4,7 +4,7 @@ public sealed class CompoundTagBuilder
 {
     private readonly string parent;
 
-    // Arbitrary length;
+    // Arbitrary length.
     private readonly Tag[] children = new Tag[byte.MaxValue];
 
     private int index;
