@@ -5,43 +5,16 @@ using Raspite.Tags;
 
 namespace Raspite;
 
-/// <summary>
-/// Provides a reader for reading named binary tags (NBTs).
-/// </summary>
-/// <param name="span">The <see cref="ReadOnlySpan{T}"/> to read the named binary tags (NBTs) from.</param>
-/// <param name="littleEndian">Whether to read the named binary tags (NBTs) as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
 public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
 {
-    /// <summary>
-    /// The total number of <see cref="byte"/>s left in the <see cref="ReadOnlySpan{T}"/>.
-    /// </summary>
     public readonly int Remaining => span.Length - position;
 
-    /// <summary>
-    /// Whether to read the tag's identifier and name (<c>true</c>) or not (<c>false</c>).
-    /// </summary>
-    /// <remarks>
-    /// Tags <c>true</c> inside a <see cref="List{T}"/> are nameless.
-    /// </remarks>
     public bool Nameless { get; set; }
 
-    /// <summary>
-    /// The <see cref="ReadOnlySpan{T}"/> to read the named binary tags (NBTs) from.
-    /// </summary>
     private readonly ReadOnlySpan<byte> span = span;
 
-    /// <summary>
-    /// The current position of the reader.
-    /// </summary>
     private int position;
 
-    /// <summary>
-    /// Tries to get the current tag identifier without consuming it.
-    /// </summary>
-    /// <param name="value">The current tag identifier.</param>
-    /// <returns>
-    /// Whether the tag identifier was peeked successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
     public bool TryPeek(out byte value)
     {
         value = 0;
@@ -56,12 +29,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read an <see cref="Tag.End"/>.
-    /// </summary>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
     public bool TryReadEndTag()
     {
         if (!TryReadByte(out var identifier))
@@ -74,30 +41,12 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read an <see cref="Tag.Byte"/>.
-    /// </summary>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     public bool TryReadByteTag(out byte value, out string name)
     {
         value = 0;
         return TryRead(Tag.Byte, out name) && TryReadByte(out value);
     }
 
-    /// <summary>
-    /// Tries to read an <see cref="Tag.Short"/>.
-    /// </summary>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     public bool TryReadShortTag(out short value, out string name)
     {
         value = 0;
@@ -113,45 +62,18 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read an <see cref="Tag.Integer"/>.
-    /// </summary>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     public bool TryReadIntegerTag(out int value, out string name)
     {
         value = 0;
         return TryRead(Tag.Integer, out name) && TryReadInteger(out value);
     }
 
-    /// <summary>
-    /// Tries to read an <see cref="Tag.Long"/>.
-    /// </summary>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     public bool TryReadLongTag(out long value, out string name)
     {
         value = 0;
         return TryRead(Tag.Long, out name) && TryReadLong(out value);
     }
 
-    /// <summary>
-    /// Tries to read an <see cref="Tag.Float"/>.
-    /// </summary>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     public bool TryReadFloatTag(out float value, out string name)
     {
         value = 0;
@@ -167,15 +89,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read an <see cref="Tag.Double"/>.
-    /// </summary>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     public bool TryReadDoubleTag(out double value, out string name)
     {
         value = 0;
@@ -191,33 +104,12 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read an <see cref="Tag.String"/>.
-    /// </summary>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     public bool TryReadStringTag(out string value, out string name)
     {
         value = string.Empty;
         return TryRead(Tag.String, out name) && TryReadString(out value);
     }
 
-    /// <summary>
-    /// Tries to read the starting of a <see cref="Tag.List"/>.
-    /// </summary>
-    /// <param name="identifier">The tag's identifier that the <see cref="Tag.List"/> contains.</param>
-    /// <param name="length">The number of tags inside the <see cref="Tag.List"/>.</param>
-    /// <param name="name">The tag's name.</param>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     public bool TryReadListTag(out byte identifier, out int length, out string name)
     {
         identifier = 0;
@@ -236,16 +128,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read the starting of a <see cref="Tag.Compound"/>.
-    /// </summary>
-    /// <param name="name">The tag's name.</param>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     public bool TryReadCompoundTag(out string name)
     {
         if (!TryRead(Tag.Compound, out name))
@@ -258,15 +140,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read an <see cref="Tag.ByteCollection"/>.
-    /// </summary>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     public bool TryReadByteCollectionTag(out ReadOnlySpan<byte> value, out string name)
     {
         value = default;
@@ -282,15 +155,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read an <see cref="Tag.IntegerCollection"/>.
-    /// </summary>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     public bool TryReadIntegerCollectionTag(out ReadOnlySpan<int> value, out string name)
     {
         value = default;
@@ -325,15 +189,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read an <see cref="Tag.LongCollection"/>.
-    /// </summary>
-    /// <returns>
-    /// Whether the tag was read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     public bool TryReadLongCollectionTag(out ReadOnlySpan<long> value, out string name)
     {
         value = default;
@@ -368,17 +223,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read the identifier and name of a tag.
-    /// </summary>
-    /// <param name="expected">The expected tag identifier.</param>
-    /// <param name="name">The tag's name.</param>
-    /// <returns>
-    /// Whether the tag's identifier and name were read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
-    /// <remarks>
-    /// The tag will not have a name if it were inside <see cref="Tag.List"/>.
-    /// </remarks>
     private bool TryRead(byte expected, out string name)
     {
         name = string.Empty;
@@ -398,15 +242,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return TryReadString(out name);
     }
 
-    /// <summary>
-    /// Tries to read a <see cref="ReadOnlySpan{T}"/>.
-    /// </summary>
-    /// <param name="length">The length of the <see cref="ReadOnlySpan{T}"/>.</param>
-    /// <param name="value">The read <see cref="ReadOnlySpan{T}"/>.</param>
-    /// <typeparam name="T">The type of the <see cref="ReadOnlySpan{T}"/>.</typeparam>
-    /// <returns>
-    /// Whether was the <see cref="ReadOnlySpan{T}"/> read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
     private bool TryRead<T>(int length, out ReadOnlySpan<T> value) where T : struct
     {
         var slice = span[position..(position += length)];
@@ -415,13 +250,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read a <see cref="byte"/>.
-    /// </summary>
-    /// <param name="value">The <see cref="byte"/> to read.</param>
-    /// <returns>
-    /// Whether was the <see cref="byte"/> read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
     private bool TryReadByte(out byte value)
     {
         value = 0;
@@ -436,13 +264,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read a <see cref="int"/>.
-    /// </summary>
-    /// <param name="value">The <see cref="int"/> to read.</param>
-    /// <returns>
-    /// Whether was the <see cref="int"/> read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
     private bool TryReadInteger(out int value)
     {
         value = 0;
@@ -458,13 +279,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read a <see cref="long"/>.
-    /// </summary>
-    /// <param name="value">The <see cref="long"/> to read.</param>
-    /// <returns>
-    /// Whether was the <see cref="long"/> read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
     private bool TryReadLong(out long value)
     {
         value = 0;
@@ -480,13 +294,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    /// <summary>
-    /// Tries to read a <see cref="ushort"/>-prefixed <see cref="string"/>.
-    /// </summary>
-    /// <param name="value">The <see cref="string"/> to read.</param>
-    /// <returns>
-    /// Whether was the <see cref="string"/> read successfully (<c>true</c>) or not (<c>false</c>).
-    /// </returns>
     private bool TryReadString(out string value)
     {
         value = string.Empty;
