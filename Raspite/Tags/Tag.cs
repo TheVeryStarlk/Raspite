@@ -23,7 +23,7 @@ public abstract class Tag(string name = "")
 
     public const byte Double = 6;
 
-    public const byte ByteCollection = 7;
+    public const byte Bytes = 7;
 
     public const byte String = 8;
 
@@ -31,9 +31,9 @@ public abstract class Tag(string name = "")
 
     public const byte Compound = 10;
 
-    public const byte IntegerCollection = 11;
+    public const byte Integers = 11;
 
-    public const byte LongCollection = 12;
+    public const byte Longs = 12;
 }
 
 [DebuggerDisplay("{Name} = {Value}")]

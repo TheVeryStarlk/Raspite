@@ -73,21 +73,21 @@ public sealed class CompoundTagBuilder
         return this;
     }
 
-    public CompoundTagBuilder AddByteCollectionTag(byte[] value, string name = "")
+    public CompoundTagBuilder AddBytesTag(byte[] value, string name = "")
     {
-        children[index++] = new ByteCollectionTag(value, name);
+        children[index++] = new BytesTag(value, name);
         return this;
     }
 
-    public CompoundTagBuilder AddIntegerCollectionTag(int[] value, string name = "")
+    public CompoundTagBuilder AddIntegersTag(int[] value, string name = "")
     {
-        children[index++] = new IntegerCollectionTag(value, name);
+        children[index++] = new IntegersTag(value, name);
         return this;
     }
 
-    public CompoundTagBuilder AddLongCollectionTag(long[] value, string name = "")
+    public CompoundTagBuilder AddLongsTag(long[] value, string name = "")
     {
-        children[index++] = new LongCollectionTag(value, name);
+        children[index++] = new LongsTag(value, name);
         return this;
     }
 

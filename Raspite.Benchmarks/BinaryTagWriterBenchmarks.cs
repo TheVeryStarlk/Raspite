@@ -24,23 +24,23 @@ public class BinaryTagWriterBenchmarks
 
 
     [Benchmark]
-    public int BigEndianIntegerCollectionTag()
+    public int BigEndianIntegersTag()
     {
         var buffer = new ArrayBufferWriter<byte>();
         var writer = new BinaryTagWriter(buffer, false);
 
-        writer.WriteIntegerCollectionTag(Enumerable.Repeat(int.MaxValue, byte.MaxValue).ToArray(), "Parent");
+        writer.WriteIntegersTag(Enumerable.Repeat(int.MaxValue, byte.MaxValue).ToArray(), "Parent");
 
         return buffer.WrittenSpan.Length;
     }
 
     [Benchmark]
-    public int LittleEndianIntegerCollectionTag()
+    public int LittleEndianIntegersTag()
     {
         var buffer = new ArrayBufferWriter<byte>();
         var writer = new BinaryTagWriter(buffer, true);
 
-        writer.WriteIntegerCollectionTag(Enumerable.Repeat(int.MaxValue, byte.MaxValue).ToArray(), "Parent");
+        writer.WriteIntegersTag(Enumerable.Repeat(int.MaxValue, byte.MaxValue).ToArray(), "Parent");
 
         return buffer.WrittenSpan.Length;
     }

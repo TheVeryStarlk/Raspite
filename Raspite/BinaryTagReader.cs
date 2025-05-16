@@ -120,7 +120,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
             return false;
         }
 
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(identifier, Tag.LongCollection);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(identifier, Tag.Longs);
         ArgumentOutOfRangeException.ThrowIfNegative(length);
 
         Nameless = true;
@@ -140,11 +140,11 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    public bool TryReadByteCollectionTag(out ReadOnlySpan<byte> value, out string name)
+    public bool TryReadBytesTag(out ReadOnlySpan<byte> value, out string name)
     {
         value = default;
 
-        if (!TryRead(Tag.ByteCollection, out name) || !TryReadInteger(out var length) || length > Remaining)
+        if (!TryRead(Tag.Bytes, out name) || !TryReadInteger(out var length) || length > Remaining)
         {
             return false;
         }
@@ -155,11 +155,11 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    public bool TryReadIntegerCollectionTag(out ReadOnlySpan<int> value, out string name)
+    public bool TryReadIntegersTag(out ReadOnlySpan<int> value, out string name)
     {
         value = default;
 
-        if (!TryRead(Tag.IntegerCollection, out name) || !TryReadInteger(out var length) || length * sizeof(int) > Remaining)
+        if (!TryRead(Tag.Integers, out name) || !TryReadInteger(out var length) || length * sizeof(int) > Remaining)
         {
             return false;
         }
@@ -189,11 +189,11 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         return true;
     }
 
-    public bool TryReadLongCollectionTag(out ReadOnlySpan<long> value, out string name)
+    public bool TryReadLongsTag(out ReadOnlySpan<long> value, out string name)
     {
         value = default;
 
-        if (!TryRead(Tag.LongCollection, out name) || !TryReadInteger(out var length) || length * sizeof(long) > Remaining)
+        if (!TryRead(Tag.Longs, out name) || !TryReadInteger(out var length) || length * sizeof(long) > Remaining)
         {
             return false;
         }

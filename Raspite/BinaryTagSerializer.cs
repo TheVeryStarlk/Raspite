@@ -77,16 +77,16 @@ public static class BinaryTagSerializer
                     writer.WriteEndTag();
                     break;
 
-                case ByteCollectionTag current:
-                    writer.WriteByteCollectionTag(current.Value, current.Name);
+                case BytesTag current:
+                    writer.WriteBytesTag(current.Value, current.Name);
                     break;
 
-                case IntegerCollectionTag current:
-                    writer.WriteIntegerCollectionTag(current.Value, current.Name);
+                case IntegersTag current:
+                    writer.WriteIntegersTag(current.Value, current.Name);
                     break;
 
-                case LongCollectionTag current:
-                    writer.WriteLongCollectionTag(current.Value, current.Name);
+                case LongsTag current:
+                    writer.WriteLongsTag(current.Value, current.Name);
                     break;
 
                 default:
@@ -192,14 +192,14 @@ public static class BinaryTagSerializer
                     return new CompoundTag(items[..index], name);
                 }
 
-                case Tag.ByteCollection when reader.TryReadByteCollectionTag(out var value, out var name):
-                    return new ByteCollectionTag(value.ToArray(), name);
+                case Tag.Bytes when reader.TryReadBytesTag(out var value, out var name):
+                    return new BytesTag(value.ToArray(), name);
 
-                case Tag.IntegerCollection when reader.TryReadIntegerCollectionTag(out var value, out var name):
-                    return new IntegerCollectionTag(value.ToArray(), name);
+                case Tag.Integers when reader.TryReadIntegersTag(out var value, out var name):
+                    return new IntegersTag(value.ToArray(), name);
 
-                case Tag.LongCollection when reader.TryReadLongCollectionTag(out var value, out var name):
-                    return new LongCollectionTag(value.ToArray(), name);
+                case Tag.Longs when reader.TryReadLongsTag(out var value, out var name):
+                    return new LongsTag(value.ToArray(), name);
 
                 default:
                     throw new BinaryTagSerializerException(nameof(current));
