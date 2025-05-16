@@ -217,9 +217,9 @@ public static class BinaryTagSerializer
     }
 }
 
-public sealed class BinaryTagSerializerOptions
+public readonly struct BinaryTagSerializerOptions()
 {
-    public int MaximumDepth { get; init; } = byte.MaxValue;
+    public int MaximumDepth { get; init; } = 512;
 
     public bool LittleEndian { get; init; } = false;
 }
