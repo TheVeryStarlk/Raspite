@@ -16,7 +16,7 @@ internal sealed class BinaryTagSerializerTests
         var buffer = new ArrayBufferWriter<byte>();
         var tag = new StringTag("Hey", "Seen");
 
-        var options = new BinaryTagSerializerOptions();
+        var options = BinaryTagSerializerOptions.Default;
         BinaryTagSerializer.Serialize(buffer, tag, options);
 
         Assert.That(buffer.WrittenSpan.ToArray(), Is.EqualTo(correct.ToArray()).AsCollection);
@@ -32,7 +32,7 @@ internal sealed class BinaryTagSerializerTests
                 8, 0, 4, 83, 101, 101, 110, 0, 3, 72, 101, 121
             ];
 
-            var options = new BinaryTagSerializerOptions();
+            var options = BinaryTagSerializerOptions.Default;
             var result = BinaryTagSerializer.TryRead(correct, out var tag, options);
 
             Assert.That(result, Is.True);

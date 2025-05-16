@@ -3,6 +3,7 @@
 </p>
 
 # Raspite
+
 A fast, lightweight, and easy-to-use [NBT](https://minecraft.wiki/w/NBT_format) serialization library.
 
 ## Usage
@@ -12,10 +13,13 @@ Breaking changes are to be expected.
 ## Reading
 
 ```cs
-var tag = BinaryTagSerializer.Deserialize<CompoundTag>(source);
+var read = BinaryTagSerializer.TryRead(
+    source, 
+    out var tag, 
+    BinaryTagSerializerOptions.Default);
 ```
 
-Deserializing expects a complete buffer, otherwise it'll throw an exception.
+Reading returns true if the whole buffer was read, otherwise false.
 
 ## Writing
 
@@ -25,5 +29,8 @@ var tag = CompoundTagBuilder
     .AddStringTag("Raspite", "Name")
     .Build();
 
-BinaryTagSerializer.Serialize(buffer, tag);
+BinaryTagSerializer.Serialize(
+    buffer, 
+    tag, 
+    BinaryTagSerializerOptions.Default);
 ```
