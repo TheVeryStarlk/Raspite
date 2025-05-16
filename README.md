@@ -7,7 +7,7 @@ A fast, lightweight, and easy-to-use [NBT](https://minecraft.wiki/w/NBT_format) 
 
 ## Usage
 
-Raspite is quite similar to STJ in terms of using.
+Breaking changes are to be expected.
 
 ## Reading
 
