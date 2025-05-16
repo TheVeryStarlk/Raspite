@@ -6,7 +6,7 @@ using Raspite.Tags;
 
 namespace Raspite;
 
-public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
+public ref struct BinaryTagWriter(IBufferWriter<byte> buffer, bool littleEndian)
 {
     public bool Nameless { get; set; }
 
@@ -25,7 +25,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     {
         Write(Tag.Short, name);
 
-        var span = writer.GetSpan(sizeof(short));
+        var span = buffer.GetSpan(sizeof(short));
 
         if (littleEndian)
         {
@@ -36,7 +36,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
             BinaryPrimitives.WriteInt16BigEndian(span, value);
         }
 
-        writer.Advance(sizeof(short));
+        buffer.Advance(sizeof(short));
     }
 
     public void WriteIntegerTag(int value, string name = "")
@@ -55,7 +55,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
     {
         Write(Tag.Float, name);
 
-        var span = writer.GetSpan(sizeof(float));
+        var span = buffer.GetSpan(sizeof(float));
 
         if (littleEndian)
         {
@@ -66,14 +66,14 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
             BinaryPrimitives.WriteSingleBigEndian(span, value);
         }
 
-        writer.Advance(sizeof(float));
+        buffer.Advance(sizeof(float));
     }
 
     public void WriteDoubleTag(double value, string name = "")
     {
         Write(Tag.Double, name);
 
-        var span = writer.GetSpan(sizeof(double));
+        var span = buffer.GetSpan(sizeof(double));
 
         if (littleEndian)
         {
@@ -84,7 +84,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
             BinaryPrimitives.WriteDoubleBigEndian(span, value);
         }
 
-        writer.Advance(sizeof(double));
+        buffer.Advance(sizeof(double));
     }
 
     public void WriteStringTag(string value, string name = "")
@@ -165,23 +165,23 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
 
     private void Write(ReadOnlySpan<byte> value)
     {
-        var span = writer.GetSpan(value.Length);
+        var span = buffer.GetSpan(value.Length);
         value.CopyTo(span[..value.Length]);
 
-        writer.Advance(value.Length);
+        buffer.Advance(value.Length);
     }
 
     private void WriteByte(byte value)
     {
-        var span = writer.GetSpan(sizeof(byte));
+        var span = buffer.GetSpan(sizeof(byte));
         span[0] = value;
 
-        writer.Advance(sizeof(byte));
+        buffer.Advance(sizeof(byte));
     }
 
     private void WriteInteger(int value)
     {
-        var span = writer.GetSpan(sizeof(int));
+        var span = buffer.GetSpan(sizeof(int));
 
         if (littleEndian)
         {
@@ -192,12 +192,12 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
             BinaryPrimitives.WriteInt32BigEndian(span, value);
         }
 
-        writer.Advance(sizeof(int));
+        buffer.Advance(sizeof(int));
     }
 
     private void WriteLong(long value)
     {
-        var span = writer.GetSpan(sizeof(long));
+        var span = buffer.GetSpan(sizeof(long));
 
         if (littleEndian)
         {
@@ -208,14 +208,14 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
             BinaryPrimitives.WriteInt64BigEndian(span, value);
         }
 
-        writer.Advance(sizeof(long));
+        buffer.Advance(sizeof(long));
     }
 
     private void WriteString(string value)
     {
         var length = Encoding.UTF8.GetByteCount(value);
         var total = sizeof(ushort) + length;
-        var span = writer.GetSpan(total);
+        var span = buffer.GetSpan(total);
 
         if (littleEndian)
         {
@@ -230,6 +230,6 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> writer, bool littleEndian)
 
         ArgumentOutOfRangeException.ThrowIfGreaterThan(written, total, nameof(written));
 
-        writer.Advance(total);
+        buffer.Advance(total);
     }
 }
