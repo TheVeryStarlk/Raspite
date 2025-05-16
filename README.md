@@ -13,7 +13,7 @@ Breaking changes are to be expected.
 ## Reading
 
 ```cs
-var read = BinaryTagSerializer.TryRead(
+var success = BinaryTagSerializer.TryRead(
     source, 
     out var tag, 
     BinaryTagSerializerOptions.Default);
