@@ -214,6 +214,9 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> buffer, bool littleEndian)
     private void WriteString(string value)
     {
         var length = Encoding.UTF8.GetByteCount(value);
+
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(length, ushort.MaxValue);
+
         var total = sizeof(ushort) + length;
         var span = buffer.GetSpan(total);
 
@@ -228,7 +231,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> buffer, bool littleEndian)
 
         var written = Encoding.UTF8.GetBytes(value, span[sizeof(ushort)..]);
 
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(written, total, nameof(written));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(written, total);
 
         buffer.Advance(total);
     }
