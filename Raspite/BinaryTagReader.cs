@@ -121,7 +121,6 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
         }
 
         ArgumentOutOfRangeException.ThrowIfGreaterThan(identifier, Tag.Longs);
-        ArgumentOutOfRangeException.ThrowIfNegative(length);
 
         Nameless = true;
 
