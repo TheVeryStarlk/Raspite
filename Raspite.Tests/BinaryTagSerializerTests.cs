@@ -23,7 +23,7 @@ internal sealed class BinaryTagSerializerTests
     }
 
     [Test]
-    public void Deserializing_StringTag_IsCorrect()
+    public void Reading_StringTag_IsCorrect()
     {
         Assert.Multiple(() =>
         {
