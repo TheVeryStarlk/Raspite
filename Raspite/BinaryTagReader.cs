@@ -15,6 +15,139 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
 
     private int position;
 
+    public static bool TryRead(ReadOnlySpan<byte> buffer, out Tag tag, int maximumDepth, bool littleEndian)
+    {
+        tag = EndTag.Instance;
+
+        var reader = new BinaryTagReader(buffer, littleEndian);
+        var success = reader.TryPeek(out var parent) && TryInstantiate(ref reader, out tag, parent, maximumDepth);
+
+        return success;
+
+        static bool TryInstantiate(ref BinaryTagReader reader, out Tag tag, byte parent, int maximumDepth)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
+
+            tag = EndTag.Instance;
+
+            switch (parent)
+            {
+                case Tag.Byte when reader.TryReadByteTag(out var value, out var name):
+                    tag = new ByteTag(value, name);
+                    return true;
+
+                case Tag.Short when reader.TryReadShortTag(out var value, out var name):
+                    tag = new ShortTag(value, name);
+                    return true;
+
+                case Tag.Integer when reader.TryReadIntegerTag(out var value, out var name):
+                    tag = new IntegerTag(value, name);
+                    return true;
+
+                case Tag.Long when reader.TryReadLongTag(out var value, out var name):
+                    tag = new LongTag(value, name);
+                    return true;
+
+                case Tag.Float when reader.TryReadFloatTag(out var value, out var name):
+                    tag = new FloatTag(value, name);
+                    return true;
+
+                case Tag.Double when reader.TryReadDoubleTag(out var value, out var name):
+                    tag = new DoubleTag(value, name);
+                    return true;
+
+                case Tag.String when reader.TryReadStringTag(out var value, out var name):
+                    tag = new StringTag(value, name);
+                    return true;
+
+                case Tag.List when reader.TryReadListTag(out var identifier, out var length, out var name):
+                {
+                    maximumDepth--;
+
+                    if (identifier is Tag.End || length < 1)
+                    {
+                        tag = new ListTag([], name);
+                        return true;
+                    }
+
+                    ArgumentOutOfRangeException.ThrowIfGreaterThan(length, maximumDepth);
+
+                    var items = new Tag[length];
+
+                    for (var index = 0; index < length; index++)
+                    {
+                        reader.Nameless = true;
+
+                        if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth))
+                        {
+                            return false;
+                        }
+
+                        items[index] = temporary;
+                    }
+
+                    tag = new ListTag(items, name);
+
+                    return true;
+                }
+
+                case Tag.Compound when reader.TryReadCompoundTag(out var name):
+                {
+                    maximumDepth--;
+
+                    var items = new Tag[maximumDepth];
+                    var index = 0;
+
+                    while (true)
+                    {
+                        if (!reader.TryPeek(out var identifier))
+                        {
+                            return false;
+                        }
+
+                        if (identifier is Tag.End)
+                        {
+                            break;
+                        }
+
+                        reader.Nameless = false;
+
+                        if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth))
+                        {
+                            return false;
+                        }
+
+                        items[index++] = temporary;
+                    }
+
+                    if (!reader.TryReadEndTag())
+                    {
+                        return false;
+                    }
+
+                    tag = new CompoundTag(items[..index], name);
+
+                    return true;
+                }
+
+                case Tag.Bytes when reader.TryReadBytesTag(out var value, out var name):
+                    tag = new BytesTag(value.ToArray(), name);
+                    return true;
+
+                case Tag.Integers when reader.TryReadIntegersTag(out var value, out var name):
+                    tag = new IntegersTag(value.ToArray(), name);
+                    return true;
+
+                case Tag.Longs when reader.TryReadLongsTag(out var value, out var name):
+                    tag = new LongsTag(value.ToArray(), name);
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
     public bool TryPeek(out byte value)
     {
         value = 0;

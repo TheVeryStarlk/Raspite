@@ -10,6 +10,86 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> buffer, bool littleEndian)
 {
     public bool Nameless { get; set; }
 
+    public static void Write(IBufferWriter<byte> buffer, Tag tag, int maximumDepth, bool littleEndian)
+    {
+        var writer = new BinaryTagWriter(buffer, littleEndian);
+        Serialize(writer, tag, maximumDepth);
+
+        return;
+
+        static void Serialize(BinaryTagWriter writer, Tag tag, int maximumDepth)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
+
+            switch (tag)
+            {
+                case ByteTag current:
+                    writer.WriteByteTag(current.Value, current.Name);
+                    break;
+
+                case ShortTag current:
+                    writer.WriteShortTag(current.Value, current.Name);
+                    break;
+
+                case IntegerTag current:
+                    writer.WriteIntegerTag(current.Value, current.Name);
+                    break;
+
+                case LongTag current:
+                    writer.WriteLongTag(current.Value, current.Name);
+                    break;
+
+                case FloatTag current:
+                    writer.WriteFloatTag(current.Value, current.Name);
+                    break;
+
+                case DoubleTag current:
+                    writer.WriteDoubleTag(current.Value, current.Name);
+                    break;
+
+                case StringTag current:
+                    writer.WriteStringTag(current.Value, current.Name);
+                    break;
+
+                case ListTag current:
+                    writer.WriteListTag(current.Value.First().Identifier, current.Value.Length, current.Name);
+
+                    foreach (var item in current.Value)
+                    {
+                        Serialize(writer, item, maximumDepth--);
+                    }
+
+                    break;
+
+                case CompoundTag current:
+                    writer.WriteCompoundTag(current.Name);
+
+                    foreach (var item in current.Value)
+                    {
+                        Serialize(writer, item, maximumDepth--);
+                    }
+
+                    writer.WriteEndTag();
+                    break;
+
+                case BytesTag current:
+                    writer.WriteBytesTag(current.Value, current.Name);
+                    break;
+
+                case IntegersTag current:
+                    writer.WriteIntegersTag(current.Value, current.Name);
+                    break;
+
+                case LongsTag current:
+                    writer.WriteLongsTag(current.Value, current.Name);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tag));
+            }
+        }
+    }
+
     public void WriteEndTag()
     {
         WriteByte(Tag.End);
