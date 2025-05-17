@@ -90,7 +90,7 @@ public static class BinaryTagSerializer
                     {
                         if (!reader.TryPeek(out var identifier))
                         {
-                            throw new ArgumentOutOfRangeException(nameof(buffer));
+                            return false;
                         }
 
                         if (identifier is Tag.End)
@@ -110,7 +110,7 @@ public static class BinaryTagSerializer
 
                     if (!reader.TryReadEndTag())
                     {
-                        throw new ArgumentOutOfRangeException(nameof(buffer));
+                        return false;
                     }
 
                     tag = new CompoundTag(items[..index], name);
@@ -131,7 +131,7 @@ public static class BinaryTagSerializer
                     return true;
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(parent));
+                    return false;
             }
         }
     }
