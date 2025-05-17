@@ -34,3 +34,7 @@ BinaryTagSerializer.Serialize(
     tag, 
     BinaryTagSerializerOptions.Default);
 ```
+
+## Plans
+* Possibly implement SNBT.
+* Implement variable-prefix types.
