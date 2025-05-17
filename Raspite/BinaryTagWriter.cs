@@ -10,7 +10,7 @@ public ref struct BinaryTagWriter(IBufferWriter<byte> buffer, bool littleEndian)
 {
     public bool Nameless { get; set; }
 
-    public static void Write(IBufferWriter<byte> buffer, Tag tag, int maximumDepth, bool littleEndian)
+    public static void Write(IBufferWriter<byte> buffer, Tag tag, int maximumDepth = 512, bool littleEndian = false)
     {
         var writer = new BinaryTagWriter(buffer, littleEndian);
         Serialize(writer, tag, maximumDepth);

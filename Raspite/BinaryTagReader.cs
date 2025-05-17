@@ -15,7 +15,7 @@ public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
 
     private int position;
 
-    public static bool TryRead(ReadOnlySpan<byte> buffer, out Tag tag, int maximumDepth, bool littleEndian)
+    public static bool TryRead(ReadOnlySpan<byte> buffer, out Tag tag, int maximumDepth = 512, bool littleEndian = false)
     {
         tag = EndTag.Instance;
 

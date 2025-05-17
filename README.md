@@ -13,13 +13,10 @@ Breaking changes are to be expected.
 ## Reading
 
 ```cs
-var success = BinaryTagSerializer.TryRead(
-    source, 
-    out var tag, 
-    BinaryTagSerializerOptions.Default);
+var success = BinaryTagReader.TryRead(source, out var tag);
 ```
 
-Reading returns true if the whole buffer was read, otherwise false.
+Returns true if the whole buffer was read, otherwise false.
 
 ## Writing
 
@@ -29,10 +26,7 @@ var tag = CompoundTagBuilder
     .AddStringTag("Raspite", "Name")
     .Build();
 
-BinaryTagSerializer.Serialize(
-    buffer, 
-    tag, 
-    BinaryTagSerializerOptions.Default);
+BinaryTagWriter.Write(buffer, tag);
 ```
 
 ## Plans
