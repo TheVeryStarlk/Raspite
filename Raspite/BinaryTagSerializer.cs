@@ -7,16 +7,22 @@ public static class BinaryTagSerializer
 {
     public static bool TryRead(ReadOnlySpan<byte> buffer, out Tag tag, BinaryTagSerializerOptions options)
     {
-        tag = EndTag.Instance;
-
         var reader = new BinaryTagReader(buffer, options.LittleEndian);
-        return reader.TryPeek(out var identifier) && TryInstantiate(ref reader, out tag, identifier, options.MaximumDepth);
+        return TryInstantiate(ref reader, out tag, Tag.End, options.MaximumDepth);
 
         static bool TryInstantiate(ref BinaryTagReader reader, out Tag tag, byte parent, int maximumDepth)
         {
+            tag = EndTag.Instance;
+
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
 
-            tag = EndTag.Instance;
+            if (parent is Tag.End)
+            {
+                if (!reader.TryPeek(out parent))
+                {
+                    return false;
+                }
+            }
 
             switch (parent)
             {
