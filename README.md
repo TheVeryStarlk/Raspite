@@ -13,10 +13,7 @@ Breaking changes are to be expected.
 ## Reading
 
 ```cs
-var success = TagSerializer.TryParse(
-    source, 
-    out var tag, 
-    BinaryTagSerializerOptions.Default);
+var success = TagSerializer.TryParse(source, out var tag);
 ```
 
 Reading returns true if the whole buffer was read, otherwise false.
@@ -29,12 +26,10 @@ var tag = CompoundTagBuilder
     .AddStringTag("Raspite", "Name")
     .Build();
 
-TagSerializer.Serialize(
-    buffer, 
-    tag, 
-    BinaryTagSerializerOptions.Default);
+TagSerializer.Serialize(buffer, tag);
 ```
 
 ## Plans
+
 * Possibly implement SNBT.
 * Implement variable-prefix types.

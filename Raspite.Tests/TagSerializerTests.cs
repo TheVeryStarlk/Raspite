@@ -16,8 +16,7 @@ internal sealed class TagSerializerTests
         var buffer = new ArrayBufferWriter<byte>();
         var tag = new StringTag("Hey", "Seen");
 
-        var options = TagSerializerOptions.Default;
-        TagSerializer.Serialize(buffer, tag, options);
+        TagSerializer.Serialize(buffer, tag);
 
         Assert.That(buffer.WrittenSpan.ToArray(), Is.EqualTo(correct.ToArray()).AsCollection);
     }
@@ -32,8 +31,7 @@ internal sealed class TagSerializerTests
                 8, 0, 4, 83, 101, 101, 110, 0, 3, 72, 101, 121
             ];
 
-            var options = TagSerializerOptions.Default;
-            var result = TagSerializer.TryParse(correct, out var tag, options);
+            var result = TagSerializer.TryParse(correct, out var tag);
 
             Assert.That(result, Is.True);
             Assert.That(tag, Is.AssignableTo<StringTag>());

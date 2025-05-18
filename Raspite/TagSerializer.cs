@@ -5,6 +5,18 @@ namespace Raspite;
 
 public static class TagSerializer
 {
+    public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag)
+    {
+        var options = new TagSerializerOptions();
+        return TryParse(buffer, out tag, options);
+    }
+
+    public static void Serialize(IBufferWriter<byte> buffer, Tag tag)
+    {
+        var options = new TagSerializerOptions();
+        Serialize(buffer, tag, options);
+    }
+
     public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag, TagSerializerOptions options)
     {
         tag = EndTag.Instance;
