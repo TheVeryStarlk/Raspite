@@ -163,13 +163,13 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian)
             return false;
         }
 
+        ArgumentOutOfRangeException.ThrowIfNegative(length);
+
         // Fast path.
         if (BitConverter.IsLittleEndian == littleEndian)
         {
             return TryRead(length * sizeof(int), out value);
         }
-
-        ArgumentOutOfRangeException.ThrowIfNegative(length);
 
         var items = new int[length];
 
@@ -197,13 +197,13 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian)
             return false;
         }
 
+        ArgumentOutOfRangeException.ThrowIfNegative(length);
+
         // Fast path.
         if (BitConverter.IsLittleEndian == littleEndian)
         {
             return TryRead(length * sizeof(long), out value);
         }
-
-        ArgumentOutOfRangeException.ThrowIfNegative(length);
 
         var items = new long[length];
 
