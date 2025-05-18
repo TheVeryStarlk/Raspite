@@ -10,13 +10,13 @@ A fast, lightweight, and easy-to-use [NBT](https://minecraft.wiki/w/NBT_format) 
 
 Breaking changes are to be expected.
 
-## Reading
+## Parsing
 
 ```cs
 var success = TagSerializer.TryParse(source, out var tag);
 ```
 
-Reading returns true if the whole buffer was read, otherwise false.
+Returns true if the buffer was complete, otherwise false.
 
 ## Writing
 
