@@ -1,8 +1,8 @@
 ﻿namespace Raspite;
 
-public readonly struct BinaryTagSerializerOptions()
+public readonly struct TagSerializerOptions()
 {
-    public static BinaryTagSerializerOptions Default => new();
+    public static TagSerializerOptions Default => new();
 
     public int MaximumDepth { get; init; } = 512;
 

@@ -6,7 +6,7 @@ using Raspite.Tags;
 
 namespace Raspite;
 
-public ref struct BinaryTagWriter(IBufferWriter<byte> buffer, bool littleEndian)
+public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian)
 {
     public bool Nameless { get; set; }
 

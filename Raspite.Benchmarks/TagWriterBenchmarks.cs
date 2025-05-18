@@ -3,13 +3,13 @@ using BenchmarkDotNet.Attributes;
 
 namespace Raspite.Benchmarks;
 
-public class BinaryTagWriterBenchmarks
+public class TagWriterBenchmarks
 {
     [Benchmark]
     public int PrimitiveTag()
     {
         var buffer = new ArrayBufferWriter<byte>();
-        var writer = new BinaryTagWriter(buffer, false);
+        var writer = new TagWriter(buffer, false);
 
         writer.WriteByteTag(byte.MaxValue);
         writer.WriteShortTag(short.MaxValue);
@@ -27,7 +27,7 @@ public class BinaryTagWriterBenchmarks
     public int BigEndianIntegersTag()
     {
         var buffer = new ArrayBufferWriter<byte>();
-        var writer = new BinaryTagWriter(buffer, false);
+        var writer = new TagWriter(buffer, false);
 
         writer.WriteIntegersTag(Enumerable.Repeat(int.MaxValue, byte.MaxValue).ToArray(), "Parent");
 
@@ -38,7 +38,7 @@ public class BinaryTagWriterBenchmarks
     public int LittleEndianIntegersTag()
     {
         var buffer = new ArrayBufferWriter<byte>();
-        var writer = new BinaryTagWriter(buffer, true);
+        var writer = new TagWriter(buffer, true);
 
         writer.WriteIntegersTag(Enumerable.Repeat(int.MaxValue, byte.MaxValue).ToArray(), "Parent");
 

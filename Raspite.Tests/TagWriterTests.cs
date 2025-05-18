@@ -2,7 +2,7 @@
 
 namespace Raspite.Tests;
 
-internal sealed class BinaryTagWriterTests
+internal sealed class TagWriterTests
 {
     [Test]
     public void Writing_StringTag_IsCorrect()
@@ -13,7 +13,7 @@ internal sealed class BinaryTagWriterTests
         ];
 
         var buffer = new ArrayBufferWriter<byte>();
-        var writer = new BinaryTagWriter(buffer, false);
+        var writer = new TagWriter(buffer, false);
 
         writer.WriteStringTag("Hey", "Seen");
 

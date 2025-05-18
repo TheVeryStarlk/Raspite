@@ -13,7 +13,7 @@ Breaking changes are to be expected.
 ## Reading
 
 ```cs
-var success = BinaryTagSerializer.TryRead(
+var success = TagSerializer.TryParse(
     source, 
     out var tag, 
     BinaryTagSerializerOptions.Default);
@@ -29,7 +29,7 @@ var tag = CompoundTagBuilder
     .AddStringTag("Raspite", "Name")
     .Build();
 
-BinaryTagSerializer.Serialize(
+TagSerializer.Serialize(
     buffer, 
     tag, 
     BinaryTagSerializerOptions.Default);

@@ -3,18 +3,18 @@ using Raspite.Tags;
 
 namespace Raspite;
 
-public static class BinaryTagSerializer
+public static class TagSerializer
 {
-    public static bool TryRead(ReadOnlySpan<byte> buffer, out Tag tag, BinaryTagSerializerOptions options)
+    public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag, TagSerializerOptions options)
     {
         tag = EndTag.Instance;
 
-        var reader = new BinaryTagReader(buffer, options.LittleEndian);
+        var reader = new TagReader(buffer, options.LittleEndian);
         var success = reader.TryPeek(out var parent) && TryInstantiate(ref reader, out tag, parent, options.MaximumDepth);
 
         return success;
 
-        static bool TryInstantiate(ref BinaryTagReader reader, out Tag tag, byte parent, int maximumDepth)
+        static bool TryInstantiate(ref TagReader reader, out Tag tag, byte parent, int maximumDepth)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
 
@@ -138,14 +138,14 @@ public static class BinaryTagSerializer
         }
     }
 
-    public static void Serialize(IBufferWriter<byte> buffer, Tag tag, BinaryTagSerializerOptions options)
+    public static void Serialize(IBufferWriter<byte> buffer, Tag tag, TagSerializerOptions options)
     {
-        var writer = new BinaryTagWriter(buffer, options.LittleEndian);
+        var writer = new TagWriter(buffer, options.LittleEndian);
         Write(writer, tag, options.MaximumDepth);
 
         return;
 
-        static void Write(BinaryTagWriter writer, Tag tag, int maximumDepth)
+        static void Write(TagWriter writer, Tag tag, int maximumDepth)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
 

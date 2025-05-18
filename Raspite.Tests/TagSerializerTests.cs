@@ -3,7 +3,7 @@ using Raspite.Tags;
 
 namespace Raspite.Tests;
 
-internal sealed class BinaryTagSerializerTests
+internal sealed class TagSerializerTests
 {
     [Test]
     public void Serializing_StringTag_IsCorrect()
@@ -16,8 +16,8 @@ internal sealed class BinaryTagSerializerTests
         var buffer = new ArrayBufferWriter<byte>();
         var tag = new StringTag("Hey", "Seen");
 
-        var options = BinaryTagSerializerOptions.Default;
-        BinaryTagSerializer.Serialize(buffer, tag, options);
+        var options = TagSerializerOptions.Default;
+        TagSerializer.Serialize(buffer, tag, options);
 
         Assert.That(buffer.WrittenSpan.ToArray(), Is.EqualTo(correct.ToArray()).AsCollection);
     }
@@ -32,8 +32,8 @@ internal sealed class BinaryTagSerializerTests
                 8, 0, 4, 83, 101, 101, 110, 0, 3, 72, 101, 121
             ];
 
-            var options = BinaryTagSerializerOptions.Default;
-            var result = BinaryTagSerializer.TryRead(correct, out var tag, options);
+            var options = TagSerializerOptions.Default;
+            var result = TagSerializer.TryParse(correct, out var tag, options);
 
             Assert.That(result, Is.True);
             Assert.That(tag, Is.AssignableTo<StringTag>());

@@ -5,7 +5,7 @@ using Raspite.Tags;
 
 namespace Raspite;
 
-public ref struct BinaryTagReader(ReadOnlySpan<byte> span, bool littleEndian)
+public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian)
 {
     public readonly int Remaining => span.Length - position;
 
