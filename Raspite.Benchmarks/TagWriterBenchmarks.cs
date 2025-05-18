@@ -21,27 +21,4 @@ public class TagWriterBenchmarks
 
         return buffer.WrittenSpan.Length;
     }
-
-
-    [Benchmark]
-    public int BigEndianIntegersTag()
-    {
-        var buffer = new ArrayBufferWriter<byte>();
-        var writer = new TagWriter(buffer, false);
-
-        writer.WriteIntegersTag(Enumerable.Repeat(int.MaxValue, byte.MaxValue).ToArray(), "Parent");
-
-        return buffer.WrittenSpan.Length;
-    }
-
-    [Benchmark]
-    public int LittleEndianIntegersTag()
-    {
-        var buffer = new ArrayBufferWriter<byte>();
-        var writer = new TagWriter(buffer, true);
-
-        writer.WriteIntegersTag(Enumerable.Repeat(int.MaxValue, byte.MaxValue).ToArray(), "Parent");
-
-        return buffer.WrittenSpan.Length;
-    }
 }

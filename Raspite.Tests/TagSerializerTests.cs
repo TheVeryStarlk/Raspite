@@ -6,23 +6,7 @@ namespace Raspite.Tests;
 internal sealed class TagSerializerTests
 {
     [Test]
-    public void Serializing_StringTag_IsCorrect()
-    {
-        ReadOnlySpan<byte> correct =
-        [
-            8, 0, 4, 83, 101, 101, 110, 0, 3, 72, 101, 121
-        ];
-
-        var buffer = new ArrayBufferWriter<byte>();
-        var tag = new StringTag("Hey", "Seen");
-
-        TagSerializer.Serialize(buffer, tag);
-
-        Assert.That(buffer.WrittenSpan.ToArray(), Is.EqualTo(correct.ToArray()).AsCollection);
-    }
-
-    [Test]
-    public void Reading_StringTag_IsCorrect()
+    public void Parsing_StringTag_IsCorrect()
     {
         Assert.Multiple(() =>
         {
@@ -41,5 +25,21 @@ internal sealed class TagSerializerTests
             Assert.That(instance.Value, Is.EqualTo("Hey"));
             Assert.That(instance.Name, Is.EqualTo("Seen"));
         });
+    }
+
+    [Test]
+    public void Serializing_StringTag_IsCorrect()
+    {
+        ReadOnlySpan<byte> correct =
+        [
+            8, 0, 4, 83, 101, 101, 110, 0, 3, 72, 101, 121
+        ];
+
+        var buffer = new ArrayBufferWriter<byte>();
+        var tag = new StringTag("Hey", "Seen");
+
+        TagSerializer.Serialize(buffer, tag);
+
+        Assert.That(buffer.WrittenSpan.ToArray(), Is.EqualTo(correct.ToArray()).AsCollection);
     }
 }
