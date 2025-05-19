@@ -3,8 +3,19 @@ using Raspite.Tags;
 
 namespace Raspite;
 
+/// <summary>
+/// Represents a named binary <see cref="Tag"/> (NBT) serializer.
+/// </summary>
 public static class TagSerializer
 {
+    /// <summary>
+    /// Attempts to parse the <see cref="ReadOnlySpan{T}"/> as a <see cref="Tag"/>.
+    /// </summary>
+    /// <param name="buffer">The <see cref="ReadOnlySpan{T}"/> to parse.</param>
+    /// <param name="tag">The parsed <see cref="Tag"/>.</param>
+    /// <param name="littleEndian">Whether to parse as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
+    /// <param name="maximumDepth">The maximum allowed nest depth.</param>
+    /// <returns><c>true</c> if the <see cref="ReadOnlySpan{T}"/> was parsed successfully; otherwise, <c>false</c>.</returns>
     public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag, bool littleEndian = false, int maximumDepth = 512)
     {
         tag = EndTag.Instance;
@@ -136,6 +147,13 @@ public static class TagSerializer
         }
     }
 
+    /// <summary>
+    /// Serializes the <see cref="Tag"/> to a <see cref="IBufferWriter{T}"/>.
+    /// </summary>
+    /// <param name="buffer">The <see cref="IBufferWriter{T}"/> to serialize to.</param>
+    /// <param name="tag">The <see cref="Tag"/> to serialize.</param>
+    /// <param name="littleEndian">Whether to serialize as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
+    /// <param name="maximumDepth">The maximum allowed nest depth.</param>
     public static void Serialize(IBufferWriter<byte> buffer, Tag tag, bool littleEndian = false, int maximumDepth = 512)
     {
         var writer = new TagWriter(buffer, littleEndian);

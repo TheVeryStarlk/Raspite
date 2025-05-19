@@ -16,7 +16,7 @@ Breaking changes are to be expected.
 var success = TagSerializer.TryParse(source, out var tag);
 ```
 
-Returns true if the buffer was complete, otherwise false.
+Returns true if the buffer was parsed successfully; otherwise, false.
 
 ## Writing
 
