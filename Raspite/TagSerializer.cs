@@ -180,7 +180,13 @@ public static class TagSerializer
                     break;
 
                 case ListTag current:
-                    writer.WriteListTag(current.Value.First().Identifier, current.Value.Length, current.Name);
+                    if (current.Value.Length < 1)
+                    {
+                        writer.WriteListTag(Tag.End, 0, current.Name);
+                        return;
+                    }
+
+                    writer.WriteListTag(current.Value[0].Identifier, current.Value.Length, current.Name);
 
                     foreach (var item in current.Value)
                     {
