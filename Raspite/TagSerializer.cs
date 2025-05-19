@@ -60,8 +60,6 @@ public static class TagSerializer
                         return true;
                     }
 
-                    ArgumentOutOfRangeException.ThrowIfGreaterThan(length, maximumDepth);
-
                     var items = new Tag[length];
 
                     for (var index = 0; index < length; index++)
@@ -180,6 +178,8 @@ public static class TagSerializer
                     break;
 
                 case ListTag current:
+                    maximumDepth--;
+
                     if (current.Value.Length < 1)
                     {
                         writer.WriteListTag(Tag.End, 0, current.Name);
@@ -190,17 +190,19 @@ public static class TagSerializer
 
                     foreach (var item in current.Value)
                     {
-                        Write(writer, item, maximumDepth--);
+                        Write(writer, item, maximumDepth);
                     }
 
                     break;
 
                 case CompoundTag current:
+                    maximumDepth--;
+
                     writer.WriteCompoundTag(current.Name);
 
                     foreach (var item in current.Value)
                     {
-                        Write(writer, item, maximumDepth--);
+                        Write(writer, item, maximumDepth);
                     }
 
                     writer.WriteEndTag();
