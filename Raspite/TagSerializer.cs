@@ -5,24 +5,12 @@ namespace Raspite;
 
 public static class TagSerializer
 {
-    public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag)
-    {
-        var options = new TagSerializerOptions();
-        return TryParse(buffer, out tag, options);
-    }
-
-    public static void Serialize(IBufferWriter<byte> buffer, Tag tag)
-    {
-        var options = new TagSerializerOptions();
-        Serialize(buffer, tag, options);
-    }
-
-    public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag, TagSerializerOptions options)
+    public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag, bool littleEndian = false, int maximumDepth = 512)
     {
         tag = EndTag.Instance;
 
-        var reader = new TagReader(buffer, options.LittleEndian);
-        var success = reader.TryPeek(out var parent) && TryInstantiate(ref reader, out tag, parent, options.MaximumDepth);
+        var reader = new TagReader(buffer, littleEndian);
+        var success = reader.TryPeek(out var parent) && TryInstantiate(ref reader, out tag, parent, maximumDepth);
 
         return success;
 
@@ -150,10 +138,10 @@ public static class TagSerializer
         }
     }
 
-    public static void Serialize(IBufferWriter<byte> buffer, Tag tag, TagSerializerOptions options)
+    public static void Serialize(IBufferWriter<byte> buffer, Tag tag, bool littleEndian = false, int maximumDepth = 512)
     {
-        var writer = new TagWriter(buffer, options.LittleEndian);
-        Write(writer, tag, options.MaximumDepth);
+        var writer = new TagWriter(buffer, littleEndian);
+        Write(writer, tag, maximumDepth);
 
         return;
 
