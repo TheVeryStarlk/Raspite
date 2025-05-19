@@ -8,7 +8,7 @@ namespace Raspite;
 
 public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian)
 {
-    public bool Nameless { get; set; }
+    private bool nameless;
 
     public void WriteEndTag()
     {
@@ -102,13 +102,13 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian)
         WriteByte(identifier);
         WriteInteger(length);
 
-        Nameless = true;
+        nameless = true;
     }
 
     public void WriteCompoundTag(string name = "")
     {
         Write(Tag.Compound, name);
-        Nameless = false;
+        nameless = false;
     }
 
     public void WriteBytesTag(ReadOnlySpan<byte> value, string name = "")
@@ -154,7 +154,7 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian)
 
     private void Write(byte identifier, string name)
     {
-        if (Nameless)
+        if (nameless)
         {
             return;
         }
