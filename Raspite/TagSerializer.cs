@@ -94,7 +94,7 @@ public static class TagSerializer
                 {
                     maximumDepth--;
 
-                    var items = new Tag[maximumDepth];
+                    var items = new Tag[512];
                     var index = 0;
 
                     while (true)
