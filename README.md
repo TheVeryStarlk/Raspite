@@ -21,15 +21,11 @@ Returns true if the buffer was parsed successfully; otherwise, false.
 ## Writing
 
 ```cs
-var tag = CompoundTagBuilder
-    .Create()
-    .AddStringTag("Raspite", "Name")
-    .Build();
+var tag = new StringTag("Hello, world!");
 
 TagSerializer.Serialize(buffer, tag);
 ```
 
 ## Plans
 
-* Possibly implement SNBT.
 * Implement variable-prefix types.

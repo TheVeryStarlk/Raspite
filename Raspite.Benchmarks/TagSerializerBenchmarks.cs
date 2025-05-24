@@ -1,22 +1,19 @@
 ﻿using System.Buffers;
 using BenchmarkDotNet.Attributes;
 using Raspite.Tags;
-using Raspite.Tags.Builders;
 
 namespace Raspite.Benchmarks;
 
 public class TagSerializerBenchmarks
 {
-    private readonly CompoundTag tag = CompoundTagBuilder
-        .Create()
-        .AddByteTag(byte.MaxValue, nameof(ByteTag))
-        .AddStringTag("Hello, world!", nameof(StringTag))
-        .AddCompoundTag(CompoundTagBuilder
-            .Create()
-            .AddIntegerTag(int.MaxValue, "Age")
-            .Build())
-        .AddLongsTag([long.MaxValue, long.MaxValue], "Identifiers")
-        .Build();
+    private readonly CompoundTag tag = new(
+        [
+            new ByteTag(0, nameof(ByteTag)),
+            new StringTag("Hello, world!", nameof(StringTag)),
+            new CompoundTag([new IntegerTag(0, nameof(IntegerTag))], "Child"),
+            new LongsTag([1, 2, 3, 4], nameof(LongsTag))
+        ],
+        "Parent");
 
     private readonly ReadOnlyMemory<byte> source;
 
