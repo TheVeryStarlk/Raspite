@@ -165,7 +165,6 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian)
 
         ArgumentOutOfRangeException.ThrowIfNegative(length);
 
-        // Fast path.
         if (BitConverter.IsLittleEndian == littleEndian)
         {
             return TryRead(length * sizeof(int), out value);
@@ -199,7 +198,6 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian)
 
         ArgumentOutOfRangeException.ThrowIfNegative(length);
 
-        // Fast path.
         if (BitConverter.IsLittleEndian == littleEndian)
         {
             return TryRead(length * sizeof(long), out value);
