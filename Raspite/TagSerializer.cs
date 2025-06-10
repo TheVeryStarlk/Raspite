@@ -157,11 +157,11 @@ public static class TagSerializer
     public static void Serialize(IBufferWriter<byte> buffer, Tag tag, bool littleEndian = false, int maximumDepth = 512)
     {
         var writer = new TagWriter(buffer, littleEndian);
-        Write(writer, tag, maximumDepth);
+        Write(ref writer, tag, maximumDepth);
 
         return;
 
-        static void Write(TagWriter writer, Tag tag, int maximumDepth)
+        static void Write(ref TagWriter writer, Tag tag, int maximumDepth)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
 
@@ -208,7 +208,8 @@ public static class TagSerializer
 
                     foreach (var item in current.Value)
                     {
-                        Write(writer, item, maximumDepth);
+                        writer.Nameless = true;
+                        Write(ref writer, item, maximumDepth);
                     }
 
                     break;
@@ -220,7 +221,8 @@ public static class TagSerializer
 
                     foreach (var item in current.Value)
                     {
-                        Write(writer, item, maximumDepth);
+                        writer.Nameless = false;
+                        Write(ref writer, item, maximumDepth);
                     }
 
                     writer.WriteEndTag();
