@@ -8,8 +8,15 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Authors>Starlk</Authors>
 		<RepositoryUrl>https://github.com/TheVeryStarlk/Raspite</RepositoryUrl>
-		<PackageTags>Minecraft, Serializer, NBT, AOT</PackageTags>
+		<PackageTags>Minecraft, Serializer, NBT</PackageTags>
 		<NeutralLanguage>en</NeutralLanguage>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Title>Minecraft NBT Serialization Library</Title>
+		<Description>A fast, lightweight, and easy-to-use NBT serialization library.</Description>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<None Include="..\README.md" Pack="true" PackagePath="\"/>
+	</ItemGroup>
 </Project>
