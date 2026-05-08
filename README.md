@@ -1,6 +1,6 @@
 # Raspite
 
-A fast, lightweight, and easy-to-use [NBT](https://minecraft.wiki/w/NBT_format) serialization library.
+A fast, light-weight, and easy-to-use [NBT](https://minecraft.wiki/w/NBT_format) serialization library.
 
 ## Usage
 
