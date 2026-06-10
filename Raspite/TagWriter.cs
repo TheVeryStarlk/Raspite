@@ -9,8 +9,6 @@ namespace Raspite;
 public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool network = false)
 {
 
-    private bool network = network;
-
     /// <summary>
     /// Whether to skip writing the tag's name and identifier.
     /// </summary>
@@ -18,6 +16,8 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
     /// Should be <c>true</c> only when inside a <see cref="Tag.List"/>.
     /// </remarks>
     public bool Nameless { get; set; }
+
+    internal int Depth { get; set; }
 
     public void WriteEndTag()
     {
@@ -170,9 +170,8 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
 
         WriteByte(identifier);
 
-        if (network)
+        if (network && Depth == 0)
         {
-            network = false;
             return;
         }
 

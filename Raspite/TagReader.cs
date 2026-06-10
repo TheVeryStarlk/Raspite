@@ -17,7 +17,7 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
     /// </remarks>
     public bool Nameless { get; set; }
 
-    private bool network = network;
+    internal int Depth { get; set; }
 
     private readonly ReadOnlySpan<byte> span = span;
 
@@ -244,9 +244,8 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
 
         ArgumentOutOfRangeException.ThrowIfNotEqual(expected, identifier);
 
-        if (network)
+        if (network && Depth == 0)
         {
-            network = false;
             return true;
         }
 

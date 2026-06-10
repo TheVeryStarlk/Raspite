@@ -26,7 +26,7 @@ public static class TagSerializer
 
         static bool TryInstantiate(ref TagReader reader, out Tag tag, byte parent, int maximumDepth)
         {
-            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, reader.Depth);
 
             tag = EndTag.Instance;
 
@@ -62,7 +62,7 @@ public static class TagSerializer
 
                 case Tag.List when reader.TryReadListTag(out var identifier, out var length, out var name):
                 {
-                    maximumDepth--;
+                    reader.Depth++;
 
                     if (identifier is Tag.End || length < 1)
                     {
@@ -91,7 +91,7 @@ public static class TagSerializer
 
                 case Tag.Compound when reader.TryReadCompoundTag(out var name):
                 {
-                    maximumDepth--;
+                    reader.Depth++;
 
                     var items = new Tag[512];
                     var index = 0;
@@ -162,7 +162,7 @@ public static class TagSerializer
 
         static void Write(ref TagWriter writer, Tag tag, int maximumDepth)
         {
-            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, writer.Depth);
 
             switch (tag)
             {
@@ -195,37 +195,50 @@ public static class TagSerializer
                     break;
 
                 case ListTag current:
-                    maximumDepth--;
-
-                    if (current.Value.Length < 1)
+                    try
                     {
-                        writer.WriteListTag(Tag.End, 0, current.Name);
-                        return;
+                        writer.Depth++;
+
+                        if (current.Value.Length < 1)
+                        {
+                            writer.WriteListTag(Tag.End, 0, current.Name);
+                            return;
+                        }
+
+                        writer.WriteListTag(current.Value[0].Identifier, current.Value.Length, current.Name);
+
+                        foreach (var item in current.Value)
+                        {
+                            writer.Nameless = true;
+                            Write(ref writer, item, maximumDepth);
+                        }
+                    
+                        break;
                     }
-
-                    writer.WriteListTag(current.Value[0].Identifier, current.Value.Length, current.Name);
-
-                    foreach (var item in current.Value)
+                    finally
                     {
-                        writer.Nameless = true;
-                        Write(ref writer, item, maximumDepth);
+                        writer.Depth--;
                     }
-
-                    break;
 
                 case CompoundTag current:
-                    maximumDepth--;
-
-                    writer.WriteCompoundTag(current.Name);
-
-                    foreach (var item in current.Value)
+                    try
                     {
-                        writer.Nameless = false;
-                        Write(ref writer, item, maximumDepth);
-                    }
+                        writer.Depth++;
+                        writer.WriteCompoundTag(current.Name);
 
-                    writer.WriteEndTag();
-                    break;
+                        foreach (var item in current.Value)
+                        {
+                            writer.Nameless = false;
+                            Write(ref writer, item, maximumDepth);
+                        }
+
+                        writer.WriteEndTag();
+                        break;
+                    }
+                    finally
+                    {
+                        writer.Depth--;
+                    }
 
                 case BytesTag current:
                     writer.WriteBytesTag(current.Value, current.Name);
