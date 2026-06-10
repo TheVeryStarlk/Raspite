@@ -15,7 +15,7 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
     /// <remarks>
     /// Should be <c>true</c> only when inside a <see cref="Tag.List"/>.
     /// </remarks>
-    public bool Nameless { get; set; }
+    internal bool Nameless { get; set; }
 
     internal int Depth { get; set; }
 
