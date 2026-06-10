@@ -64,68 +64,82 @@ public static class TagSerializer
                 {
                     reader.Depth++;
 
-                    if (identifier is Tag.End || length < 1)
+                    try
                     {
-                        tag = new ListTag([], name);
-                        return true;
-                    }
-
-                    var items = new Tag[length];
-
-                    for (var index = 0; index < length; index++)
-                    {
-                        reader.Nameless = true;
-
-                        if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth))
+                        if (identifier is Tag.End || length < 1)
                         {
-                            return false;
+                            tag = new ListTag([], name);
+                            return true;
                         }
 
-                        items[index] = temporary;
+                        var items = new Tag[length];
+
+                        for (var index = 0; index < length; index++)
+                        {
+                            reader.Nameless = true;
+
+                            if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth))
+                            {
+                                return false;
+                            }
+
+                            items[index] = temporary;
+                        }
+
+                        tag = new ListTag(items, name);
+
+                        return true;
                     }
-
-                    tag = new ListTag(items, name);
-
-                    return true;
+                    finally
+                    {
+                        reader.Depth--;
+                    }
                 }
 
                 case Tag.Compound when reader.TryReadCompoundTag(out var name):
                 {
                     reader.Depth++;
 
-                    var items = new Tag[512];
-                    var index = 0;
-
-                    while (true)
+                    try
                     {
-                        if (!reader.TryPeek(out var identifier))
+                        var items = new Tag[512];
+                        var index = 0;
+
+                        while (true)
+                        {
+                            if (!reader.TryPeek(out var identifier))
+                            {
+                                return false;
+                            }
+
+                            if (identifier is Tag.End)
+                            {
+                                break;
+                            }
+
+                            reader.Nameless = false;
+
+                            if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth))
+                            {
+                                return false;
+                            }
+
+                            items[index++] = temporary;
+                        }
+
+                        if (!reader.TryReadEndTag())
                         {
                             return false;
                         }
 
-                        if (identifier is Tag.End)
-                        {
-                            break;
-                        }
+                        tag = new CompoundTag(items[..index], name);
 
-                        reader.Nameless = false;
-
-                        if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth))
-                        {
-                            return false;
-                        }
-
-                        items[index++] = temporary;
+                        return true;
                     }
-
-                    if (!reader.TryReadEndTag())
+                    finally
                     {
-                        return false;
+                        reader.Depth--;
                     }
-
-                    tag = new CompoundTag(items[..index], name);
-
-                    return true;
                 }
 
                 case Tag.Bytes when reader.TryReadBytesTag(out var value, out var name):
@@ -195,10 +209,11 @@ public static class TagSerializer
                     break;
 
                 case ListTag current:
+                {
+                    writer.Depth++;
+
                     try
                     {
-                        writer.Depth++;
-
                         if (current.Value.Length < 1)
                         {
                             writer.WriteListTag(Tag.End, 0, current.Name);
@@ -212,18 +227,21 @@ public static class TagSerializer
                             writer.Nameless = true;
                             Write(ref writer, item, maximumDepth);
                         }
-                    
+
                         break;
                     }
                     finally
                     {
                         writer.Depth--;
                     }
+                }
 
                 case CompoundTag current:
+                {
+                    writer.Depth++;
+
                     try
                     {
-                        writer.Depth++;
                         writer.WriteCompoundTag(current.Name);
 
                         foreach (var item in current.Value)
@@ -239,6 +257,7 @@ public static class TagSerializer
                     {
                         writer.Depth--;
                     }
+                }
 
                 case BytesTag current:
                     writer.WriteBytesTag(current.Value, current.Name);
