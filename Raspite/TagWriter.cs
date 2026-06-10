@@ -12,7 +12,7 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
     private bool network = network;
 
     /// <summary>
-    /// Whether to omit the tag's name and identifier.
+    /// Whether to skip writing the tag's name and identifier.
     /// </summary>
     /// <remarks>
     /// Should be <c>true</c> only when inside a <see cref="Tag.List"/>.

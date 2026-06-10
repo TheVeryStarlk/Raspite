@@ -10,7 +10,7 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
     public readonly int Remaining => span.Length - position;
 
     /// <summary>
-    /// Whether to read the tag's name and identifier.
+    /// Whether to skip reading the tag's name and identifier.
     /// </summary>
     /// <remarks>
     /// Should be <c>true</c> only when inside a <see cref="Tag.List"/>.
