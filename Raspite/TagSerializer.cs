@@ -26,7 +26,7 @@ public static class TagSerializer
 
         static bool TryInstantiate(ref TagReader reader, out Tag tag, byte parent, int maximumDepth)
         {
-            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, reader.Depth);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(reader.Depth, maximumDepth);
 
             tag = EndTag.Instance;
 
@@ -162,7 +162,7 @@ public static class TagSerializer
 
         static void Write(ref TagWriter writer, Tag tag, int maximumDepth)
         {
-            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, writer.Depth);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(writer.Depth, maximumDepth);
 
             switch (tag)
             {
