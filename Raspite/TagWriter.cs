@@ -6,10 +6,13 @@ using Raspite.Tags;
 
 namespace Raspite;
 
-public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian)
+public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool network = false)
 {
+
+    private bool network = network;
+
     /// <summary>
-    /// Whether to write the tag's name and identifier.
+    /// Whether to omit the tag's name and identifier.
     /// </summary>
     /// <remarks>
     /// Should be <c>true</c> only when inside a <see cref="Tag.List"/>.
@@ -166,6 +169,13 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian)
         }
 
         WriteByte(identifier);
+
+        if (network)
+        {
+            network = false;
+            return;
+        }
+
         WriteString(name);
     }
 
