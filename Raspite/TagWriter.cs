@@ -17,8 +17,6 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
     /// </remarks>
     public bool Nameless { get; set; }
 
-    public int Depth { get; set; }
-
     public void WriteEndTag()
     {
         WriteByte(Tag.End);
@@ -170,8 +168,9 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
 
         WriteByte(identifier);
 
-        if (network && Depth == 0)
+        if (network)
         {
+            network = false;
             return;
         }
 

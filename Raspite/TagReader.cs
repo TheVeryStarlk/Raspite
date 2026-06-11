@@ -244,8 +244,9 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
 
         ArgumentOutOfRangeException.ThrowIfNotEqual(expected, identifier);
 
-        if (network && Depth == 0)
+        if (network)
         {
+            network = false;
             return true;
         }
 

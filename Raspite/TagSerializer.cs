@@ -18,15 +18,15 @@ public static class TagSerializer
     public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag, TagSerializerOptions? options = null)
     {
         tag = EndTag.Instance;
-        var config = options ?? new TagSerializerOptions();
-        var reader = new TagReader(buffer, config.LittleEndian, config.Network);
-        var success = reader.TryPeek(out var parent) && TryInstantiate(ref reader, out tag, parent, config.MaximumDepth);
+        options ??= new TagSerializerOptions();
+        var reader = new TagReader(buffer, options.Value.LittleEndian, options.Value.Network);
+        var success = reader.TryPeek(out var parent) && TryInstantiate(ref reader, out tag, parent, options.Value.MaximumDepth);
 
         return success;
 
         static bool TryInstantiate(ref TagReader reader, out Tag tag, byte parent, int maximumDepth)
         {
-            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(reader.Depth, maximumDepth);
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
 
             tag = EndTag.Instance;
 
@@ -62,82 +62,68 @@ public static class TagSerializer
 
                 case Tag.List when reader.TryReadListTag(out var identifier, out var length, out var name):
                 {
-                    reader.Depth++;
+                    maximumDepth--;
 
-                    try
+                    if (identifier is Tag.End || length < 1)
                     {
-                        if (identifier is Tag.End || length < 1)
+                        tag = new ListTag([], name);
+                        return true;
+                    }
+
+                    var items = new Tag[length];
+
+                    for (var index = 0; index < length; index++)
+                    {
+                        reader.Nameless = true;
+
+                        if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth))
                         {
-                            tag = new ListTag([], name);
-                            return true;
+                            return false;
                         }
 
-                        var items = new Tag[length];
-
-                        for (var index = 0; index < length; index++)
-                        {
-                            reader.Nameless = true;
-
-                            if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth))
-                            {
-                                return false;
-                            }
-
-                            items[index] = temporary;
-                        }
-
-                        tag = new ListTag(items, name);
+                        items[index] = temporary;
                     }
-                    finally
-                    {
-                        reader.Depth--;
-                    }
+
+                    tag = new ListTag(items, name);
 
                     return true;
                 }
 
                 case Tag.Compound when reader.TryReadCompoundTag(out var name):
                 {
-                    reader.Depth++;
+                    maximumDepth--;
 
-                    try
+                    var items = new Tag[512];
+                    var index = 0;
+
+                    while (true)
                     {
-                        var items = new Tag[512];
-                        var index = 0;
-
-                        while (true)
-                        {
-                            if (!reader.TryPeek(out var identifier))
-                            {
-                                return false;
-                            }
-
-                            if (identifier is Tag.End)
-                            {
-                                break;
-                            }
-
-                            reader.Nameless = false;
-
-                            if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth))
-                            {
-                                return false;
-                            }
-
-                            items[index++] = temporary;
-                        }
-
-                        if (!reader.TryReadEndTag())
+                        if (!reader.TryPeek(out var identifier))
                         {
                             return false;
                         }
 
-                        tag = new CompoundTag(items[..index], name);
+                        if (identifier is Tag.End)
+                        {
+                            break;
+                        }
+
+                        reader.Nameless = false;
+
+                        if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth))
+                        {
+                            return false;
+                        }
+
+                        items[index++] = temporary;
                     }
-                    finally
+
+                    if (!reader.TryReadEndTag())
                     {
-                        reader.Depth--;
+                        return false;
                     }
+
+                    tag = new CompoundTag(items[..index], name);
 
                     return true;
                 }
@@ -176,7 +162,7 @@ public static class TagSerializer
 
         static void Write(ref TagWriter writer, Tag tag, int maximumDepth)
         {
-            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(writer.Depth, maximumDepth);
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
 
             switch (tag)
             {
@@ -209,7 +195,8 @@ public static class TagSerializer
                     break;
 
                 case ListTag current:
-                {
+                    maximumDepth--;
+
                     if (current.Value.Length < 1)
                     {
                         writer.WriteListTag(Tag.End, 0, current.Name);
@@ -217,46 +204,28 @@ public static class TagSerializer
                     }
 
                     writer.WriteListTag(current.Value[0].Identifier, current.Value.Length, current.Name);
-                    writer.Depth++;
 
-                    try
+                    foreach (var item in current.Value)
                     {
-                        foreach (var item in current.Value)
-                        {
-                            writer.Nameless = true;
-                            Write(ref writer, item, maximumDepth);
-                        }
-                    }
-                    finally
-                    {
-                        writer.Depth--;
+                        writer.Nameless = true;
+                        Write(ref writer, item, maximumDepth);
                     }
 
                     break;
-                }
 
                 case CompoundTag current:
-                {
+                    maximumDepth--;
+
                     writer.WriteCompoundTag(current.Name);
-                    writer.Depth++;
 
-                    try
+                    foreach (var item in current.Value)
                     {
-                        foreach (var item in current.Value)
-                        {
-                            writer.Nameless = false;
-                            Write(ref writer, item, maximumDepth);
-                        }
-
-                        writer.WriteEndTag();
-                    }
-                    finally
-                    {
-                        writer.Depth--;
+                        writer.Nameless = false;
+                        Write(ref writer, item, maximumDepth);
                     }
 
+                    writer.WriteEndTag();
                     break;
-                }
 
                 case BytesTag current:
                     writer.WriteBytesTag(current.Value, current.Name);
