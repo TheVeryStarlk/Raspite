@@ -87,13 +87,13 @@ public static class TagSerializer
                         }
 
                         tag = new ListTag(items, name);
-
-                        return true;
                     }
                     finally
                     {
                         reader.Depth--;
                     }
+
+                    return true;
                 }
 
                 case Tag.Compound when reader.TryReadCompoundTag(out var name):
@@ -133,13 +133,13 @@ public static class TagSerializer
                         }
 
                         tag = new CompoundTag(items[..index], name);
-
-                        return true;
                     }
                     finally
                     {
                         reader.Depth--;
                     }
+
+                    return true;
                 }
 
                 case Tag.Bytes when reader.TryReadBytesTag(out var value, out var name):
@@ -210,40 +210,38 @@ public static class TagSerializer
 
                 case ListTag current:
                 {
+                    if (current.Value.Length < 1)
+                    {
+                        writer.WriteListTag(Tag.End, 0, current.Name);
+                        return;
+                    }
+
+                    writer.WriteListTag(current.Value[0].Identifier, current.Value.Length, current.Name);
                     writer.Depth++;
 
                     try
                     {
-                        if (current.Value.Length < 1)
-                        {
-                            writer.WriteListTag(Tag.End, 0, current.Name);
-                            return;
-                        }
-
-                        writer.WriteListTag(current.Value[0].Identifier, current.Value.Length, current.Name);
-
                         foreach (var item in current.Value)
                         {
                             writer.Nameless = true;
                             Write(ref writer, item, maximumDepth);
                         }
-
-                        break;
                     }
                     finally
                     {
                         writer.Depth--;
                     }
+
+                    break;
                 }
 
                 case CompoundTag current:
                 {
+                    writer.WriteCompoundTag(current.Name);
                     writer.Depth++;
 
                     try
                     {
-                        writer.WriteCompoundTag(current.Name);
-
                         foreach (var item in current.Value)
                         {
                             writer.Nameless = false;
@@ -251,12 +249,13 @@ public static class TagSerializer
                         }
 
                         writer.WriteEndTag();
-                        break;
                     }
                     finally
                     {
                         writer.Depth--;
                     }
+
+                    break;
                 }
 
                 case BytesTag current:
