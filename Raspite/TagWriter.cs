@@ -15,9 +15,9 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
     /// <remarks>
     /// Should be <c>true</c> only when inside a <see cref="Tag.List"/>.
     /// </remarks>
-    internal bool Nameless { get; set; }
+    public bool Nameless { get; set; }
 
-    internal int Depth { get; set; }
+    public int Depth { get; set; }
 
     public void WriteEndTag()
     {
