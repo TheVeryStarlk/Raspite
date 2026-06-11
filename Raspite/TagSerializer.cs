@@ -13,15 +13,14 @@ public static class TagSerializer
     /// </summary>
     /// <param name="buffer">The <see cref="ReadOnlySpan{T}"/> to parse.</param>
     /// <param name="tag">The parsed <see cref="Tag"/>.</param>
-    /// <param name="littleEndian">Whether to parse as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
-    /// <param name="maximumDepth">The maximum allowed nest depth.</param>
+    /// <param name="options">The <see cref="TagSerializerOptions"/> to use.</param>
     /// <returns><c>true</c> if the <see cref="ReadOnlySpan{T}"/> was parsed successfully; otherwise, <c>false</c>.</returns>
-    public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag, bool littleEndian = false, int maximumDepth = 512)
+    public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag, TagSerializerOptions? options = null)
     {
         tag = EndTag.Instance;
-
-        var reader = new TagReader(buffer, littleEndian);
-        var success = reader.TryPeek(out var parent) && TryInstantiate(ref reader, out tag, parent, maximumDepth);
+        options ??= new TagSerializerOptions();
+        var reader = new TagReader(buffer, options.Value.LittleEndian, options.Value.Network);
+        var success = reader.TryPeek(out var parent) && TryInstantiate(ref reader, out tag, parent, options.Value.MaximumDepth);
 
         return success;
 
@@ -152,12 +151,12 @@ public static class TagSerializer
     /// </summary>
     /// <param name="buffer">The <see cref="IBufferWriter{T}"/> to serialize to.</param>
     /// <param name="tag">The <see cref="Tag"/> to serialize.</param>
-    /// <param name="littleEndian">Whether to serialize as little-endian (<c>true</c>) or big-endian (<c>false</c>).</param>
-    /// <param name="maximumDepth">The maximum allowed nest depth.</param>
-    public static void Serialize(IBufferWriter<byte> buffer, Tag tag, bool littleEndian = false, int maximumDepth = 512)
+    /// <param name="options">The <see cref="TagSerializerOptions"/> to use.</param>
+    public static void Serialize(IBufferWriter<byte> buffer, Tag tag, TagSerializerOptions? options = null)
     {
-        var writer = new TagWriter(buffer, littleEndian);
-        Write(ref writer, tag, maximumDepth);
+        var config = options ?? new TagSerializerOptions();
+        var writer = new TagWriter(buffer, config.LittleEndian, config.Network);
+        Write(ref writer, tag, config.MaximumDepth);
 
         return;
 
