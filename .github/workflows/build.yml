@@ -18,7 +18,7 @@ jobs:
           user: ${{ secrets.NUGET_USER }}
 
       - name: NuGet pack
-        run: dotnet pack --configuration Release --output ./artifacts
+        run: dotnet pack Raspite/Raspite/Raspite.csproj --configuration Release --output ./artifacts
 
       - name: NuGet push
         run: dotnet nuget push artifacts/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
