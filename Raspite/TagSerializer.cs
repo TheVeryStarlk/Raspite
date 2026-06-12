@@ -17,8 +17,10 @@ public static class TagSerializer
     /// <returns><c>true</c> if the <see cref="ReadOnlySpan{T}"/> was parsed successfully; otherwise, <c>false</c>.</returns>
     public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag, TagSerializerOptions? options = null)
     {
-        tag = EndTag.Instance;
         options ??= new TagSerializerOptions();
+
+        tag = EndTag.Instance;
+
         var reader = new TagReader(buffer, options.Value.LittleEndian, options.Value.Network);
         var success = reader.TryPeek(out var parent) && TryInstantiate(ref reader, out tag, parent, options.Value.MaximumDepth);
 
@@ -154,9 +156,11 @@ public static class TagSerializer
     /// <param name="options">The <see cref="TagSerializerOptions"/> to use.</param>
     public static void Serialize(IBufferWriter<byte> buffer, Tag tag, TagSerializerOptions? options = null)
     {
-        var config = options ?? new TagSerializerOptions();
-        var writer = new TagWriter(buffer, config.LittleEndian, config.Network);
-        Write(ref writer, tag, config.MaximumDepth);
+        options ??= new TagSerializerOptions();
+
+        var writer = new TagWriter(buffer, options.Value.LittleEndian, options.Value.Network);
+
+        Write(ref writer, tag, options.Value.MaximumDepth);
 
         return;
 
@@ -195,6 +199,7 @@ public static class TagSerializer
                     break;
 
                 case ListTag current:
+                {
                     maximumDepth--;
 
                     if (current.Value.Length < 1)
@@ -212,8 +217,10 @@ public static class TagSerializer
                     }
 
                     break;
+                }
 
                 case CompoundTag current:
+                {
                     maximumDepth--;
 
                     writer.WriteCompoundTag(current.Name);
@@ -226,6 +233,7 @@ public static class TagSerializer
 
                     writer.WriteEndTag();
                     break;
+                }
 
                 case BytesTag current:
                     writer.WriteBytesTag(current.Value, current.Name);

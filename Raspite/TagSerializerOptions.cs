@@ -3,10 +3,10 @@ namespace Raspite;
 public readonly record struct TagSerializerOptions()
 {
     /// <summary>
-    /// Whether to skip writing/reading the root tag's name and length prefix thereof
+    /// Whether to skip writing/reading the root tag's name and length prefix thereof.
     /// </summary>
     /// <remarks>
-    /// Necessary for networking from 1.20.2 onwards
+    /// Necessary for networking from 1.20.2 onwards.
     /// </remarks>
     public bool Network { get; init; } = false;
 

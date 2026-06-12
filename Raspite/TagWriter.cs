@@ -6,9 +6,8 @@ using Raspite.Tags;
 
 namespace Raspite;
 
-public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool network = false)
+public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool network)
 {
-
     /// <summary>
     /// Whether to skip writing the tag's name and identifier.
     /// </summary>

@@ -12,7 +12,7 @@ internal sealed class TagReaderTests
                 8, 0, 4, 83, 101, 101, 110, 0, 3, 72, 101, 121
             ];
 
-            var reader = new TagReader(correct, false);
+            var reader = new TagReader(correct, false, false);
 
             Assert.That(reader.TryReadStringTag(out var value, out var name), Is.True);
             Assert.That(value, Is.EqualTo("Hey"));
