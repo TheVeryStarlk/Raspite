@@ -13,7 +13,7 @@ internal sealed class TagWriterTests
         ];
 
         var buffer = new ArrayBufferWriter<byte>();
-        var writer = new TagWriter(buffer, false);
+        var writer = new TagWriter(buffer, false, false);
 
         writer.WriteStringTag("Hey", "Seen");
 

@@ -5,7 +5,7 @@ using Raspite.Tags;
 
 namespace Raspite;
 
-public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool network = false)
+public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool network)
 {
     public readonly int Remaining => span.Length - position;
 
@@ -16,8 +16,6 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
     /// Should be <c>true</c> only when inside a <see cref="Tag.List"/>.
     /// </remarks>
     public bool Nameless { get; set; }
-
-    public int Depth { get; set; }
 
     private readonly ReadOnlySpan<byte> span = span;
 
