@@ -5,18 +5,25 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsAotCompatible>true</IsAotCompatible>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Authors>Starlk</Authors>
-        <RepositoryUrl>https://github.com/TheVeryStarlk/Raspite</RepositoryUrl>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <PackageTags>Minecraft, Serializer, NBT</PackageTags>
-        <NeutralLanguage>en</NeutralLanguage>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>Minecraft NBT Serialization Library</Title>
         <Description>A fast, lightweight, and easy-to-use NBT serialization library.</Description>
+        <Version>1.0.1</Version>
+        <PackageReleaseNotes>Implement anonymous root tags for 1.20.2+ networking.</PackageReleaseNotes>
+        <RepositoryUrl>https://github.com/TheVeryStarlk/Raspite</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <NeutralLanguage>en</NeutralLanguage>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageProjectUrl>https://github.com/TheVeryStarlk/Raspite</PackageProjectUrl>
+        <PackageIcon>Raspite.png</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
         <None Include="..\README.md" Pack="true" PackagePath="\"/>
+        <None Include="..\Raspite.png" Pack="true" PackagePath="\"/>
     </ItemGroup>
 </Project>

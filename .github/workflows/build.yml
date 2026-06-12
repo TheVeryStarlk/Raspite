@@ -1,0 +1,17 @@
+﻿jobs:
+  build-and-publish:
+    permissions:
+      id-token: write
+    
+    steps:
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: NuGet pack
+        run: dotnet pack --configuration Release --output ./artifacts
+
+      - name: NuGet push
+        run: dotnet nuget push artifacts/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
