@@ -5,7 +5,7 @@ internal sealed class TagReaderTests
     [Test]
     public void Reading_StringTag_IsCorrect()
     {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             ReadOnlySpan<byte> correct =
             [
@@ -17,6 +17,6 @@ internal sealed class TagReaderTests
             Assert.That(reader.TryReadStringTag(out var value, out var name), Is.True);
             Assert.That(value, Is.EqualTo("Hey"));
             Assert.That(name, Is.EqualTo("Seen"));
-        });
+        }
     }
 }
