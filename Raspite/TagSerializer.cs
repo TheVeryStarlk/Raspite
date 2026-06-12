@@ -1,4 +1,6 @@
 ﻿using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
+
 using Raspite.Tags;
 
 namespace Raspite;
@@ -8,6 +10,20 @@ namespace Raspite;
 /// </summary>
 public static class TagSerializer
 {
+
+    public static bool TryParse<T>(ReadOnlySpan<byte> buffer, [NotNullWhen(true)] out T? tag, TagSerializerOptions? options = null)
+        where T : Tag
+    {
+        if (TryParse(buffer, out Tag rawTag, options) && rawTag is T typedTag)
+        {
+            tag = typedTag;
+            return true;
+        }
+
+        tag = null;
+        return false;
+    }
+
     /// <summary>
     /// Attempts to parse the <see cref="ReadOnlySpan{T}"/> as a <see cref="Tag"/>.
     /// </summary>
