@@ -17,8 +17,22 @@ jobs:
         with:
           user: ${{ secrets.NUGET_USER }}
 
-      - name: NuGet pack
-        run: dotnet pack Raspite/Raspite/Raspite.csproj --configuration Release --output ./artifacts
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build Raspite/Raspite.csproj -c Release
+
+      - name: Pack
+        run: dotnet pack Raspite/Raspite.csproj -c Release -o ./artifacts
 
       - name: NuGet push
         run: dotnet nuget push artifacts/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
