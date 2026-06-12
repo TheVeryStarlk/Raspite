@@ -1,5 +1,12 @@
-﻿jobs:
+﻿name: Publish release
+
+on:
+  workflow_dispatch:
+
+jobs:
   build-and-publish:
+    runs-on: ubuntu-latest
+
     permissions:
       id-token: write
     
