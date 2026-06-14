@@ -11,8 +11,8 @@
         <PackageTags>Minecraft, Serializer, NBT</PackageTags>
         <Title>Minecraft NBT Serialization Library</Title>
         <Description>A fast, lightweight, and easy-to-use NBT serialization library.</Description>
-        <Version>1.0.1</Version>
-        <PackageReleaseNotes>Implement anonymous root tags for 1.20.2+ networking.</PackageReleaseNotes>
+        <Version>1.0.2</Version>
+        <PackageReleaseNotes>Improve Tag API.</PackageReleaseNotes>
         <RepositoryUrl>https://github.com/TheVeryStarlk/Raspite</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <NeutralLanguage>en</NeutralLanguage>
