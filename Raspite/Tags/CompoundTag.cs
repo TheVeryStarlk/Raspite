@@ -19,7 +19,9 @@ public sealed class CompoundTag : Tag<Tag[]>
 
     public T Get<T>(string name) where T : Tag => (T) cache[name];
 
-    public T? GetOrNull<T>(string name) where T : Tag => cache.GetValueOrDefault(name) as T;
+    public T GetValue<T>(string name) => ((Tag<T>) cache[name]).Value;
+
+    public T? GetOrDefault<T>(string name) where T : Tag => cache.GetValueOrDefault(name) as T;
 
     public bool TryGet<T>(string name, [NotNullWhen(true)] out T? tag) where T : Tag 
     {
