@@ -1,6 +1,5 @@
 ﻿using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
-
 using Raspite.Tags;
 
 namespace Raspite;
@@ -10,13 +9,19 @@ namespace Raspite;
 /// </summary>
 public static class TagSerializer
 {
-
-    public static bool TryParse<TTag>(
-        ReadOnlySpan<byte> buffer,
-        [NotNullWhen(true)] out TTag? tag,
-        TagSerializerOptions? options = null) where TTag : Tag
+    /// <summary>
+    /// Attempts to parse the <see cref="ReadOnlySpan{T}"/> as a <see cref="TTag"/>.
+    /// </summary>
+    /// <param name="buffer">The <see cref="ReadOnlySpan{T}"/> to parse.</param>
+    /// <param name="tag">The parsed <see cref="Tag"/>.</param>
+    /// <param name="options">The <see cref="TagSerializerOptions"/> to use.</param>
+    /// <returns><c>true</c> if the <see cref="ReadOnlySpan{T}"/> was parsed successfully; otherwise, <c>false</c>.</returns>
+    /// <typeparam name="TTag">The expected <see cref="TTag"/> type.</typeparam>
+    /// <returns><c>true</c> if the <see cref="ReadOnlySpan{T}"/> was parsed successfully; otherwise, <c>false</c>.</returns>
+    /// <exception cref="ArgumentException">The expected <see cref="TTag"/> was incorrect.</exception>
+    public static bool TryParse<TTag>(ReadOnlySpan<byte> buffer, [NotNullWhen(true)] out TTag? tag, TagSerializerOptions? options = null) where TTag : Tag
     {
-        if (!TryParse(buffer, out Tag rawTag, options))
+        if (!TryParse(buffer, out var rawTag, options))
         {
             tag = null;
             return false;
