@@ -16,14 +16,19 @@ public static class TagSerializer
         [NotNullWhen(true)] out TTag? tag,
         TagSerializerOptions? options = null) where TTag : Tag
     {
-        if (TryParse(buffer, out Tag rawTag, options) && rawTag is TTag typedTag)
+        if (!TryParse(buffer, out Tag rawTag, options))
         {
-            tag = typedTag;
-            return true;
+            tag = null;
+            return false;
         }
 
-        tag = null;
-        return false;
+        if (rawTag is not TTag typedTag)
+        {
+            throw new ArgumentException($"Expected {typeof(TTag).Name} but got {rawTag.GetType().Name}.");
+        }
+
+        tag = typedTag;
+        return true;
     }
 
     /// <summary>
