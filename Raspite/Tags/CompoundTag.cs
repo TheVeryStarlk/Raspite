@@ -17,15 +17,15 @@ public sealed class CompoundTag : Tag<Tag[]>
 
     public Tag this[string name] => cache[name];
 
-    public T Get<T>(string name) where T : Tag => (T) cache[name];
+    public TTag Get<TTag>(string name) where TTag : Tag => (TTag) cache[name];
 
     public T GetValue<T>(string name) => ((Tag<T>) cache[name]).Value;
 
-    public T? GetOrDefault<T>(string name) where T : Tag => cache.GetValueOrDefault(name) as T;
+    public TTag? GetOrDefault<TTag>(string name) where TTag : Tag => cache.GetValueOrDefault(name) as TTag;
 
-    public bool TryGet<T>(string name, [NotNullWhen(true)] out T? tag) where T : Tag 
+    public bool TryGet<TTag>(string name, [NotNullWhen(true)] out TTag? tag) where TTag : Tag 
     {
-        if (cache.TryGetValue(name, out var rawTag) && rawTag is T typedTag)
+        if (cache.TryGetValue(name, out var rawTag) && rawTag is TTag typedTag)
         {
             tag = typedTag;
             return true;

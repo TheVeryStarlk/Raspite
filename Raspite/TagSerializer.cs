@@ -11,10 +11,12 @@ namespace Raspite;
 public static class TagSerializer
 {
 
-    public static bool TryParse<T>(ReadOnlySpan<byte> buffer, [NotNullWhen(true)] out T? tag, TagSerializerOptions? options = null)
-        where T : Tag
+    public static bool TryParse<TTag>(
+        ReadOnlySpan<byte> buffer,
+        [NotNullWhen(true)] out TTag? tag,
+        TagSerializerOptions? options = null) where TTag : Tag
     {
-        if (TryParse(buffer, out Tag rawTag, options) && rawTag is T typedTag)
+        if (TryParse(buffer, out Tag rawTag, options) && rawTag is TTag typedTag)
         {
             tag = typedTag;
             return true;
