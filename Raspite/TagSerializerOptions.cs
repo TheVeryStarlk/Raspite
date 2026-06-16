@@ -19,4 +19,9 @@ public readonly record struct TagSerializerOptions()
     /// The maximum allowed nest depth.
     /// </summary>
     public int MaximumDepth { get; init; } = 512;
+
+    /// <summary>
+    /// The maximum allowed number of children in a list or compound tag.
+    /// </summary>
+    public int MaximumChildren { get; init; } = 512;
 }
