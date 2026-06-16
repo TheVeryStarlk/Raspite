@@ -10,6 +10,21 @@ A fast, light-weight, and easy-to-use [NBT](https://minecraft.wiki/w/NBT_format)
 
 Breaking changes are to be expected.
 
+### Building
+
+```cs
+var compound = CompoundTagBuilder
+    .Create("Compound")
+    .AddString("Value", "Name")
+    .Build();
+
+// Compile-time safe.
+var list = ListTagBuilder<StringTag>
+    .Create("List")
+    .AddString("Value")
+    .Build();
+```
+
 ### Parsing
 
 Parsing is as simple as a single line of code, especially when the entire buffer is already present. 
@@ -28,7 +43,7 @@ async ValueTask<Tag?> ReadTagAsync(PipeReader reader, CancellationToken cancella
         var result = await reader.ReadAsync(cancellationToken);
         var buffer = result.Buffer;
 
-        // In the event that no message is parsed successfully, mark consumed as nothing and examined as the entire buffer.
+        // In the event that no tag is parsed successfully, mark consumed as nothing and examined as the entire buffer.
         var consumed = buffer.Start;
         var examined = buffer.End;
 
