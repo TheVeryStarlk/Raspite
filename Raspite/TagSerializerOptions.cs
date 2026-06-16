@@ -1,3 +1,5 @@
+using Raspite.Tags;
+
 namespace Raspite;
 
 public readonly record struct TagSerializerOptions()
@@ -21,7 +23,7 @@ public readonly record struct TagSerializerOptions()
     public int MaximumDepth { get; init; } = 512;
 
     /// <summary>
-    /// The maximum allowed number of children in a list or compound tag.
+    /// The maximum allowed number of children in a <see cref="ListTag"/> or <see cref="CompoundTag"/>.
     /// </summary>
     public int MaximumChildren { get; init; } = 512;
 }
