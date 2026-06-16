@@ -1,3 +1,5 @@
+![](https://img.shields.io/nuget/v/Raspite)
+
 <p align="center">
   <img width="100" height="100" align="center" src="Raspite.png">
 </p>
