@@ -1,6 +1,8 @@
-﻿namespace Raspite.Tags;
+﻿using System.Collections.Immutable;
 
-public sealed class LongsTag(long[] value, string name = "") : Tag<long[]>(value, name)
+namespace Raspite.Tags;
+
+public sealed class LongsTag(ImmutableArray<long> value, string name = "") : Tag<ImmutableArray<long>>(value, name)
 {
     public override byte Identifier => Longs;
 }

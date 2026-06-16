@@ -175,15 +175,15 @@ public static class TagSerializer
                 }
 
                 case Tag.Bytes when reader.TryReadBytesTag(out var value, out var name):
-                    tag = new BytesTag(value.ToArray(), name);
+                    tag = new BytesTag([.. value], name);
                     return true;
 
                 case Tag.Integers when reader.TryReadIntegersTag(out var value, out var name):
-                    tag = new IntegersTag(value.ToArray(), name);
+                    tag = new IntegersTag([.. value], name);
                     return true;
 
                 case Tag.Longs when reader.TryReadLongsTag(out var value, out var name):
-                    tag = new LongsTag(value.ToArray(), name);
+                    tag = new LongsTag([.. value], name);
                     return true;
 
                 default:
@@ -282,15 +282,15 @@ public static class TagSerializer
                 }
 
                 case BytesTag current:
-                    writer.WriteBytesTag(current.Value, current.Name);
+                    writer.WriteBytesTag(current.Value.AsSpan(), current.Name);
                     break;
 
                 case IntegersTag current:
-                    writer.WriteIntegersTag(current.Value, current.Name);
+                    writer.WriteIntegersTag(current.Value.AsSpan(), current.Name);
                     break;
 
                 case LongsTag current:
-                    writer.WriteLongsTag(current.Value, current.Name);
+                    writer.WriteLongsTag(current.Value.AsSpan(), current.Name);
                     break;
 
                 default:
