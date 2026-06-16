@@ -1,6 +1,8 @@
-﻿namespace Raspite.Tags;
+﻿using System.Collections.Immutable;
 
-public sealed class IntegersTag(int[] value, string name = "") : Tag<int[]>(value, name)
+namespace Raspite.Tags;
+
+public sealed class IntegersTag(ImmutableArray<int> value, string name = "") : Tag<ImmutableArray<int>>(value, name)
 {
     public override byte Identifier => Integers;
 }
