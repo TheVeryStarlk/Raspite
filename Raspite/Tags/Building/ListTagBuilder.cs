@@ -46,7 +46,7 @@ public static class ListTagBuilderExtensions
         return builder;
     }
 
-    public static ListTagBuilder<IntegerTag> AddInt(this ListTagBuilder<IntegerTag> builder, int value)
+    public static ListTagBuilder<IntegerTag> AddInteger(this ListTagBuilder<IntegerTag> builder, int value)
     {
         builder.Add(new IntegerTag(value));
         return builder;

@@ -27,7 +27,7 @@ public sealed class CompoundTagBuilder
         return this;
     }
 
-    public CompoundTagBuilder AddInt(int value, string name = "")
+    public CompoundTagBuilder AddInteger(int value, string name = "")
     {
         tags.Add(new IntegerTag(value, name));
         return this;
