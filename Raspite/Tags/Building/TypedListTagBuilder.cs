@@ -3,7 +3,7 @@ namespace Raspite.Tags.Building;
 public sealed class ListTagBuilder<T> where T : Tag
 {
     private readonly List<T> tags = [];
-    private readonly string name = "";
+    private readonly string name;
 
     private ListTagBuilder(string name)
     {
@@ -12,18 +12,17 @@ public sealed class ListTagBuilder<T> where T : Tag
 
     public static ListTagBuilder<T> Create(string name = "")
     {
-        return new(name);
+        return new ListTagBuilder<T>(name);
     }
 
-    internal ListTagBuilder<T> Add(T tag)
+    internal void Add(T tag)
     {
         tags.Add(tag);
-        return this;
     }
 
     public ListTag Build()
     {
-        return new ListTag([.. tags.Cast<Tag>()], name);
+        return new ListTag([.. tags], name);
     }
 }
 
