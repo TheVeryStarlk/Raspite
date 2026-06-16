@@ -10,7 +10,7 @@ public sealed class CompoundTagBuilder
         this.tag = tag;
     }
 
-    public static CompoundTagBuilder Create(string name)
+    public static CompoundTagBuilder Create(string name = "")
     {
         return new CompoundTagBuilder(name);
     }
