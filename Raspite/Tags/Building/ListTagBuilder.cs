@@ -38,6 +38,16 @@ public static class ListTagBuilderExtensions
         return builder;
     }
 
+    public static ListTagBuilder<ByteTag> AddBoolean(this ListTagBuilder<ByteTag> builder, bool? value)
+    {
+        if (value.HasValue)
+        {
+            builder.Add(new ByteTag(value.Value));
+        }
+
+        return builder;
+    }
+
     public static ListTagBuilder<ShortTag> AddShort(this ListTagBuilder<ShortTag> builder, short? value)
     {
         if (value.HasValue)

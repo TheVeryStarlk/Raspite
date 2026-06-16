@@ -25,6 +25,16 @@ public sealed class CompoundTagBuilder
         return this;
     }
 
+    public CompoundTagBuilder AddBoolean(bool? value, string name = "")
+    {
+        if (value.HasValue)
+        {
+            tags.Add(new ByteTag(value.Value, name));
+        }
+
+        return this;
+    }
+
     public CompoundTagBuilder AddShort(short? value, string name = "")
     {
         if (value.HasValue)
