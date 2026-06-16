@@ -50,11 +50,11 @@ public static class TagSerializer
         tag = EndTag.Instance;
 
         var reader = new TagReader(buffer, options.Value.LittleEndian, options.Value.Network);
-        var success = reader.TryPeek(out var parent) && TryInstantiate(ref reader, out tag, parent, options.Value.MaximumDepth);
+        var success = reader.TryPeek(out var parent) && TryInstantiate(ref reader, out tag, parent, options.Value.MaximumDepth, options.Value.MaximumChildren);
 
         return success;
 
-        static bool TryInstantiate(ref TagReader reader, out Tag tag, byte parent, int maximumDepth)
+        static bool TryInstantiate(ref TagReader reader, out Tag tag, byte parent, int maximumDepth, int maximumChildren)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
 
@@ -94,27 +94,39 @@ public static class TagSerializer
                 {
                     maximumDepth--;
 
+                    if (length > maximumChildren)
+                    {
+                        throw new ArgumentException($"ListTag exceeds maximum of {maximumChildren} children.");
+                    }
+
                     if (identifier is Tag.End || length < 1)
                     {
                         tag = new ListTag([], name);
                         return true;
                     }
 
-                    var items = new Tag[length];
+                    var items = ArrayPool<Tag>.Shared.Rent(length);
 
-                    for (var index = 0; index < length; index++)
+                    try
                     {
-                        reader.Nameless = true;
-
-                        if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth))
+                        for (var index = 0; index < length; index++)
                         {
-                            return false;
+                            reader.Nameless = true;
+
+                            if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth, maximumChildren))
+                            {
+                                return false;
+                            }
+
+                            items[index] = temporary;
                         }
 
-                        items[index] = temporary;
+                        tag = new ListTag([.. items.AsSpan(0, length)], name);
                     }
-
-                    tag = new ListTag([.. items.AsSpan()], name);
+                    finally
+                    {
+                        ArrayPool<Tag>.Shared.Return(items, clearArray: true);
+                    }
 
                     return true;
                 }
@@ -123,37 +135,49 @@ public static class TagSerializer
                 {
                     maximumDepth--;
 
-                    var items = new Tag[512];
+                    var items = ArrayPool<Tag>.Shared.Rent(maximumChildren);
                     var index = 0;
 
-                    while (true)
+                    try
                     {
-                        if (!reader.TryPeek(out var identifier))
+                        while (true)
+                        {
+                            if (!reader.TryPeek(out var identifier))
+                            {
+                                return false;
+                            }
+
+                            if (identifier is Tag.End)
+                            {
+                                break;
+                            }
+
+                            reader.Nameless = false;
+
+                            if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth, maximumChildren))
+                            {
+                                return false;
+                            }
+
+                            if (index >= maximumChildren)
+                            {
+                                throw new ArgumentException($"CompoundTag exceeds maximum of {maximumChildren} children.");
+                            }
+
+                            items[index++] = temporary;
+                        }
+
+                        if (!reader.TryReadEndTag())
                         {
                             return false;
                         }
 
-                        if (identifier is Tag.End)
-                        {
-                            break;
-                        }
-
-                        reader.Nameless = false;
-
-                        if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth))
-                        {
-                            return false;
-                        }
-
-                        items[index++] = temporary;
+                        tag = new CompoundTag([.. items.AsSpan(0, index)], name);
                     }
-
-                    if (!reader.TryReadEndTag())
+                    finally
                     {
-                        return false;
+                        ArrayPool<Tag>.Shared.Return(items, clearArray: true);
                     }
-
-                    tag = new CompoundTag([.. items.AsSpan(0, index)], name);
 
                     return true;
                 }
@@ -188,11 +212,11 @@ public static class TagSerializer
 
         var writer = new TagWriter(buffer, options.Value.LittleEndian, options.Value.Network);
 
-        Write(ref writer, tag, options.Value.MaximumDepth);
+        Write(ref writer, tag, options.Value.MaximumDepth, options.Value.MaximumChildren);
 
         return;
 
-        static void Write(ref TagWriter writer, Tag tag, int maximumDepth)
+        static void Write(ref TagWriter writer, Tag tag, int maximumDepth, int maximumChildren)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
 
@@ -230,6 +254,11 @@ public static class TagSerializer
                 {
                     maximumDepth--;
 
+                    if (current.Value.Length > maximumChildren)
+                    {
+                        throw new ArgumentException($"ListTag with {current.Value.Length} children exceeds maximum of {maximumChildren}.");
+                    }
+
                     if (current.Value.Length < 1)
                     {
                         writer.WriteListTag(Tag.End, 0, current.Name);
@@ -241,7 +270,7 @@ public static class TagSerializer
                     foreach (var item in current.Value)
                     {
                         writer.Nameless = true;
-                        Write(ref writer, item, maximumDepth);
+                        Write(ref writer, item, maximumDepth, maximumChildren);
                     }
 
                     break;
@@ -251,12 +280,17 @@ public static class TagSerializer
                 {
                     maximumDepth--;
 
+                    if (current.Value.Length > maximumChildren)
+                    {
+                        throw new ArgumentException($"CompoundTag with {current.Value.Length} children exceeds maximum of {maximumChildren}.");
+                    }
+
                     writer.WriteCompoundTag(current.Name);
 
                     foreach (var item in current.Value)
                     {
                         writer.Nameless = false;
-                        Write(ref writer, item, maximumDepth);
+                        Write(ref writer, item, maximumDepth, maximumChildren);
                     }
 
                     writer.WriteEndTag();
