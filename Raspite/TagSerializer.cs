@@ -92,12 +92,8 @@ public static class TagSerializer
 
                 case Tag.List when reader.TryReadListTag(out var identifier, out var length, out var name):
                 {
+                    ArgumentOutOfRangeException.ThrowIfGreaterThan(length, maximumChildren);
                     maximumDepth--;
-
-                    if (length > maximumChildren)
-                    {
-                        throw new ArgumentException($"ListTag exceeds maximum of {maximumChildren} children.");
-                    }
 
                     if (identifier is Tag.End || length < 1)
                     {
@@ -159,11 +155,7 @@ public static class TagSerializer
                                 return false;
                             }
 
-                            if (index >= maximumChildren)
-                            {
-                                throw new ArgumentException($"CompoundTag exceeds maximum of {maximumChildren} children.");
-                            }
-
+                            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, maximumChildren);
                             items[index++] = temporary;
                         }
 
@@ -252,12 +244,8 @@ public static class TagSerializer
 
                 case ListTag current:
                 {
+                    ArgumentOutOfRangeException.ThrowIfGreaterThan(current.Value.Length, maximumChildren);
                     maximumDepth--;
-
-                    if (current.Value.Length > maximumChildren)
-                    {
-                        throw new ArgumentException($"ListTag with {current.Value.Length} children exceeds maximum of {maximumChildren}.");
-                    }
 
                     if (current.Value.Length < 1)
                     {
@@ -278,12 +266,8 @@ public static class TagSerializer
 
                 case CompoundTag current:
                 {
+                    ArgumentOutOfRangeException.ThrowIfGreaterThan(current.Value.Length, maximumChildren);
                     maximumDepth--;
-
-                    if (current.Value.Length > maximumChildren)
-                    {
-                        throw new ArgumentException($"CompoundTag with {current.Value.Length} children exceeds maximum of {maximumChildren}.");
-                    }
 
                     writer.WriteCompoundTag(current.Name);
 
