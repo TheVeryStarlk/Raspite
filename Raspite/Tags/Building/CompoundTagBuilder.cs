@@ -57,6 +57,18 @@ public sealed class CompoundTagBuilder
         return this;
     }
 
+    public CompoundTagBuilder AddList(ListTag value, string name = "")
+    {
+        tags.Add(value);
+        return this;
+    }
+
+    public CompoundTagBuilder AddCompound(CompoundTag value, string name = "")
+    {
+        tags.Add(value);
+        return this;
+    }
+
     public CompoundTagBuilder AddBytes(byte[] value, string name = "")
     {
         tags.Add(new BytesTag(value, name));
@@ -72,18 +84,6 @@ public sealed class CompoundTagBuilder
     public CompoundTagBuilder AddLongs(long[] value, string name = "")
     {
         tags.Add(new LongsTag(value, name));
-        return this;
-    }
-
-    public CompoundTagBuilder AddCompound(CompoundTag value, string name = "")
-    {
-        tags.Add(value);
-        return this;
-    }
-
-    public CompoundTagBuilder AddList(ListTag value, string name = "")
-    {
-        tags.Add(value);
         return this;
     }
 

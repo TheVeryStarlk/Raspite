@@ -28,12 +28,6 @@ public sealed class ListTagBuilder<T> where T : Tag
 
 public static class ListTagBuilderExtensions
 {
-    public static ListTagBuilder<StringTag> AddString(this ListTagBuilder<StringTag> builder, string value)
-    {
-        builder.Add(new StringTag(value));
-        return builder;
-    }
-
     public static ListTagBuilder<ByteTag> AddByte(this ListTagBuilder<ByteTag> builder, byte value)
     {
         builder.Add(new ByteTag(value));
@@ -70,6 +64,12 @@ public static class ListTagBuilderExtensions
         return builder;
     }
 
+    public static ListTagBuilder<StringTag> AddString(this ListTagBuilder<StringTag> builder, string value)
+    {
+        builder.Add(new StringTag(value));
+        return builder;
+    }
+
     public static ListTagBuilder<CompoundTag> AddCompound(this ListTagBuilder<CompoundTag> builder, CompoundTag value)
     {
         builder.Add(value);
@@ -79,6 +79,24 @@ public static class ListTagBuilderExtensions
     public static ListTagBuilder<ListTag> AddList(this ListTagBuilder<ListTag> builder, ListTag value)
     {
         builder.Add(value);
+        return builder;
+    }
+
+    public static ListTagBuilder<BytesTag> AddBytes(this ListTagBuilder<BytesTag> builder, byte[] value)
+    {
+        builder.Add(new BytesTag(value));
+        return builder;
+    }
+
+    public static ListTagBuilder<IntegersTag> AddIntegers(this ListTagBuilder<IntegersTag> builder, int[] value)
+    {
+        builder.Add(new IntegersTag(value));
+        return builder;
+    }
+
+    public static ListTagBuilder<LongsTag> AddLongs(this ListTagBuilder<LongsTag> builder, long[] value)
+    {
+        builder.Add(new LongsTag(value));
         return builder;
     }
 }
