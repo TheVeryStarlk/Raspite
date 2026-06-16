@@ -9,7 +9,9 @@ jobs:
 
     permissions:
       id-token: write
-    
+      packages: write
+      contents: read
+
     steps:
       - name: NuGet login
         uses: NuGet/login@v1
@@ -34,5 +36,9 @@ jobs:
       - name: Pack
         run: dotnet pack Raspite/Raspite.csproj -c Release -o ./artifacts
 
-      - name: NuGet push
+      - name: Push to NuGet
         run: dotnet nuget push artifacts/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+
+      - name: Push to GitHub
+        run: |
+          dotnet nuget push artifacts/*.nupkg --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
