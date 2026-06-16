@@ -114,7 +114,7 @@ public static class TagSerializer
                         items[index] = temporary;
                     }
 
-                    tag = new ListTag(items, name);
+                    tag = new ListTag([.. items.AsSpan()], name);
 
                     return true;
                 }
@@ -153,7 +153,7 @@ public static class TagSerializer
                         return false;
                     }
 
-                    tag = new CompoundTag(items[..index], name);
+                    tag = new CompoundTag([.. items.AsSpan(0, index)], name);
 
                     return true;
                 }
