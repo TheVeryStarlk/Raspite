@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Raspite.Tags;
 
-public sealed class CompoundTag : Tag<Tag[]>
+public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
 {
     public override byte Identifier => Compound;
 
@@ -16,7 +16,7 @@ public sealed class CompoundTag : Tag<Tag[]>
 
     private readonly FrozenDictionary<string, Tag> cache;
 
-    public CompoundTag(Tag[] value, string name = "") : base(value, name)
+    public CompoundTag(ImmutableArray<Tag> value, string name = "") : base(value, name)
     {
         cache = value.ToFrozenDictionary(tag => tag.Name);
     }
