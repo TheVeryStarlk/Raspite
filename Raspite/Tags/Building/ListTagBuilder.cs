@@ -122,7 +122,7 @@ public static class ListTagBuilderExtensions
     {
         if (value is not null)
         {
-            builder.Add(new BytesTag(value));
+            builder.Add(new BytesTag([.. value]));
         }
 
         return builder;
@@ -132,7 +132,7 @@ public static class ListTagBuilderExtensions
     {
         if (value is not null)
         {
-            builder.Add(new IntegersTag(value));
+            builder.Add(new IntegersTag([.. value]));
         }
 
         return builder;
@@ -142,7 +142,7 @@ public static class ListTagBuilderExtensions
     {
         if (value is not null)
         {
-            builder.Add(new LongsTag(value));
+            builder.Add(new LongsTag([.. value]));
         }
 
         return builder;

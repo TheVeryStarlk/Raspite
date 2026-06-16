@@ -109,7 +109,7 @@ public sealed class CompoundTagBuilder
     {
         if (value is not null)
         {
-            tags.Add(new BytesTag(value, name));
+            tags.Add(new BytesTag([.. value], name));
         }
 
         return this;
@@ -119,7 +119,7 @@ public sealed class CompoundTagBuilder
     {
         if (value is not null)
         {
-            tags.Add(new IntegersTag(value, name));
+            tags.Add(new IntegersTag([.. value], name));
         }
 
         return this;
@@ -129,7 +129,7 @@ public sealed class CompoundTagBuilder
     {
         if (value is not null)
         {
-            tags.Add(new LongsTag(value, name));
+            tags.Add(new LongsTag([.. value], name));
         }
 
         return this;
