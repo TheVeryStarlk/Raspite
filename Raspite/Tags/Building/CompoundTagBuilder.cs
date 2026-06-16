@@ -81,7 +81,7 @@ public sealed class CompoundTagBuilder
         return this;
     }
 
-    public CompoundTagBuilder AddList<T>(string name, ListTag value) where T : Tag
+    public CompoundTagBuilder AddList(string name, ListTag value)
     {
         tags.Add(value);
         return this;

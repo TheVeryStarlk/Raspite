@@ -1,16 +1,21 @@
 namespace Raspite.Tags.Building;
 
-public sealed class TypedListTagBuilder<T> where T : Tag
+public sealed class ListTagBuilder<T> where T : Tag
 {
     private readonly List<T> tags = [];
     private readonly string name = "";
 
-    internal TypedListTagBuilder(string name)
+    private ListTagBuilder(string name)
     {
         this.name = name;
     }
 
-    internal TypedListTagBuilder<T> Add(T tag)
+    public static ListTagBuilder<T> Create(string name = "")
+    {
+        return new(name);
+    }
+
+    internal ListTagBuilder<T> Add(T tag)
     {
         tags.Add(tag);
         return this;
@@ -22,57 +27,57 @@ public sealed class TypedListTagBuilder<T> where T : Tag
     }
 }
 
-public static class TypedListTagBuilderExtensions
+public static class ListTagBuilderExtensions
 {
-    public static TypedListTagBuilder<StringTag> AddString(this TypedListTagBuilder<StringTag> builder, string value)
+    public static ListTagBuilder<StringTag> AddString(this ListTagBuilder<StringTag> builder, string value)
     {
         builder.Add(new StringTag(value));
         return builder;
     }
 
-    public static TypedListTagBuilder<ByteTag> AddByte(this TypedListTagBuilder<ByteTag> builder, byte value)
+    public static ListTagBuilder<ByteTag> AddByte(this ListTagBuilder<ByteTag> builder, byte value)
     {
         builder.Add(new ByteTag(value));
         return builder;
     }
 
-    public static TypedListTagBuilder<ShortTag> AddShort(this TypedListTagBuilder<ShortTag> builder, short value)
+    public static ListTagBuilder<ShortTag> AddShort(this ListTagBuilder<ShortTag> builder, short value)
     {
         builder.Add(new ShortTag(value));
         return builder;
     }
 
-    public static TypedListTagBuilder<IntegerTag> AddInt(this TypedListTagBuilder<IntegerTag> builder, int value)
+    public static ListTagBuilder<IntegerTag> AddInt(this ListTagBuilder<IntegerTag> builder, int value)
     {
         builder.Add(new IntegerTag(value));
         return builder;
     }
 
-    public static TypedListTagBuilder<LongTag> AddLong(this TypedListTagBuilder<LongTag> builder, long value)
+    public static ListTagBuilder<LongTag> AddLong(this ListTagBuilder<LongTag> builder, long value)
     {
         builder.Add(new LongTag(value));
         return builder;
     }
 
-    public static TypedListTagBuilder<FloatTag> AddFloat(this TypedListTagBuilder<FloatTag> builder, float value)
+    public static ListTagBuilder<FloatTag> AddFloat(this ListTagBuilder<FloatTag> builder, float value)
     {
         builder.Add(new FloatTag(value));
         return builder;
     }
 
-    public static TypedListTagBuilder<DoubleTag> AddDouble(this TypedListTagBuilder<DoubleTag> builder, double value)
+    public static ListTagBuilder<DoubleTag> AddDouble(this ListTagBuilder<DoubleTag> builder, double value)
     {
         builder.Add(new DoubleTag(value));
         return builder;
     }
 
-    public static TypedListTagBuilder<CompoundTag> AddCompound(this TypedListTagBuilder<CompoundTag> builder, CompoundTag value)
+    public static ListTagBuilder<CompoundTag> AddCompound(this ListTagBuilder<CompoundTag> builder, CompoundTag value)
     {
         builder.Add(value);
         return builder;
     }
 
-    public static TypedListTagBuilder<ListTag> AddList(this TypedListTagBuilder<ListTag> builder, ListTag value)
+    public static ListTagBuilder<ListTag> AddList(this ListTagBuilder<ListTag> builder, ListTag value)
     {
         builder.Add(value);
         return builder;
