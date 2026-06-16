@@ -3,11 +3,11 @@ namespace Raspite.Tags.Building;
 public sealed class CompoundTagBuilder
 {
     private readonly List<Tag> tags = [];
-    private readonly string tag;
+    private readonly string parentName;
 
     private CompoundTagBuilder(string tag)
     {
-        this.tag = tag;
+        parentName = tag;
     }
 
     public static CompoundTagBuilder Create(string name = "")
@@ -15,80 +15,128 @@ public sealed class CompoundTagBuilder
         return new CompoundTagBuilder(name);
     }
 
-    public CompoundTagBuilder AddByte(byte value, string name = "")
+    public CompoundTagBuilder AddByte(byte? value, string name = "")
     {
-        tags.Add(new ByteTag(value, name));
+        if (value.HasValue)
+        {
+            tags.Add(new ByteTag(value.Value, name));
+        }
+
         return this;
     }
 
-    public CompoundTagBuilder AddShort(short value, string name = "")
+    public CompoundTagBuilder AddShort(short? value, string name = "")
     {
-        tags.Add(new ShortTag(value, name));
+        if (value.HasValue)
+        {
+            tags.Add(new ShortTag(value.Value, name));
+        }
+
         return this;
     }
 
-    public CompoundTagBuilder AddInteger(int value, string name = "")
+    public CompoundTagBuilder AddInteger(int? value, string name = "")
     {
-        tags.Add(new IntegerTag(value, name));
+        if (value.HasValue)
+        {
+            tags.Add(new IntegerTag(value.Value, name));
+        }
+
         return this;
     }
 
-    public CompoundTagBuilder AddLong(long value, string name = "")
+    public CompoundTagBuilder AddLong(long? value, string name = "")
     {
-        tags.Add(new LongTag(value, name));
+        if (value.HasValue)
+        {
+            tags.Add(new LongTag(value.Value, name));
+        }
+
         return this;
     }
 
-    public CompoundTagBuilder AddFloat(float value, string name = "")
+    public CompoundTagBuilder AddFloat(float? value, string name = "")
     {
-        tags.Add(new FloatTag(value, name));
+        if (value.HasValue)
+        {
+            tags.Add(new FloatTag(value.Value, name));
+        }
+
         return this;
     }
 
-    public CompoundTagBuilder AddDouble(double value, string name = "")
+    public CompoundTagBuilder AddDouble(double? value, string name = "")
     {
-        tags.Add(new DoubleTag(value, name));
+        if (value.HasValue)
+        {
+            tags.Add(new DoubleTag(value.Value, name));
+        }
+
         return this;
     }
 
-    public CompoundTagBuilder AddString(string value, string name = "")
+    public CompoundTagBuilder AddString(string? value, string name = "")
     {
-        tags.Add(new StringTag(value, name));
+        if (value is not null)
+        {
+            tags.Add(new StringTag(value, name));
+        }
+
         return this;
     }
 
-    public CompoundTagBuilder AddList(ListTag value, string name = "")
+    public CompoundTagBuilder AddList(ListTag? value, string name = "")
     {
-        tags.Add(value);
+        if (value is not null)
+        {
+            tags.Add(value);
+        }
+
         return this;
     }
 
-    public CompoundTagBuilder AddCompound(CompoundTag value, string name = "")
+    public CompoundTagBuilder AddCompound(CompoundTag? value, string name = "")
     {
-        tags.Add(value);
+        if (value is not null)
+        {
+            tags.Add(value);
+        }
+
         return this;
     }
 
-    public CompoundTagBuilder AddBytes(byte[] value, string name = "")
+    public CompoundTagBuilder AddBytes(byte[]? value, string name = "")
     {
-        tags.Add(new BytesTag(value, name));
+        if (value is not null)
+        {
+            tags.Add(new BytesTag(value, name));
+        }
+
         return this;
     }
 
-    public CompoundTagBuilder AddIntegers(int[] value, string name = "")
+    public CompoundTagBuilder AddIntegers(int[]? value, string name = "")
     {
-        tags.Add(new IntegersTag(value, name));
+        if (value is not null)
+        {
+            tags.Add(new IntegersTag(value, name));
+        }
+
         return this;
     }
 
-    public CompoundTagBuilder AddLongs(long[] value, string name = "")
+    public CompoundTagBuilder AddLongs(long[]? value, string name = "")
     {
-        tags.Add(new LongsTag(value, name));
+        if (value is not null)
+        {
+            tags.Add(new LongsTag(value, name));
+        }
+
         return this;
     }
 
     public CompoundTag Build()
     {
-        return new CompoundTag([.. tags], tag);
+        return new CompoundTag([.. tags], parentName);
     }
 }

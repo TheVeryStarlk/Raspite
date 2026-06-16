@@ -3,11 +3,11 @@ namespace Raspite.Tags.Building;
 public sealed class ListTagBuilder<T> where T : Tag
 {
     private readonly List<T> tags = [];
-    private readonly string name;
+    private readonly string parentName;
 
     private ListTagBuilder(string name)
     {
-        this.name = name;
+        parentName = name;
     }
 
     public static ListTagBuilder<T> Create(string name = "")
@@ -22,81 +22,129 @@ public sealed class ListTagBuilder<T> where T : Tag
 
     public ListTag Build()
     {
-        return new ListTag([.. tags], name);
+        return new ListTag([.. tags], parentName);
     }
 }
 
 public static class ListTagBuilderExtensions
 {
-    public static ListTagBuilder<ByteTag> AddByte(this ListTagBuilder<ByteTag> builder, byte value)
+    public static ListTagBuilder<ByteTag> AddByte(this ListTagBuilder<ByteTag> builder, byte? value)
     {
-        builder.Add(new ByteTag(value));
+        if (value.HasValue)
+        {
+            builder.Add(new ByteTag(value.Value));
+        }
+
         return builder;
     }
 
-    public static ListTagBuilder<ShortTag> AddShort(this ListTagBuilder<ShortTag> builder, short value)
+    public static ListTagBuilder<ShortTag> AddShort(this ListTagBuilder<ShortTag> builder, short? value)
     {
-        builder.Add(new ShortTag(value));
+        if (value.HasValue)
+        {
+            builder.Add(new ShortTag(value.Value));
+        }
+
         return builder;
     }
 
-    public static ListTagBuilder<IntegerTag> AddInteger(this ListTagBuilder<IntegerTag> builder, int value)
+    public static ListTagBuilder<IntegerTag> AddInteger(this ListTagBuilder<IntegerTag> builder, int? value)
     {
-        builder.Add(new IntegerTag(value));
+        if (value.HasValue)
+        {
+            builder.Add(new IntegerTag(value.Value));
+        }
+
         return builder;
     }
 
-    public static ListTagBuilder<LongTag> AddLong(this ListTagBuilder<LongTag> builder, long value)
+    public static ListTagBuilder<LongTag> AddLong(this ListTagBuilder<LongTag> builder, long? value)
     {
-        builder.Add(new LongTag(value));
+        if (value.HasValue)
+        {
+            builder.Add(new LongTag(value.Value));
+        }
+
         return builder;
     }
 
-    public static ListTagBuilder<FloatTag> AddFloat(this ListTagBuilder<FloatTag> builder, float value)
+    public static ListTagBuilder<FloatTag> AddFloat(this ListTagBuilder<FloatTag> builder, float? value)
     {
-        builder.Add(new FloatTag(value));
+        if (value.HasValue)
+        {
+            builder.Add(new FloatTag(value.Value));
+        }
+
         return builder;
     }
 
-    public static ListTagBuilder<DoubleTag> AddDouble(this ListTagBuilder<DoubleTag> builder, double value)
+    public static ListTagBuilder<DoubleTag> AddDouble(this ListTagBuilder<DoubleTag> builder, double? value)
     {
-        builder.Add(new DoubleTag(value));
+        if (value.HasValue)
+        {
+            builder.Add(new DoubleTag(value.Value));
+        }
+
         return builder;
     }
 
-    public static ListTagBuilder<StringTag> AddString(this ListTagBuilder<StringTag> builder, string value)
+    public static ListTagBuilder<StringTag> AddString(this ListTagBuilder<StringTag> builder, string? value)
     {
-        builder.Add(new StringTag(value));
+        if (value is not null)
+        {
+            builder.Add(new StringTag(value));
+        }
+
         return builder;
     }
 
-    public static ListTagBuilder<CompoundTag> AddCompound(this ListTagBuilder<CompoundTag> builder, CompoundTag value)
+    public static ListTagBuilder<CompoundTag> AddCompound(this ListTagBuilder<CompoundTag> builder, CompoundTag? value)
     {
-        builder.Add(value);
+        if (value is not null)
+        {
+            builder.Add(value);
+        }
+
         return builder;
     }
 
-    public static ListTagBuilder<ListTag> AddList(this ListTagBuilder<ListTag> builder, ListTag value)
+    public static ListTagBuilder<ListTag> AddList(this ListTagBuilder<ListTag> builder, ListTag? value)
     {
-        builder.Add(value);
+        if (value is not null)
+        {
+            builder.Add(value);
+        }
+
         return builder;
     }
 
-    public static ListTagBuilder<BytesTag> AddBytes(this ListTagBuilder<BytesTag> builder, byte[] value)
+    public static ListTagBuilder<BytesTag> AddBytes(this ListTagBuilder<BytesTag> builder, byte[]? value)
     {
-        builder.Add(new BytesTag(value));
+        if (value is not null)
+        {
+            builder.Add(new BytesTag(value));
+        }
+
         return builder;
     }
 
-    public static ListTagBuilder<IntegersTag> AddIntegers(this ListTagBuilder<IntegersTag> builder, int[] value)
+    public static ListTagBuilder<IntegersTag> AddIntegers(this ListTagBuilder<IntegersTag> builder, int[]? value)
     {
-        builder.Add(new IntegersTag(value));
+        if (value is not null)
+        {
+            builder.Add(new IntegersTag(value));
+        }
+
         return builder;
     }
 
-    public static ListTagBuilder<LongsTag> AddLongs(this ListTagBuilder<LongsTag> builder, long[] value)
+    public static ListTagBuilder<LongsTag> AddLongs(this ListTagBuilder<LongsTag> builder, long[]? value)
     {
-        builder.Add(new LongsTag(value));
+        if (value is not null)
+        {
+            builder.Add(new LongsTag(value));
+        }
+
         return builder;
     }
 }
