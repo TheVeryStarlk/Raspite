@@ -36,6 +36,16 @@ public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
         return cache.GetValueOrDefault(name) as TTag;
     }
 
+    public T? GetValueOrDefault<T>(string name)
+    {
+        if (cache.GetValueOrDefault(name) is Tag<T> tag)
+        {
+            return tag.Value;
+        }
+
+        return default;
+    }
+
     public bool TryGet<TTag>(string name, [NotNullWhen(true)] out TTag? tag) where TTag : Tag
     {
         if (cache.TryGetValue(name, out var rawTag) && rawTag is TTag typedTag)
@@ -45,6 +55,18 @@ public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
         }
 
         tag = null;
+        return false;
+    }
+
+    public bool TryGetValue<T>(string name, [NotNullWhen(true)] out T? value)
+    {
+        if (cache.TryGetValue(name, out var rawTag) && rawTag is Tag<T> typedTag)
+        {
+            value = typedTag.Value;
+            return value is not null;
+        }
+
+        value = default;
         return false;
     }
 
