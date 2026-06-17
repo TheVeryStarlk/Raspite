@@ -7,7 +7,7 @@ public abstract class Tag(string name = "")
 {
     public abstract byte Identifier { get; }
 
-    public string Name { get; set; } = name;
+    public string Name { get; } = name;
 
     public const byte End = 0;
 
@@ -39,5 +39,5 @@ public abstract class Tag(string name = "")
 [DebuggerDisplay("{Name} = {Value}")]
 public abstract class Tag<T>(T value, string name = "") : Tag(name)
 {
-    public T Value { get; set; } = value;
+    public T Value { get; } = value;
 }
