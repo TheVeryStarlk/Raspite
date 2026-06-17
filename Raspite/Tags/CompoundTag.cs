@@ -10,7 +10,7 @@ public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
 
     public Tag this[string name] => cache[name];
 
-    public int Count => cache.Count;
+    public int Length => Value.Length;
 
     public ImmutableArray<string> Keys => cache.Keys;
 
@@ -48,7 +48,7 @@ public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
         return false;
     }
 
-    public bool Contains(string name)
+    public bool ContainsKey(string name)
     {
         return cache.ContainsKey(name);
     }
