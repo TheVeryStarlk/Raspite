@@ -6,7 +6,7 @@ using Raspite.Tags;
 
 namespace Raspite;
 
-public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool network)
+public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool network, bool variableLength)
 {
     /// <summary>
     /// Whether to skip writing the tag's name and identifier.
@@ -194,6 +194,12 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
 
     private void WriteInteger(int value)
     {
+        if (variableLength)
+        {
+            WriteVariableInteger(ZigZag.Encode(value));
+            return;
+        }
+
         var span = buffer.GetSpan(sizeof(int));
 
         if (littleEndian)
@@ -210,6 +216,12 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
 
     private void WriteLong(long value)
     {
+        if (variableLength)
+        {
+            WriteVariableLong(ZigZag.Encode(value));
+            return;
+        }
+
         var span = buffer.GetSpan(sizeof(long));
 
         if (littleEndian)
@@ -228,24 +240,71 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
     {
         var length = Encoding.UTF8.GetByteCount(value);
 
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(length, ushort.MaxValue);
-
-        var total = sizeof(ushort) + length;
-        var span = buffer.GetSpan(total);
-
-        if (littleEndian)
+        if (variableLength)
         {
-            BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort) length);
+            WriteVariableInteger(length);
         }
         else
         {
-            BinaryPrimitives.WriteUInt16BigEndian(span, (ushort) length);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(length, ushort.MaxValue);
+
+            var span = buffer.GetSpan(sizeof(ushort));
+
+            if (littleEndian)
+            {
+                BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort)length);
+            }
+            else
+            {
+                BinaryPrimitives.WriteUInt16BigEndian(span, (ushort)length);
+            }
+
+            buffer.Advance(sizeof(ushort));
         }
 
-        var written = Encoding.UTF8.GetBytes(value, span[sizeof(ushort)..]);
+        var result = buffer.GetSpan(length);
+        var written = Encoding.UTF8.GetBytes(value, result);
 
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(written, total);
+        buffer.Advance(written);
+    }
 
-        buffer.Advance(total);
+    private void WriteVariableInteger(int value)
+    {
+        var unsigned = (uint) value;
+
+        do
+        {
+            var temporary = (byte) (unsigned & 127);
+
+            unsigned >>= 7;
+
+            if (unsigned != 0)
+            {
+                temporary |= 128;
+            }
+
+            WriteByte(temporary);
+        }
+        while (unsigned != 0);
+    }
+
+    private void WriteVariableLong(long value)
+    {
+        var unsigned = (ulong) value;
+
+        do
+        {
+            var temporary = (byte) (unsigned & 127);
+
+            unsigned >>= 7;
+
+            if (unsigned != 0)
+            {
+                temporary |= 128;
+            }
+
+            WriteByte(temporary);
+        }
+        while (unsigned != 0);
     }
 }

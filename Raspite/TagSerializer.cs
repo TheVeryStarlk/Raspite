@@ -65,7 +65,7 @@ public static class TagSerializer
     {
         options ??= new TagSerializerOptions();
 
-        var writer = new TagWriter(buffer, options.Value.LittleEndian, options.Value.Network);
+        var writer = new TagWriter(buffer, options.Value.LittleEndian, options.Value.Network, options.Value.VariableLength);
 
         Write(ref writer, tag, options.Value.MaximumDepth, options.Value.MaximumChildren);
     }
@@ -107,90 +107,90 @@ public static class TagSerializer
                 return true;
 
             case Tag.List when reader.TryReadListTag(out var identifier, out var length, out var name):
-            {
-                ArgumentOutOfRangeException.ThrowIfGreaterThan(length, maximumChildren);
-
-                maximumDepth--;
-
-                if (identifier is Tag.End || length < 1)
                 {
-                    tag = new ListTag([], name);
+                    ArgumentOutOfRangeException.ThrowIfGreaterThan(length, maximumChildren);
+
+                    maximumDepth--;
+
+                    if (identifier is Tag.End || length < 1)
+                    {
+                        tag = new ListTag([], name);
+                        return true;
+                    }
+
+                    var items = ArrayPool<Tag>.Shared.Rent(length);
+
+                    try
+                    {
+                        for (var index = 0; index < length; index++)
+                        {
+                            reader.Nameless = true;
+
+                            if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth, maximumChildren))
+                            {
+                                return false;
+                            }
+
+                            items[index] = temporary;
+                        }
+
+                        tag = new ListTag([.. items.AsSpan(0, length)], name);
+                    }
+                    finally
+                    {
+                        ArrayPool<Tag>.Shared.Return(items, clearArray: true);
+                    }
+
                     return true;
                 }
 
-                var items = ArrayPool<Tag>.Shared.Rent(length);
-
-                try
-                {
-                    for (var index = 0; index < length; index++)
-                    {
-                        reader.Nameless = true;
-
-                        if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth, maximumChildren))
-                        {
-                            return false;
-                        }
-
-                        items[index] = temporary;
-                    }
-
-                    tag = new ListTag([.. items.AsSpan(0, length)], name);
-                }
-                finally
-                {
-                    ArrayPool<Tag>.Shared.Return(items, clearArray: true);
-                }
-
-                return true;
-            }
-
             case Tag.Compound when reader.TryReadCompoundTag(out var name):
-            {
-                maximumDepth--;
-
-                var items = ArrayPool<Tag>.Shared.Rent(maximumChildren);
-                var index = 0;
-
-                try
                 {
-                    while (true)
+                    maximumDepth--;
+
+                    var items = ArrayPool<Tag>.Shared.Rent(maximumChildren);
+                    var index = 0;
+
+                    try
                     {
-                        if (!reader.TryPeek(out var identifier))
+                        while (true)
+                        {
+                            if (!reader.TryPeek(out var identifier))
+                            {
+                                return false;
+                            }
+
+                            if (identifier is Tag.End)
+                            {
+                                break;
+                            }
+
+                            reader.Nameless = false;
+
+                            if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth, maximumChildren))
+                            {
+                                return false;
+                            }
+
+                            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, maximumChildren);
+
+                            items[index++] = temporary;
+                        }
+
+                        if (!reader.TryReadEndTag())
                         {
                             return false;
                         }
 
-                        if (identifier is Tag.End)
-                        {
-                            break;
-                        }
-
-                        reader.Nameless = false;
-
-                        if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth, maximumChildren))
-                        {
-                            return false;
-                        }
-
-                        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, maximumChildren);
-
-                        items[index++] = temporary;
+                        tag = new CompoundTag([.. items.AsSpan(0, index)], name);
                     }
-
-                    if (!reader.TryReadEndTag())
+                    finally
                     {
-                        return false;
+                        ArrayPool<Tag>.Shared.Return(items, clearArray: true);
                     }
 
-                    tag = new CompoundTag([.. items.AsSpan(0, index)], name);
+                    return true;
                 }
-                finally
-                {
-                    ArrayPool<Tag>.Shared.Return(items, clearArray: true);
-                }
-
-                return true;
-            }
 
             case Tag.Bytes when reader.TryReadBytesTag(out var value, out var name):
                 tag = new BytesTag([.. value], name);
@@ -244,45 +244,45 @@ public static class TagSerializer
                 break;
 
             case ListTag current:
-            {
-                ArgumentOutOfRangeException.ThrowIfGreaterThan(current.Value.Length, maximumChildren);
-
-                maximumDepth--;
-
-                if (current.Value.Length < 1)
                 {
-                    writer.WriteListTag(Tag.End, 0, current.Name);
-                    return;
+                    ArgumentOutOfRangeException.ThrowIfGreaterThan(current.Value.Length, maximumChildren);
+
+                    maximumDepth--;
+
+                    if (current.Value.Length < 1)
+                    {
+                        writer.WriteListTag(Tag.End, 0, current.Name);
+                        return;
+                    }
+
+                    writer.WriteListTag(current.Value[0].Identifier, current.Value.Length, current.Name);
+
+                    foreach (var item in current.Value)
+                    {
+                        writer.Nameless = true;
+                        Write(ref writer, item, maximumDepth, maximumChildren);
+                    }
+
+                    break;
                 }
-
-                writer.WriteListTag(current.Value[0].Identifier, current.Value.Length, current.Name);
-
-                foreach (var item in current.Value)
-                {
-                    writer.Nameless = true;
-                    Write(ref writer, item, maximumDepth, maximumChildren);
-                }
-
-                break;
-            }
 
             case CompoundTag current:
-            {
-                ArgumentOutOfRangeException.ThrowIfGreaterThan(current.Value.Length, maximumChildren);
-
-                maximumDepth--;
-
-                writer.WriteCompoundTag(current.Name);
-
-                foreach (var item in current.Value)
                 {
-                    writer.Nameless = false;
-                    Write(ref writer, item, maximumDepth, maximumChildren);
-                }
+                    ArgumentOutOfRangeException.ThrowIfGreaterThan(current.Value.Length, maximumChildren);
 
-                writer.WriteEndTag();
-                break;
-            }
+                    maximumDepth--;
+
+                    writer.WriteCompoundTag(current.Name);
+
+                    foreach (var item in current.Value)
+                    {
+                        writer.Nameless = false;
+                        Write(ref writer, item, maximumDepth, maximumChildren);
+                    }
+
+                    writer.WriteEndTag();
+                    break;
+                }
 
             case BytesTag current:
                 writer.WriteBytesTag(current.Value.AsSpan(), current.Name);

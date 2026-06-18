@@ -13,6 +13,14 @@ public readonly record struct TagSerializerOptions()
     public bool Network { get; init; } = false;
 
     /// <summary>
+    /// Whether to use variable-length encoding.
+    /// </summary>
+    /// <remarks>
+    /// Bedrock edition uses this alongside with little endian buffers.
+    /// </remarks>
+    public bool VariableLength { get; init; } = false;
+
+    /// <summary>
     /// Whether to serialize/parse as little-endian (<c>true</c>) or big-endian (<c>false</c>).
     /// </summary>
     public bool LittleEndian { get; init; } = false;
