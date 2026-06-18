@@ -95,7 +95,7 @@ public sealed class CompoundTagBuilder
         return this;
     }
 
-    public CompoundTagBuilder AddList(ListTag? value, string name = "")
+    public CompoundTagBuilder AddList<TTag>(ListTag<TTag>? value, string name = "") where TTag : Tag
     {
         if (value is not null)
         {

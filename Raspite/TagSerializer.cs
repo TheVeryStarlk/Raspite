@@ -114,34 +114,26 @@ public static class TagSerializer
 
                 if (identifier is Tag.End || length < 1)
                 {
-                    tag = new ListTag([], name);
+                    tag = new ListTag<EndTag>([], name);
                     return true;
                 }
 
-                var items = ArrayPool<Tag>.Shared.Rent(length);
-
-                try
+                return identifier switch
                 {
-                    for (var index = 0; index < length; index++)
-                    {
-                        reader.Nameless = true;
-
-                        if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth, maximumChildren))
-                        {
-                            return false;
-                        }
-
-                        items[index] = temporary;
-                    }
-
-                    tag = new ListTag([.. items.AsSpan(0, length)], name);
-                }
-                finally
-                {
-                    ArrayPool<Tag>.Shared.Return(items, clearArray: true);
-                }
-
-                return true;
+                    Tag.Byte => TryReadGenericList<ByteTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Short => TryReadGenericList<ShortTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Integer => TryReadGenericList<IntegerTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Long => TryReadGenericList<LongTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Float => TryReadGenericList<FloatTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Double => TryReadGenericList<DoubleTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Bytes => TryReadGenericList<BytesTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.String => TryReadGenericList<StringTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.List => TryReadGenericList<Tag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag), // TODO: Rethink usage of Tag
+                    Tag.Compound => TryReadGenericList<CompoundTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Integers => TryReadGenericList<IntegersTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Longs => TryReadGenericList<LongsTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    _ => false
+                };
             }
 
             case Tag.Compound when reader.TryReadCompoundTag(out var name):
@@ -208,6 +200,34 @@ public static class TagSerializer
                 return false;
         }
     }
+    
+    private static bool TryReadGenericList<TTag>(ref TagReader reader, byte identifier, int length, string name, int maximumDepth, int maximumChildren, out Tag tag) where TTag : Tag
+    {
+        var items = ArrayPool<TTag>.Shared.Rent(length);
+
+        try
+        {
+            for (var index = 0; index < length; index++)
+            {
+                reader.Nameless = true;
+
+                if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth, maximumChildren) || temporary is not TTag typedTag)
+                {
+                    tag = EndTag.Instance;
+                    return false;
+                }
+
+                items[index] = typedTag;
+            }
+
+            tag = new ListTag<TTag>([.. items.AsSpan(0, length)], name);
+            return true;
+        }
+        finally
+        {
+            ArrayPool<TTag>.Shared.Return(items, clearArray: true);
+        }
+    }
 
     private static void Write(ref TagWriter writer, Tag tag, int maximumDepth, int maximumChildren)
     {
@@ -243,21 +263,15 @@ public static class TagSerializer
                 writer.WriteStringTag(current.Value, current.Name);
                 break;
 
-            case ListTag current:
+            case IListTag current:
             {
-                ArgumentOutOfRangeException.ThrowIfGreaterThan(current.Value.Length, maximumChildren);
+                ArgumentOutOfRangeException.ThrowIfGreaterThan(current.Length, maximumChildren);
 
                 maximumDepth--;
 
-                if (current.Value.Length < 1)
-                {
-                    writer.WriteListTag(Tag.End, 0, current.Name);
-                    return;
-                }
+                writer.WriteListTag(current.ElementIdentifier, current.Length, current.Name);
 
-                writer.WriteListTag(current.Value[0].Identifier, current.Value.Length, current.Name);
-
-                foreach (var item in current.Value)
+                foreach (var item in current.Elements)
                 {
                     writer.Nameless = true;
                     Write(ref writer, item, maximumDepth, maximumChildren);
