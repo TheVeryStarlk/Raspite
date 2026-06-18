@@ -10,7 +10,7 @@ public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
 
     public Tag this[string name] => cache[name];
 
-    public int Count => cache.Count;
+    public int Length => Value.Length;
 
     public ImmutableArray<string> Keys => cache.Keys;
 
@@ -36,6 +36,16 @@ public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
         return cache.GetValueOrDefault(name) as TTag;
     }
 
+    public T? GetValueOrDefault<T>(string name)
+    {
+        if (cache.GetValueOrDefault(name) is Tag<T> tag)
+        {
+            return tag.Value;
+        }
+
+        return default;
+    }
+
     public bool TryGet<TTag>(string name, [NotNullWhen(true)] out TTag? tag) where TTag : Tag
     {
         if (cache.TryGetValue(name, out var rawTag) && rawTag is TTag typedTag)
@@ -48,7 +58,19 @@ public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
         return false;
     }
 
-    public bool Contains(string name)
+    public bool TryGetValue<T>(string name, [NotNullWhen(true)] out T? value)
+    {
+        if (cache.TryGetValue(name, out var rawTag) && rawTag is Tag<T> typedTag)
+        {
+            value = typedTag.Value;
+            return value is not null;
+        }
+
+        value = default;
+        return false;
+    }
+
+    public bool ContainsKey(string name)
     {
         return cache.ContainsKey(name);
     }

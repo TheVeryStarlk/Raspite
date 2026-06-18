@@ -1,8 +1,8 @@
 namespace Raspite.Tags.Building;
 
-public sealed class ListTagBuilder<T> where T : Tag
+public sealed class ListTagBuilder<TTag> where TTag : Tag
 {
-    private readonly List<T> tags = [];
+    private readonly List<TTag> tags = [];
     private readonly string parentName;
 
     private ListTagBuilder(string name)
@@ -10,12 +10,12 @@ public sealed class ListTagBuilder<T> where T : Tag
         parentName = name;
     }
 
-    public static ListTagBuilder<T> Create(string name = "")
+    public static ListTagBuilder<TTag> Create(string name = "")
     {
-        return new ListTagBuilder<T>(name);
+        return new ListTagBuilder<TTag>(name);
     }
 
-    internal void Add(T tag)
+    internal void Add(TTag tag)
     {
         tags.Add(tag);
     }

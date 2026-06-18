@@ -138,7 +138,7 @@ public static class TagSerializer
                 }
                 finally
                 {
-                    ArrayPool<Tag>.Shared.Return(items);
+                    ArrayPool<Tag>.Shared.Return(items, clearArray: true);
                 }
 
                 return true;
@@ -186,7 +186,7 @@ public static class TagSerializer
                 }
                 finally
                 {
-                    ArrayPool<Tag>.Shared.Return(items);
+                    ArrayPool<Tag>.Shared.Return(items, clearArray: true);
                 }
 
                 return true;
