@@ -158,3 +158,206 @@ public static class ListTagBuilderExtensions
         return builder;
     }
 }
+
+public static class ListTagBuilderRangeExtensions
+{
+    public static ListTagBuilder<ByteTag> AddByteRange(this ListTagBuilder<ByteTag> builder, params ReadOnlySpan<byte?> range)
+    {
+        foreach (byte? value in range)
+        {
+            builder.AddByte(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<ByteTag> AddByteRange(this ListTagBuilder<ByteTag> builder, params ReadOnlySpan<byte> range)
+    {
+        foreach (byte value in range)
+        {
+            builder.AddByte(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<ByteTag> AddBooleanRange(this ListTagBuilder<ByteTag> builder, params ReadOnlySpan<bool?> range)
+    {
+        foreach (bool? value in range)
+        {
+            builder.AddBoolean(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<ByteTag> AddBooleanRange(this ListTagBuilder<ByteTag> builder, params ReadOnlySpan<bool> range)
+    {
+        foreach (bool value in range)
+        {
+            builder.AddBoolean(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<ShortTag> AddShortRange(this ListTagBuilder<ShortTag> builder, params ReadOnlySpan<short?> range)
+    {
+        foreach (short? value in range)
+        {
+            builder.AddShort(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<ShortTag> AddShortRange(this ListTagBuilder<ShortTag> builder, params ReadOnlySpan<short> range)
+    {
+        foreach (short value in range)
+        {
+            builder.AddShort(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<IntegerTag> AddIntegerRange(this ListTagBuilder<IntegerTag> builder, params ReadOnlySpan<int?> range)
+    {
+        foreach (int? value in range)
+        {
+            builder.AddInteger(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<IntegerTag> AddIntegerRange(this ListTagBuilder<IntegerTag> builder, params ReadOnlySpan<int> range)
+    {
+        foreach (int value in range)
+        {
+            builder.AddInteger(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<LongTag> AddLongRange(this ListTagBuilder<LongTag> builder, params ReadOnlySpan<long?> range)
+    {
+        foreach (long? value in range)
+        {
+            builder.AddLong(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<LongTag> AddLongRange(this ListTagBuilder<LongTag> builder, params ReadOnlySpan<long> range)
+    {
+        foreach (long value in range)
+        {
+            builder.AddLong(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<FloatTag> AddFloatRange(this ListTagBuilder<FloatTag> builder, params ReadOnlySpan<float?> range)
+    {
+        foreach (float? value in range)
+        {
+            builder.AddFloat(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<FloatTag> AddFloatRange(this ListTagBuilder<FloatTag> builder, params ReadOnlySpan<float> range)
+    {
+        foreach (float value in range)
+        {
+            builder.AddFloat(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<DoubleTag> AddDoubleRange(this ListTagBuilder<DoubleTag> builder, params ReadOnlySpan<double?> range)
+    {
+        foreach (double? value in range)
+        {
+            builder.AddDouble(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<DoubleTag> AddDoubleRange(this ListTagBuilder<DoubleTag> builder, params ReadOnlySpan<double> range)
+    {
+        foreach (double value in range)
+        {
+            builder.AddDouble(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<StringTag> AddStringRange(this ListTagBuilder<StringTag> builder, params ReadOnlySpan<string?> range)
+    {
+        foreach (string? value in range)
+        {
+            builder.AddString(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<CompoundTag> AddCompoundRange(this ListTagBuilder<CompoundTag> builder, params ReadOnlySpan<CompoundTag?> range)
+    {
+        foreach (CompoundTag? value in range)
+        {
+            builder.AddCompound(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<ListTag> AddListRange(this ListTagBuilder<ListTag> builder, params ReadOnlySpan<ListTag?> range)
+    {
+        foreach (ListTag? value in range)
+        {
+            builder.AddList(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<BytesTag> AddBytesRange(this ListTagBuilder<BytesTag> builder, params ReadOnlySpan<byte[]?> range)
+    {
+        foreach (byte[]? value in range)
+        {
+            builder.AddBytes(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<IntegersTag> AddIntegersRange(this ListTagBuilder<IntegersTag> builder, params ReadOnlySpan<int[]?> range)
+    {
+        foreach (int[]? value in range)
+        {
+            builder.AddIntegers(value);
+        }
+
+        return builder;
+    }
+
+    public static ListTagBuilder<LongsTag> AddLongsRange(this ListTagBuilder<LongsTag> builder, params ReadOnlySpan<long[]?> range)
+    {
+        foreach (long[]? value in range)
+        {
+            builder.AddLongs(value);
+        }
+
+        return builder;
+    }
+}
