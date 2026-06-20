@@ -20,9 +20,9 @@ public sealed class ListTagBuilder<TTag> where TTag : Tag
         tags.Add(tag);
     }
 
-    public ListTag<TTag> Build()
+    public ListTag Build()
     {
-        return new ListTag<TTag>([.. tags], parentName);
+        return new ListTag([.. tags], parentName);
     }
 }
 
@@ -118,7 +118,7 @@ public static class ListTagBuilderExtensions
         return builder;
     }
 
-    public static ListTagBuilder<ListTag<TTag>> AddList<TTag>(this ListTagBuilder<ListTag<TTag>> builder, ListTag<TTag>? value) where TTag : Tag
+    public static ListTagBuilder<ListTag> AddList(this ListTagBuilder<ListTag> builder, ListTag? value)
     {
         if (value is not null)
         {
