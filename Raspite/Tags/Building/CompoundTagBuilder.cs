@@ -145,6 +145,126 @@ public sealed class CompoundTagBuilder
         return this;
     }
 
+    public CompoundTagBuilder AddByteList(ReadOnlySpan<byte?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<ByteTag>.Create(name).AddByteRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddByteList(ReadOnlySpan<byte> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<ByteTag>.Create(name).AddByteRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddBooleanList(ReadOnlySpan<bool?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<ByteTag>.Create(name).AddBooleanRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddBooleanList(ReadOnlySpan<bool> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<ByteTag>.Create(name).AddBooleanRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddShortList(ReadOnlySpan<short?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<ShortTag>.Create(name).AddShortRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddShortList(ReadOnlySpan<short> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<ShortTag>.Create(name).AddShortRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddIntegerList(ReadOnlySpan<int?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<IntegerTag>.Create(name).AddIntegerRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddIntegerList(ReadOnlySpan<int> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<IntegerTag>.Create(name).AddIntegerRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddLongList(ReadOnlySpan<long?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<LongTag>.Create(name).AddLongRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddLongList(ReadOnlySpan<long> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<LongTag>.Create(name).AddLongRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddFloatList(ReadOnlySpan<float?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<FloatTag>.Create(name).AddFloatRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddFloatList(ReadOnlySpan<float> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<FloatTag>.Create(name).AddFloatRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddDoubleList(ReadOnlySpan<double> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<DoubleTag>.Create(name).AddDoubleRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddDoubleList(ReadOnlySpan<double?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<DoubleTag>.Create(name).AddDoubleRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddStringList(ReadOnlySpan<string?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<StringTag>.Create(name).AddStringRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddCompoundList(ReadOnlySpan<CompoundTag?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<CompoundTag>.Create(name).AddCompoundRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddListList(ReadOnlySpan<ListTag?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<ListTag>.Create(name).AddListRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddBytesList(ReadOnlySpan<byte[]?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<BytesTag>.Create(name).AddBytesRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddIntegersList(ReadOnlySpan<int[]?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<IntegersTag>.Create(name).AddIntegersRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder AddLongsList(ReadOnlySpan<long[]?> values, string name = "")
+    {
+        tags.Add(ListTagBuilder<LongsTag>.Create(name).AddLongsRange(values).Build());
+        return this;
+    }
+
     public CompoundTag Build()
     {
         return new CompoundTag([.. tags], parentName);
