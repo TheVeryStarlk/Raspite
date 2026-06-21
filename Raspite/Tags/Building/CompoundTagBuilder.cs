@@ -2,17 +2,18 @@ namespace Raspite.Tags.Building;
 
 public sealed class CompoundTagBuilder
 {
-    private readonly List<Tag> tags = [];
+    private readonly List<Tag> tags;
     private readonly string parentName;
 
-    private CompoundTagBuilder(string tag)
+    internal CompoundTagBuilder(List<Tag> initialTags, string name)
     {
-        parentName = tag;
+        tags = initialTags;
+        parentName = name;
     }
 
     public static CompoundTagBuilder Create(string name = "")
     {
-        return new CompoundTagBuilder(name);
+        return new CompoundTagBuilder([], name);
     }
 
     public CompoundTagBuilder AddByte(byte? value, string name = "")
@@ -262,6 +263,18 @@ public sealed class CompoundTagBuilder
     public CompoundTagBuilder AddLongsList(ReadOnlySpan<long[]?> values, string name = "")
     {
         tags.Add(ListTagBuilder<LongsTag>.Create(name).AddLongsRange(values).Build());
+        return this;
+    }
+
+    public CompoundTagBuilder Remove(string name)
+    {
+        tags.RemoveAll(tag => tag.Name == name);
+        return this;
+    }
+
+    public CompoundTagBuilder RemoveAll(Predicate<Tag> predicate)
+    {
+        tags.RemoveAll(predicate);
         return this;
     }
 
