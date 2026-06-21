@@ -1,5 +1,7 @@
 ﻿using System.Collections.Immutable;
 
+using Raspite.Tags.Building;
+
 namespace Raspite.Tags;
 
 public interface IListTag
@@ -26,4 +28,19 @@ public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") 
     public int Length { get; } = value.Length;
 
     public ImmutableArray<Tag> Elements { get; } = value.CastArray<Tag>();
+
+    /// <summary>
+    /// Converts this tag to a builder containing all the values this tag contained.
+    /// It is the inverse operation of <code>ListTagBuilder{TTag}.Build()</code>
+    /// </summary>
+    /// <param name="name">
+    /// The name of the tag about to be built.
+    /// Can be used for renaming it.
+    /// <code>null</code> to leave the name as it was.
+    /// </param>
+    /// <returns></returns>
+    public ListTagBuilder<TTag> ToBuilder(string? name = null)
+    {
+        return new ListTagBuilder<TTag>([.. Value], name ?? Name);
+    }
 }
