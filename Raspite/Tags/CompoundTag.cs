@@ -2,6 +2,8 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
+using Raspite.Tags.Building;
+
 namespace Raspite.Tags;
 
 public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
@@ -73,5 +75,20 @@ public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
     public bool ContainsKey(string name)
     {
         return cache.ContainsKey(name);
+    }
+
+    /// <summary>
+    /// Converts this tag to a builder containing all the values this tag contained.
+    /// It is the inverse operation of <code>CompoundTagBuilder.Build()</code>
+    /// </summary>
+    /// <param name="name">
+    /// The name of the tag about to be built.
+    /// Can be used for renaming it.
+    /// <code>null</code> to leave the name as it was.
+    /// </param>
+    /// <returns></returns>
+    public CompoundTagBuilder ToBuilder(string? name = null)
+    {
+        return new CompoundTagBuilder([.. Value], name ?? Name);
     }
 }

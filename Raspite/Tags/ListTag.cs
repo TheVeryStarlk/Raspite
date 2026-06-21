@@ -21,7 +21,7 @@ public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") 
 
     public byte ElementIdentifier { get; } = value.Length > 0 ? value[0].Identifier : End;
 
-    public TTag this[int index] => Value[index];
+    public Tag this[int index] => Value[index];
 
     public int Length { get; } = value.Length;
 
