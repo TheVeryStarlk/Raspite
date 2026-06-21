@@ -2,22 +2,35 @@ namespace Raspite.Tags.Building;
 
 public sealed class ListTagBuilder<TTag> where TTag : Tag
 {
-    private readonly List<TTag> tags = [];
+    private readonly List<TTag> tags;
     private readonly string parentName;
 
-    private ListTagBuilder(string name)
+    private ListTagBuilder(List<TTag> initalTags, string name)
     {
+        tags = initalTags;
         parentName = name;
     }
 
     public static ListTagBuilder<TTag> Create(string name = "")
     {
-        return new ListTagBuilder<TTag>(name);
+        return new ListTagBuilder<TTag>([], name);
     }
 
     internal void Add(TTag tag)
     {
         tags.Add(tag);
+    }
+
+    public ListTagBuilder<TTag> Remove(string name)
+    {
+        tags.RemoveAll(tag => tag.Name == name);
+        return this;
+    }
+
+    public ListTagBuilder<TTag> RemoveAll(Predicate<TTag> predicate)
+    {
+        tags.RemoveAll(predicate);
+        return this;
     }
 
     public ListTag Build()
