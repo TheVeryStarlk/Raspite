@@ -33,9 +33,9 @@ public sealed class ListTagBuilder<TTag> where TTag : Tag
         return this;
     }
 
-    public ListTag Build()
+    public ListTag<TTag> Build()
     {
-        return new ListTag([.. tags], parentName);
+        return new ListTag<TTag>([.. tags], parentName);
     }
 }
 
@@ -131,7 +131,7 @@ public static class ListTagBuilderExtensions
         return builder;
     }
 
-    public static ListTagBuilder<ListTag> AddList(this ListTagBuilder<ListTag> builder, ListTag? value)
+    public static ListTagBuilder<ListTag<TTag>> AddList<TTag>(this ListTagBuilder<ListTag<TTag>> builder, ListTag<TTag>? value) where TTag : Tag
     {
         if (value is not null)
         {
@@ -334,9 +334,9 @@ public static class ListTagBuilderRangeExtensions
         return builder;
     }
 
-    public static ListTagBuilder<ListTag> AddListRange(this ListTagBuilder<ListTag> builder, params ReadOnlySpan<ListTag?> range)
+    public static ListTagBuilder<ListTag<TTag>> AddListRange<TTag>(this ListTagBuilder<ListTag<TTag>> builder, params ReadOnlySpan<ListTag<TTag>?> range) where TTag : Tag
     {
-        foreach (ListTag? value in range)
+        foreach (ListTag<TTag>? value in range)
         {
             builder.AddList(value);
         }

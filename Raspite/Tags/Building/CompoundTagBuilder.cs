@@ -242,9 +242,9 @@ public sealed class CompoundTagBuilder
         return this;
     }
 
-    public CompoundTagBuilder AddListList(ReadOnlySpan<ListTag?> values, string name = "")
+    public CompoundTagBuilder AddListList<TTag>(ReadOnlySpan<ListTag<TTag>?> values, string name = "") where TTag : Tag
     {
-        tags.Add(ListTagBuilder<ListTag>.Create(name).AddListRange(values).Build());
+        tags.Add(ListTagBuilder<ListTag<TTag>>.Create(name).AddListRange(values).Build());
         return this;
     }
 
