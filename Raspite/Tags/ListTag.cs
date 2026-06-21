@@ -40,3 +40,61 @@ public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") 
         return new ListTagBuilder<TTag>([.. Value], name ?? Name);
     }
 }
+
+public static class ListTagExtensions
+{
+    public static byte GetByte(this ListTag<ByteTag> listTag, int index)
+    {
+        return listTag[index].Value; 
+    }
+
+    public static bool GetBoolean(this ListTag<ByteTag> listTag, int index)
+    {
+        return listTag[index].Value != 0; 
+    }
+
+    public static short GetShort(this ListTag<ShortTag> listTag, int index)
+    {
+        return listTag[index].Value; 
+    }
+
+    public static int GetInteger(this ListTag<IntegerTag> listTag, int index)
+    {
+        return listTag[index].Value; 
+    }
+
+    public static long GetLong(this ListTag<LongTag> listTag, int index)
+    {
+        return listTag[index].Value; 
+    }
+
+    public static float GetFloat(this ListTag<FloatTag> listTag, int index)
+    {
+        return listTag[index].Value; 
+    }
+
+    public static double GetDouble(this ListTag<DoubleTag> listTag, int index)
+    {
+        return listTag[index].Value; 
+    }
+
+    public static string GetString(this ListTag<StringTag> listTag, int index)
+    {
+        return listTag[index].Value; 
+    }
+
+    public static ImmutableArray<byte> GetBytes(this ListTag<BytesTag> listTag, int index)
+    {
+        return listTag[index].Value; 
+    }
+
+    public static ImmutableArray<int> GetIntegers(this ListTag<IntegersTag> listTag, int index)
+    {
+        return listTag[index].Value; 
+    }
+
+    public static ImmutableArray<long> GetLongs(this ListTag<LongsTag> listTag, int index)
+    {
+        return listTag[index].Value; 
+    }
+}
