@@ -5,7 +5,7 @@ public sealed class ListTagBuilder<TTag> where TTag : Tag
     private readonly List<TTag> tags;
     private readonly string parentName;
 
-    private ListTagBuilder(List<TTag> initalTags, string name)
+    internal ListTagBuilder(List<TTag> initalTags, string name)
     {
         tags = initalTags;
         parentName = name;
