@@ -41,18 +41,19 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build --configuration Release --no-restore
 
       - name: Pack
         run: |
           dotnet pack \
             --configuration Release \
             --no-build \
+            -o ./artifacts \
             -p:PackageVersion="${{ inputs.version }}" \
             -p:PackageReleaseNotes="${{ inputs.release_notes }}"
 
       - name: Push to NuGet
-        run: dotnet nuget push *.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
 
       - name: Push to GitHub
-        run: dotnet nuget push *.nupkg --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet nuget push ./artifacts/*.nupkg --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
