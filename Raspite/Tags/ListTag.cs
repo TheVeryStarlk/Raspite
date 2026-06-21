@@ -4,12 +4,8 @@ using Raspite.Tags.Building;
 
 namespace Raspite.Tags;
 
-public interface IListTag
+public interface IListTag : ITag
 {
-    string Name { get; }
-
-    byte Identifier { get; }
-
     byte ElementIdentifier { get; }
 
     int Length { get; }
@@ -17,13 +13,13 @@ public interface IListTag
     ImmutableArray<Tag> Elements { get; }
 }
 
-public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") : Tag<ImmutableArray<TTag>>(value, name), IListTag where TTag : Tag
+public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") : Tag<ImmutableArray<TTag>>(value, name), IListTag where TTag : ITag
 {
     public override byte Identifier => List;
 
     public byte ElementIdentifier { get; } = value.Length > 0 ? value[0].Identifier : End;
 
-    public Tag this[int index] => Value[index];
+    public TTag this[int index] => Value[index];
 
     public int Length { get; } = value.Length;
 

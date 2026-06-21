@@ -201,7 +201,7 @@ public static class TagSerializer
         }
     }
     
-    private static bool TryReadGenericList<TTag>(ref TagReader reader, byte identifier, int length, string name, int maximumDepth, int maximumChildren, out Tag tag) where TTag : Tag
+    private static bool TryReadGenericList<TTag>(ref TagReader reader, byte identifier, int length, string name, int maximumDepth, int maximumChildren, out Tag tag) where TTag : ITag
     {
         var items = ArrayPool<TTag>.Shared.Rent(length);
 

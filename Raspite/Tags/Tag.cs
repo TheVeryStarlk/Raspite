@@ -2,8 +2,15 @@
 
 namespace Raspite.Tags;
 
+public interface ITag
+{
+    byte Identifier { get; }
+
+    string Name { get; }
+}
+
 [DebuggerDisplay("{Name}")]
-public abstract class Tag(string name = "")
+public abstract class Tag(string name = "") : ITag
 {
     public abstract byte Identifier { get; }
 

@@ -96,7 +96,7 @@ public sealed class CompoundTagBuilder
         return this;
     }
 
-    public CompoundTagBuilder AddList<TTag>(ListTag<TTag>? value, string name = "") where TTag : Tag
+    public CompoundTagBuilder AddList<TTag>(ListTag<TTag>? value, string name = "") where TTag : ITag
     {
         if (value is not null)
         {
@@ -242,7 +242,7 @@ public sealed class CompoundTagBuilder
         return this;
     }
 
-    public CompoundTagBuilder AddListList<TTag>(ReadOnlySpan<ListTag<TTag>?> values, string name = "") where TTag : Tag
+    public CompoundTagBuilder AddListList<TTag>(ReadOnlySpan<ListTag<TTag>?> values, string name = "") where TTag : ITag
     {
         tags.Add(ListTagBuilder<ListTag<TTag>>.Create(name).AddListRange(values).Build());
         return this;

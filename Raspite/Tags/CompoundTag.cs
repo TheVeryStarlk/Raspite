@@ -63,7 +63,7 @@ public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
         return (cache[name] as StringTag)?.Value; 
     }
 
-    public ListTag<TTag>? GetList<TTag>(string name) where TTag : Tag
+    public ListTag<TTag>? GetList<TTag>(string name) where TTag : ITag
     {
         var tag = cache[name];
 
