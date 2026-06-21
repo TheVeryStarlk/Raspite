@@ -21,9 +21,9 @@ public sealed class ListTagBuilder<TTag> where TTag : ITag
         tags.Add(tag);
     }
 
-    public ListTagBuilder<TTag> Remove(string name)
+    public ListTagBuilder<TTag> RemoveAt(int index)
     {
-        tags.RemoveAll(tag => tag.Name == name);
+        tags.RemoveAt(index);
         return this;
     }
 
