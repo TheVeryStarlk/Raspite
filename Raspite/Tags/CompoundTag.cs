@@ -1,6 +1,5 @@
 ﻿using System.Collections.Frozen;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 
 using Raspite.Tags.Building;
 
@@ -23,53 +22,77 @@ public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
         cache = value.ToFrozenDictionary(tag => tag.Name);
     }
 
-    public TTag Get<TTag>(string name) where TTag : Tag
+    public byte? GetByte(string name)
     {
-        return (TTag) cache[name];
+        return (cache[name] as ByteTag)?.Value; 
     }
 
-    public T GetValue<T>(string name)
+    public bool? GetBoolean(string name)
     {
-        return ((Tag<T>) cache[name]).Value;
+        var value = (cache[name] as ByteTag)?.Value;
+        return value is null ? null : value != 0; 
     }
 
-    public TTag? GetOrDefault<TTag>(string name) where TTag : Tag
+    public short? GetShort(string name)
     {
-        return cache.GetValueOrDefault(name) as TTag;
+        return (cache[name] as ShortTag)?.Value; 
     }
 
-    public T? GetValueOrDefault<T>(string name)
+    public int? GetInteger(string name)
     {
-        if (cache.GetValueOrDefault(name) is Tag<T> tag)
+        return (cache[name] as IntegerTag)?.Value; 
+    }
+
+    public long? GetLong(string name)
+    {
+        return (cache[name] as LongTag)?.Value; 
+    }
+
+    public float? GetFloat(string name)
+    {
+        return (cache[name] as FloatTag)?.Value; 
+    }
+
+    public double? GetDouble(string name)
+    {
+        return (cache[name] as DoubleTag)?.Value; 
+    }
+
+    public string? GetString(string name)
+    {
+        return (cache[name] as StringTag)?.Value; 
+    }
+
+    public ListTag<TTag>? GetList<TTag>(string name) where TTag : Tag
+    {
+        var tag = cache[name];
+
+        return tag switch
         {
-            return tag.Value;
-        }
-
-        return default;
+            ListTag<TTag> typedListTag => typedListTag,
+            IListTag { Length: 0 } listTag => new ListTag<TTag>([], listTag.Name),
+            _ => null,
+        };
     }
 
-    public bool TryGet<TTag>(string name, [NotNullWhen(true)] out TTag? tag) where TTag : Tag
+    public CompoundTag? GetCompound(string name)
     {
-        if (cache.TryGetValue(name, out var rawTag) && rawTag is TTag typedTag)
-        {
-            tag = typedTag;
-            return true;
-        }
-
-        tag = null;
-        return false;
+        return cache[name] as CompoundTag; 
     }
 
-    public bool TryGetValue<T>(string name, [NotNullWhen(true)] out T? value)
+    public ImmutableArray<byte>? GetBytes(string name)
     {
-        if (cache.TryGetValue(name, out var rawTag) && rawTag is Tag<T> typedTag)
-        {
-            value = typedTag.Value;
-            return value is not null;
-        }
+        return (cache[name] as BytesTag)?.Value; 
+    }
 
-        value = default;
-        return false;
+    public ImmutableArray<int>? GetIntegers(string name)
+    {
+        return (cache[name] as IntegersTag)?.Value; 
+    }
+
+    public ImmutableArray<long>? GetLongs(string name)
+    {
+        return (cache[name] as LongsTag)?.Value; 
     }
 
     public bool ContainsKey(string name)
