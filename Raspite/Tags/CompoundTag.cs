@@ -70,7 +70,7 @@ public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
         return tag switch
         {
             ListTag<TTag> typedListTag => typedListTag,
-            IListTag { Length: 0 } listTag => new ListTag<TTag>([], listTag.Name),
+            ListTag<EndTag> emptyListTag => new ListTag<TTag>([], emptyListTag.Name),
             _ => null,
         };
     }
