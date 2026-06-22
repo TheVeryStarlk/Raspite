@@ -88,7 +88,7 @@ public static class CompoundTagExtensions
             return (compoundTag[name] as StringTag)?.Value; 
         }
 
-        public ListTag<TTag>? GetList<TTag>(string name) where TTag : ITag
+        public ListTag<TTag>? GetList<TTag>(string name) where TTag : class, ITag
         {
             var tag = compoundTag[name];
 
