@@ -16,7 +16,7 @@ public sealed class ListTagBuilder<TTag> where TTag : ITag
         return new ListTagBuilder<TTag>([], name);
     }
 
-    internal void Add(TTag tag)
+    public void Add(TTag tag)
     {
         tags.Add(tag);
     }

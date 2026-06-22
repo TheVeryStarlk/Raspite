@@ -16,7 +16,7 @@ public sealed class CompoundTagBuilder
         return new CompoundTagBuilder([], name);
     }
 
-    internal void Add(ITag tag)
+    public void Add(ITag tag)
     {
         tags.Add(tag);
     }
