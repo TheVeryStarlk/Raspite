@@ -6,8 +6,6 @@ namespace Raspite.Tags;
 
 public interface IListTag : ITag
 {
-    byte ElementIdentifier { get; }
-
     int Length { get; }
 
     ImmutableArray<Tag> Elements { get; }
@@ -16,8 +14,6 @@ public interface IListTag : ITag
 public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") : Tag<ImmutableArray<TTag>>(value, name), IListTag where TTag : ITag
 {
     public override byte Identifier => List;
-
-    public byte ElementIdentifier { get; } = value.Length > 0 ? value[0].Identifier : End;
 
     public TTag this[int index] => Value[index];
 

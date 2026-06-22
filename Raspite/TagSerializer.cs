@@ -270,7 +270,13 @@ public static class TagSerializer
 
                 maximumDepth--;
 
-                writer.WriteListTag(current.ElementIdentifier, current.Length, current.Name);
+                if (current.Length < 1)
+                {
+                    writer.WriteListTag(Tag.End, 0, current.Name);
+                    return;
+                }
+
+                writer.WriteListTag(current.Elements[0].Identifier, current.Length, current.Name);
 
                 foreach (var item in current.Elements)
                 {
