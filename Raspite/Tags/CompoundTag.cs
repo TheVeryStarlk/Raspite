@@ -1,75 +1,25 @@
 ﻿using System.Collections.Frozen;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 
 using Raspite.Tags.Building;
 
 namespace Raspite.Tags;
 
-public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
+public sealed class CompoundTag : Tag<ImmutableArray<ITag>>
 {
     public override byte Identifier => Compound;
 
-    public Tag this[string name] => cache[name];
+    public ITag this[string name] => cache[name];
 
     public int Length => Value.Length;
 
     public ImmutableArray<string> Keys => cache.Keys;
 
-    private readonly FrozenDictionary<string, Tag> cache;
+    private readonly FrozenDictionary<string, ITag> cache;
 
-    public CompoundTag(ImmutableArray<Tag> value, string name = "") : base(value, name)
+    public CompoundTag(ImmutableArray<ITag> value, string name = "") : base(value, name)
     {
         cache = value.ToFrozenDictionary(tag => tag.Name);
-    }
-
-    public TTag Get<TTag>(string name) where TTag : Tag
-    {
-        return (TTag) cache[name];
-    }
-
-    public T GetValue<T>(string name)
-    {
-        return ((Tag<T>) cache[name]).Value;
-    }
-
-    public TTag? GetOrDefault<TTag>(string name) where TTag : Tag
-    {
-        return cache.GetValueOrDefault(name) as TTag;
-    }
-
-    public T? GetValueOrDefault<T>(string name)
-    {
-        if (cache.GetValueOrDefault(name) is Tag<T> tag)
-        {
-            return tag.Value;
-        }
-
-        return default;
-    }
-
-    public bool TryGet<TTag>(string name, [NotNullWhen(true)] out TTag? tag) where TTag : Tag
-    {
-        if (cache.TryGetValue(name, out var rawTag) && rawTag is TTag typedTag)
-        {
-            tag = typedTag;
-            return true;
-        }
-
-        tag = null;
-        return false;
-    }
-
-    public bool TryGetValue<T>(string name, [NotNullWhen(true)] out T? value)
-    {
-        if (cache.TryGetValue(name, out var rawTag) && rawTag is Tag<T> typedTag)
-        {
-            value = typedTag.Value;
-            return value is not null;
-        }
-
-        value = default;
-        return false;
     }
 
     public bool ContainsKey(string name)
@@ -90,5 +40,84 @@ public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
     public CompoundTagBuilder ToBuilder(string? name = null)
     {
         return new CompoundTagBuilder([.. Value], name ?? Name);
+    }
+}
+
+public static class CompoundTagExtensions
+{
+    extension(CompoundTag compoundTag)
+    {
+        public byte? GetByte(string name)
+        {
+            return (compoundTag[name] as ByteTag)?.Value; 
+        }
+
+        public bool? GetBoolean(string name)
+        {
+            var value = (compoundTag[name] as ByteTag)?.Value;
+            return value is null ? null : value != 0; 
+        }
+
+        public short? GetShort(string name)
+        {
+            return (compoundTag[name] as ShortTag)?.Value; 
+        }
+
+        public int? GetInteger(string name)
+        {
+            return (compoundTag[name] as IntegerTag)?.Value; 
+        }
+
+        public long? GetLong(string name)
+        {
+            return (compoundTag[name] as LongTag)?.Value; 
+        }
+
+        public float? GetFloat(string name)
+        {
+            return (compoundTag[name] as FloatTag)?.Value; 
+        }
+
+        public double? GetDouble(string name)
+        {
+            return (compoundTag[name] as DoubleTag)?.Value; 
+        }
+
+        public string? GetString(string name)
+        {
+            return (compoundTag[name] as StringTag)?.Value; 
+        }
+
+        public ListTag<TTag>? GetList<TTag>(string name) where TTag : ITag
+        {
+            var tag = compoundTag[name];
+
+            return tag switch
+            {
+                ListTag<TTag> typedListTag => typedListTag,
+                ListTag<EndTag> emptyListTag => new ListTag<TTag>([], emptyListTag.Name),
+                _ => null,
+            };
+        }
+
+        public CompoundTag? GetCompound(string name)
+        {
+            return compoundTag[name] as CompoundTag; 
+        }
+
+        public ImmutableArray<byte>? GetBytes(string name)
+        {
+            return (compoundTag[name] as BytesTag)?.Value; 
+        }
+
+        public ImmutableArray<int>? GetIntegers(string name)
+        {
+            return (compoundTag[name] as IntegersTag)?.Value; 
+        }
+
+        public ImmutableArray<long>? GetLongs(string name)
+        {
+            return (compoundTag[name] as LongsTag)?.Value; 
+        }
     }
 }

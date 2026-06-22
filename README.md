@@ -38,7 +38,7 @@ var success = TagSerializer.TryParse<CompoundTag>(source, out var tag);
 However, for streaming scenarios it can be easily used like in the example below.
 
 ```cs
-async ValueTask<Tag?> ReadTagAsync(PipeReader reader, CancellationToken cancellationToken)
+async ValueTask<ITag?> ReadTagAsync(PipeReader reader, CancellationToken cancellationToken)
 {
     while (true)
     {

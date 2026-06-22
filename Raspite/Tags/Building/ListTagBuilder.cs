@@ -1,6 +1,6 @@
 namespace Raspite.Tags.Building;
 
-public sealed class ListTagBuilder<TTag> where TTag : Tag
+public sealed class ListTagBuilder<TTag> where TTag : ITag
 {
     private readonly List<TTag> tags;
     private readonly string parentName;
@@ -16,14 +16,14 @@ public sealed class ListTagBuilder<TTag> where TTag : Tag
         return new ListTagBuilder<TTag>([], name);
     }
 
-    internal void Add(TTag tag)
+    public void Add(TTag tag)
     {
         tags.Add(tag);
     }
 
-    public ListTagBuilder<TTag> Remove(string name)
+    public ListTagBuilder<TTag> RemoveAt(int index)
     {
-        tags.RemoveAll(tag => tag.Name == name);
+        tags.RemoveAt(index);
         return this;
     }
 
@@ -33,9 +33,9 @@ public sealed class ListTagBuilder<TTag> where TTag : Tag
         return this;
     }
 
-    public ListTag Build()
+    public ListTag<TTag> Build()
     {
-        return new ListTag([.. tags], parentName);
+        return new ListTag<TTag>([.. tags], parentName);
     }
 }
 
@@ -131,7 +131,7 @@ public static class ListTagBuilderExtensions
         return builder;
     }
 
-    public static ListTagBuilder<ListTag> AddList(this ListTagBuilder<ListTag> builder, ListTag? value)
+    public static ListTagBuilder<ListTag<TTag>> AddList<TTag>(this ListTagBuilder<ListTag<TTag>> builder, ListTag<TTag>? value) where TTag : ITag
     {
         if (value is not null)
         {
@@ -334,9 +334,9 @@ public static class ListTagBuilderRangeExtensions
         return builder;
     }
 
-    public static ListTagBuilder<ListTag> AddListRange(this ListTagBuilder<ListTag> builder, params ReadOnlySpan<ListTag?> range)
+    public static ListTagBuilder<ListTag<TTag>> AddListRange<TTag>(this ListTagBuilder<ListTag<TTag>> builder, params ReadOnlySpan<ListTag<TTag>?> range) where TTag : ITag
     {
-        foreach (ListTag? value in range)
+        foreach (ListTag<TTag>? value in range)
         {
             builder.AddList(value);
         }

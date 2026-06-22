@@ -13,7 +13,7 @@ public static class TagSerializer
     /// Attempts to parse the <see cref="ReadOnlySpan{T}"/> as a <see cref="TTag"/>.
     /// </summary>
     /// <param name="buffer">The <see cref="ReadOnlySpan{T}"/> to parse.</param>
-    /// <param name="tag">The parsed <see cref="Tag"/>.</param>
+    /// <param name="tag">The parsed <see cref="ITag"/>.</param>
     /// <param name="options">The <see cref="TagSerializerOptions"/> to use.</param>
     /// <returns><c>true</c> if the <see cref="ReadOnlySpan{T}"/> was parsed successfully; otherwise, <c>false</c>.</returns>
     /// <typeparam name="TTag">The expected <see cref="TTag"/> type.</typeparam>
@@ -37,13 +37,13 @@ public static class TagSerializer
     }
 
     /// <summary>
-    /// Attempts to parse the <see cref="ReadOnlySpan{T}"/> as a <see cref="Tag"/>.
+    /// Attempts to parse the <see cref="ReadOnlySpan{T}"/> as a <see cref="ITag"/>.
     /// </summary>
     /// <param name="buffer">The <see cref="ReadOnlySpan{T}"/> to parse.</param>
-    /// <param name="tag">The parsed <see cref="Tag"/>.</param>
+    /// <param name="tag">The parsed <see cref="ITag"/>.</param>
     /// <param name="options">The <see cref="TagSerializerOptions"/> to use.</param>
     /// <returns><c>true</c> if the <see cref="ReadOnlySpan{T}"/> was parsed successfully; otherwise, <c>false</c>.</returns>
-    public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag, TagSerializerOptions? options = null)
+    public static bool TryParse(ReadOnlySpan<byte> buffer, out ITag tag, TagSerializerOptions? options = null)
     {
         options ??= new TagSerializerOptions();
 
@@ -56,12 +56,12 @@ public static class TagSerializer
     }
 
     /// <summary>
-    /// Serializes the <see cref="Tag"/> to a <see cref="IBufferWriter{T}"/>.
+    /// Serializes the <see cref="ITag"/> to a <see cref="IBufferWriter{T}"/>.
     /// </summary>
     /// <param name="buffer">The <see cref="IBufferWriter{T}"/> to serialize to.</param>
-    /// <param name="tag">The <see cref="Tag"/> to serialize.</param>
+    /// <param name="tag">The <see cref="ITag"/> to serialize.</param>
     /// <param name="options">The <see cref="TagSerializerOptions"/> to use.</param>
-    public static void Serialize(IBufferWriter<byte> buffer, Tag tag, TagSerializerOptions? options = null)
+    public static void Serialize(IBufferWriter<byte> buffer, ITag tag, TagSerializerOptions? options = null)
     {
         options ??= new TagSerializerOptions();
 
@@ -70,7 +70,7 @@ public static class TagSerializer
         Write(ref writer, tag, options.Value.MaximumDepth, options.Value.MaximumChildren);
     }
 
-    private static bool TryInstantiate(ref TagReader reader, out Tag tag, byte parent, int maximumDepth, int maximumChildren)
+    private static bool TryInstantiate(ref TagReader reader, out ITag tag, byte parent, int maximumDepth, int maximumChildren)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
 
@@ -114,41 +114,33 @@ public static class TagSerializer
 
                 if (identifier is Tag.End || length < 1)
                 {
-                    tag = new ListTag([], name);
+                    tag = new ListTag<EndTag>([], name);
                     return true;
                 }
 
-                var items = ArrayPool<Tag>.Shared.Rent(length);
-
-                try
+                return identifier switch
                 {
-                    for (var index = 0; index < length; index++)
-                    {
-                        reader.Nameless = true;
-
-                        if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth, maximumChildren))
-                        {
-                            return false;
-                        }
-
-                        items[index] = temporary;
-                    }
-
-                    tag = new ListTag([.. items.AsSpan(0, length)], name);
-                }
-                finally
-                {
-                    ArrayPool<Tag>.Shared.Return(items, clearArray: true);
-                }
-
-                return true;
+                    Tag.Byte => TryReadList<ByteTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Short => TryReadList<ShortTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Integer => TryReadList<IntegerTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Long => TryReadList<LongTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Float => TryReadList<FloatTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Double => TryReadList<DoubleTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Bytes => TryReadList<BytesTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.String => TryReadList<StringTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.List => TryReadList<IListTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Compound => TryReadList<CompoundTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Integers => TryReadList<IntegersTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    Tag.Longs => TryReadList<LongsTag>(ref reader, identifier, length, name, maximumDepth, maximumChildren, out tag),
+                    _ => false
+                };
             }
 
             case Tag.Compound when reader.TryReadCompoundTag(out var name):
             {
                 maximumDepth--;
 
-                var items = ArrayPool<Tag>.Shared.Rent(maximumChildren);
+                var items = ArrayPool<ITag>.Shared.Rent(maximumChildren);
                 var index = 0;
 
                 try
@@ -186,7 +178,7 @@ public static class TagSerializer
                 }
                 finally
                 {
-                    ArrayPool<Tag>.Shared.Return(items, clearArray: true);
+                    ArrayPool<ITag>.Shared.Return(items, clearArray: true);
                 }
 
                 return true;
@@ -208,8 +200,37 @@ public static class TagSerializer
                 return false;
         }
     }
+    
+    private static bool TryReadList<TTag>(ref TagReader reader, byte identifier, int length, string name, int maximumDepth, int maximumChildren, out ITag tag) where TTag : ITag
+    {
+        var items = ArrayPool<TTag>.Shared.Rent(length);
 
-    private static void Write(ref TagWriter writer, Tag tag, int maximumDepth, int maximumChildren)
+        try
+        {
+            for (var index = 0; index < length; index++)
+            {
+                reader.Nameless = true;
+
+                if (!TryInstantiate(ref reader, out var temporary, identifier, maximumDepth, maximumChildren) || temporary is not TTag typedTag)
+                {
+                    tag = EndTag.Instance;
+                    return false;
+                }
+
+                items[index] = typedTag;
+            }
+
+            tag = new ListTag<TTag>([.. items.AsSpan(0, length)], name);
+        }
+        finally
+        {
+            ArrayPool<TTag>.Shared.Return(items, clearArray: true);
+        }
+
+        return true;
+    }
+
+    private static void Write(ref TagWriter writer, ITag tag, int maximumDepth, int maximumChildren)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
 
@@ -243,21 +264,21 @@ public static class TagSerializer
                 writer.WriteStringTag(current.Value, current.Name);
                 break;
 
-            case ListTag current:
+            case IListTag current:
             {
-                ArgumentOutOfRangeException.ThrowIfGreaterThan(current.Value.Length, maximumChildren);
+                ArgumentOutOfRangeException.ThrowIfGreaterThan(current.Length, maximumChildren);
 
                 maximumDepth--;
 
-                if (current.Value.Length < 1)
+                if (current.Length < 1)
                 {
                     writer.WriteListTag(Tag.End, 0, current.Name);
                     return;
                 }
 
-                writer.WriteListTag(current.Value[0].Identifier, current.Value.Length, current.Name);
+                writer.WriteListTag(current.RawTags[0].Identifier, current.Length, current.Name);
 
-                foreach (var item in current.Value)
+                foreach (var item in current.RawTags)
                 {
                     writer.Nameless = true;
                     Write(ref writer, item, maximumDepth, maximumChildren);
