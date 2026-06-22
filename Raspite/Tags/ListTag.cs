@@ -11,6 +11,38 @@ public interface IListTag : ITag
     ImmutableArray<ITag> RawTags { get; }
 }
 
+public static class ListTag
+{
+    public static IListTag Create(ITag[] tags, string name = "")
+    {
+        if (tags.Length == 0)
+        {
+            return new ListTag<EndTag>([], name);
+        }
+
+        var identifier = tags.Select(tag => tag.Identifier)
+            .Distinct()
+            .Single();
+
+        return identifier switch
+        {
+            Tag.Byte => new ListTag<ByteTag>([.. tags.Cast<ByteTag>()], name),
+            Tag.Short => new ListTag<ShortTag>([.. tags.Cast<ShortTag>()], name),
+            Tag.Integer => new ListTag<IntegerTag>([.. tags.Cast<IntegerTag>()], name),
+            Tag.Long => new ListTag<LongTag>([.. tags.Cast<LongTag>()], name),
+            Tag.Float => new ListTag<FloatTag>([.. tags.Cast<FloatTag>()], name),
+            Tag.Double => new ListTag<DoubleTag>([.. tags.Cast<DoubleTag>()], name),
+            Tag.Bytes => new ListTag<BytesTag>([.. tags.Cast<BytesTag>()], name),
+            Tag.String => new ListTag<StringTag>([.. tags.Cast<StringTag>()], name),
+            Tag.List => new ListTag<IListTag>([.. tags.Cast<IListTag>()], name),
+            Tag.Compound => new ListTag<CompoundTag>([.. tags.Cast<CompoundTag>()], name),
+            Tag.Integers => new ListTag<IntegersTag>([.. tags.Cast<IntegersTag>()], name),
+            Tag.Longs => new ListTag<LongsTag>([.. tags.Cast<LongsTag>()], name),
+            _ => throw new ArgumentOutOfRangeException(nameof(identifier), identifier, "Invalid tag identifier.")
+        };
+    }
+}
+
 public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") : Tag<ImmutableArray<TTag>>(value, name), IListTag where TTag : class, ITag
 {
     public override byte Identifier => List;
