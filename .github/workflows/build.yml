@@ -2,6 +2,21 @@
 
 on:
   workflow_dispatch:
+    inputs:
+      project:
+        description: Directory
+        required: true
+        type: string
+
+      version:
+        description: Version
+        required: true
+        type: string
+
+      release_notes:
+        description: Notes
+        required: true
+        type: string
 
 jobs:
   build-and-publish:
@@ -28,16 +43,19 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Restore dependencies
+        working-directory: ${{ inputs.directory }}
         run: dotnet restore
 
       - name: Build
-        run: dotnet build Raspite/Raspite.csproj -c Release
+        working-directory: ${{ inputs.directory }}
+        run: dotnet build --configuration Release --no-restore
 
       - name: Pack
-        run: dotnet pack Raspite/Raspite.csproj -c Release -o ./artifacts
+        working-directory: ${{ inputs.directory }}
+        run: dotnet pack --configuration Release --no-build -o ./artifacts -p:PackageVersion="${{ inputs.version }}" -p:PackageReleaseNotes="${{ inputs.notes }}"
 
       - name: Push to NuGet
-        run: dotnet nuget push artifacts/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
 
       - name: Push to GitHub
-        run: dotnet nuget push artifacts/*.nupkg --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet nuget push ./artifacts/*.nupkg --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
