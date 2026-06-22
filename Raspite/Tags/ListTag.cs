@@ -8,7 +8,7 @@ public interface IListTag : ITag
 {
     int Length { get; }
 
-    ImmutableArray<Tag> Elements { get; }
+    ImmutableArray<Tag> RawTags { get; }
 }
 
 public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") : Tag<ImmutableArray<TTag>>(value, name), IListTag where TTag : ITag
@@ -19,7 +19,7 @@ public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") 
 
     public int Length { get; } = value.Length;
 
-    public ImmutableArray<Tag> Elements { get; } = value.CastArray<Tag>();
+    public ImmutableArray<Tag> RawTags { get; } = value.CastArray<Tag>();
 
     /// <summary>
     /// Converts this tag to a builder containing all the values this tag contained.

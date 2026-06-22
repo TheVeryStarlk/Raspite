@@ -276,9 +276,9 @@ public static class TagSerializer
                     return;
                 }
 
-                writer.WriteListTag(current.Elements[0].Identifier, current.Length, current.Name);
+                writer.WriteListTag(current.RawTags[0].Identifier, current.Length, current.Name);
 
-                foreach (var item in current.Elements)
+                foreach (var item in current.RawTags)
                 {
                     writer.Nameless = true;
                     Write(ref writer, item, maximumDepth, maximumChildren);
