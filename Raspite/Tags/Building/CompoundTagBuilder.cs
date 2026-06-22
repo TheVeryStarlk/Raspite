@@ -2,10 +2,10 @@ namespace Raspite.Tags.Building;
 
 public sealed class CompoundTagBuilder
 {
-    private readonly List<Tag> tags;
+    private readonly List<ITag> tags;
     private readonly string parentName;
 
-    internal CompoundTagBuilder(List<Tag> initialTags, string name)
+    internal CompoundTagBuilder(List<ITag> initialTags, string name)
     {
         tags = initialTags;
         parentName = name;
@@ -16,7 +16,7 @@ public sealed class CompoundTagBuilder
         return new CompoundTagBuilder([], name);
     }
 
-    internal void Add(Tag tag)
+    internal void Add(ITag tag)
     {
         tags.Add(tag);
     }
@@ -27,7 +27,7 @@ public sealed class CompoundTagBuilder
         return this;
     }
 
-    public CompoundTagBuilder RemoveAll(Predicate<Tag> predicate)
+    public CompoundTagBuilder RemoveAll(Predicate<ITag> predicate)
     {
         tags.RemoveAll(predicate);
         return this;

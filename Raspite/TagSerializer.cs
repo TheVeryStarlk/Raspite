@@ -13,7 +13,7 @@ public static class TagSerializer
     /// Attempts to parse the <see cref="ReadOnlySpan{T}"/> as a <see cref="TTag"/>.
     /// </summary>
     /// <param name="buffer">The <see cref="ReadOnlySpan{T}"/> to parse.</param>
-    /// <param name="tag">The parsed <see cref="Tag"/>.</param>
+    /// <param name="tag">The parsed <see cref="ITag"/>.</param>
     /// <param name="options">The <see cref="TagSerializerOptions"/> to use.</param>
     /// <returns><c>true</c> if the <see cref="ReadOnlySpan{T}"/> was parsed successfully; otherwise, <c>false</c>.</returns>
     /// <typeparam name="TTag">The expected <see cref="TTag"/> type.</typeparam>
@@ -37,13 +37,13 @@ public static class TagSerializer
     }
 
     /// <summary>
-    /// Attempts to parse the <see cref="ReadOnlySpan{T}"/> as a <see cref="Tag"/>.
+    /// Attempts to parse the <see cref="ReadOnlySpan{T}"/> as a <see cref="ITag"/>.
     /// </summary>
     /// <param name="buffer">The <see cref="ReadOnlySpan{T}"/> to parse.</param>
-    /// <param name="tag">The parsed <see cref="Tag"/>.</param>
+    /// <param name="tag">The parsed <see cref="ITag"/>.</param>
     /// <param name="options">The <see cref="TagSerializerOptions"/> to use.</param>
     /// <returns><c>true</c> if the <see cref="ReadOnlySpan{T}"/> was parsed successfully; otherwise, <c>false</c>.</returns>
-    public static bool TryParse(ReadOnlySpan<byte> buffer, out Tag tag, TagSerializerOptions? options = null)
+    public static bool TryParse(ReadOnlySpan<byte> buffer, out ITag tag, TagSerializerOptions? options = null)
     {
         options ??= new TagSerializerOptions();
 
@@ -56,12 +56,12 @@ public static class TagSerializer
     }
 
     /// <summary>
-    /// Serializes the <see cref="Tag"/> to a <see cref="IBufferWriter{T}"/>.
+    /// Serializes the <see cref="ITag"/> to a <see cref="IBufferWriter{T}"/>.
     /// </summary>
     /// <param name="buffer">The <see cref="IBufferWriter{T}"/> to serialize to.</param>
-    /// <param name="tag">The <see cref="Tag"/> to serialize.</param>
+    /// <param name="tag">The <see cref="ITag"/> to serialize.</param>
     /// <param name="options">The <see cref="TagSerializerOptions"/> to use.</param>
-    public static void Serialize(IBufferWriter<byte> buffer, Tag tag, TagSerializerOptions? options = null)
+    public static void Serialize(IBufferWriter<byte> buffer, ITag tag, TagSerializerOptions? options = null)
     {
         options ??= new TagSerializerOptions();
 
@@ -70,7 +70,7 @@ public static class TagSerializer
         Write(ref writer, tag, options.Value.MaximumDepth, options.Value.MaximumChildren);
     }
 
-    private static bool TryInstantiate(ref TagReader reader, out Tag tag, byte parent, int maximumDepth, int maximumChildren)
+    private static bool TryInstantiate(ref TagReader reader, out ITag tag, byte parent, int maximumDepth, int maximumChildren)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
 
@@ -140,7 +140,7 @@ public static class TagSerializer
             {
                 maximumDepth--;
 
-                var items = ArrayPool<Tag>.Shared.Rent(maximumChildren);
+                var items = ArrayPool<ITag>.Shared.Rent(maximumChildren);
                 var index = 0;
 
                 try
@@ -178,7 +178,7 @@ public static class TagSerializer
                 }
                 finally
                 {
-                    ArrayPool<Tag>.Shared.Return(items, clearArray: true);
+                    ArrayPool<ITag>.Shared.Return(items, clearArray: true);
                 }
 
                 return true;
@@ -201,7 +201,7 @@ public static class TagSerializer
         }
     }
     
-    private static bool TryReadList<TTag>(ref TagReader reader, byte identifier, int length, string name, int maximumDepth, int maximumChildren, out Tag tag) where TTag : ITag
+    private static bool TryReadList<TTag>(ref TagReader reader, byte identifier, int length, string name, int maximumDepth, int maximumChildren, out ITag tag) where TTag : ITag
     {
         var items = ArrayPool<TTag>.Shared.Rent(length);
 
@@ -230,7 +230,7 @@ public static class TagSerializer
         return true;
     }
 
-    private static void Write(ref TagWriter writer, Tag tag, int maximumDepth, int maximumChildren)
+    private static void Write(ref TagWriter writer, ITag tag, int maximumDepth, int maximumChildren)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
 

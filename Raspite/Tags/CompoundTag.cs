@@ -5,19 +5,19 @@ using Raspite.Tags.Building;
 
 namespace Raspite.Tags;
 
-public sealed class CompoundTag : Tag<ImmutableArray<Tag>>
+public sealed class CompoundTag : Tag<ImmutableArray<ITag>>
 {
     public override byte Identifier => Compound;
 
-    public Tag this[string name] => cache[name];
+    public ITag this[string name] => cache[name];
 
     public int Length => Value.Length;
 
     public ImmutableArray<string> Keys => cache.Keys;
 
-    private readonly FrozenDictionary<string, Tag> cache;
+    private readonly FrozenDictionary<string, ITag> cache;
 
-    public CompoundTag(ImmutableArray<Tag> value, string name = "") : base(value, name)
+    public CompoundTag(ImmutableArray<ITag> value, string name = "") : base(value, name)
     {
         cache = value.ToFrozenDictionary(tag => tag.Name);
     }
