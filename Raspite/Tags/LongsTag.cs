@@ -6,8 +6,8 @@ public sealed class LongsTag(ImmutableArray<long> value, string name = "") : Tag
 {
     public override byte Identifier => Longs;
 
-    public static LongsTag Create(IEnumerable<long> tags, string name = "")
+    public static LongsTag Create(IEnumerable<long> longs, string name = "")
     {
-        return new LongsTag([.. tags], name);
+        return new LongsTag([.. longs], name);
     }
 }

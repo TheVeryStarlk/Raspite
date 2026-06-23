@@ -6,8 +6,8 @@ public sealed class IntegersTag(ImmutableArray<int> value, string name = "") : T
 {
     public override byte Identifier => Integers;
 
-    public static IntegersTag Create(IEnumerable<int> tags, string name = "")
+    public static IntegersTag Create(IEnumerable<int> ints, string name = "")
     {
-        return new IntegersTag([.. tags], name);
+        return new IntegersTag([.. ints], name);
     }
 }

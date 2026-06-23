@@ -6,8 +6,8 @@ public sealed class BytesTag(ImmutableArray<byte> value, string name = "") : Tag
 {
     public override byte Identifier => Bytes;
 
-    public static BytesTag Create(IEnumerable<byte> tags, string name = "")
+    public static BytesTag Create(IEnumerable<byte> bytes, string name = "")
     {
-        return new BytesTag([.. tags], name);
+        return new BytesTag([.. bytes], name);
     }
 }
