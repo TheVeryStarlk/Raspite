@@ -50,6 +50,11 @@ public static class ListTag
             _ => throw new ArgumentOutOfRangeException(nameof(identifier), identifier, "Invalid tag identifier.")
         };
     }
+
+    public static ListTag<TTag> Create<TTag>(IEnumerable<TTag> tags, string name = "") where TTag : class, ITag
+    {
+        return new ListTag<TTag>([.. tags], name);
+    }
 }
 
 public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") : Tag<ImmutableArray<TTag>>(value, name), IListTag where TTag : class, ITag

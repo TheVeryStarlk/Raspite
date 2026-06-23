@@ -22,6 +22,11 @@ public sealed class CompoundTag : Tag<ImmutableArray<ITag>>
         cache = value.ToFrozenDictionary(tag => tag.Name);
     }
 
+    public static CompoundTag Create(IEnumerable<ITag> tags, string name = "")
+    {
+        return new CompoundTag([.. tags], name);
+    }
+
     public bool ContainsKey(string name)
     {
         return cache.ContainsKey(name);
