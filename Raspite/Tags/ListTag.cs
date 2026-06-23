@@ -35,18 +35,18 @@ public static class ListTag
 
         return identifier switch
         {
-            Tag.Byte => new ListTag<ByteTag>([.. tags.Cast<ByteTag>()], name),
-            Tag.Short => new ListTag<ShortTag>([.. tags.Cast<ShortTag>()], name),
-            Tag.Integer => new ListTag<IntegerTag>([.. tags.Cast<IntegerTag>()], name),
-            Tag.Long => new ListTag<LongTag>([.. tags.Cast<LongTag>()], name),
-            Tag.Float => new ListTag<FloatTag>([.. tags.Cast<FloatTag>()], name),
-            Tag.Double => new ListTag<DoubleTag>([.. tags.Cast<DoubleTag>()], name),
-            Tag.Bytes => new ListTag<BytesTag>([.. tags.Cast<BytesTag>()], name),
-            Tag.String => new ListTag<StringTag>([.. tags.Cast<StringTag>()], name),
-            Tag.List => new ListTag<IListTag>([.. tags.Cast<IListTag>()], name),
-            Tag.Compound => new ListTag<CompoundTag>([.. tags.Cast<CompoundTag>()], name),
-            Tag.Integers => new ListTag<IntegersTag>([.. tags.Cast<IntegersTag>()], name),
-            Tag.Longs => new ListTag<LongsTag>([.. tags.Cast<LongsTag>()], name),
+            Tag.Byte => Create(tags.Cast<ByteTag>(), name),
+            Tag.Short => Create(tags.Cast<ShortTag>(), name),
+            Tag.Integer => Create(tags.Cast<IntegerTag>(), name),
+            Tag.Long => Create(tags.Cast<LongTag>(), name),
+            Tag.Float => Create(tags.Cast<FloatTag>(), name),
+            Tag.Double => Create(tags.Cast<DoubleTag>(), name),
+            Tag.Bytes => Create(tags.Cast<BytesTag>(), name),
+            Tag.String => Create(tags.Cast<StringTag>(), name),
+            Tag.List => Create(tags.Cast<IListTag>(), name),
+            Tag.Compound => Create(tags.Cast<CompoundTag>(), name),
+            Tag.Integers => Create(tags.Cast<IntegersTag>(), name),
+            Tag.Longs => Create(tags.Cast<LongsTag>(), name),
             _ => throw new ArgumentOutOfRangeException(nameof(identifier), identifier, "Invalid tag identifier.")
         };
     }
