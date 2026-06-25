@@ -13,24 +13,18 @@ public interface IListTag : ITag
 
 public static class ListTag
 {
-    public static IListTag Create(IReadOnlyList<ITag> tags, string name = "", bool validate = true)
+    public static IListTag Create(IReadOnlyCollection<ITag> tags, string name = "", bool validate = true)
     {
         if (tags.Count == 0)
         {
             return new ListTag<EndTag>([], name);
         }
 
-        var identifier = tags[0].Identifier;
+        var identifier = tags.First().Identifier;
 
-        if (validate)
+        if (validate && tags.Any(tag => tag.Identifier != identifier))
         {
-            for (int i = 1; i < tags.Count; i++)
-            {
-                if (identifier != tags[i].Identifier)
-                {
-                    throw new ArgumentException("All tags in the list must be of the same type.", nameof(tags));
-                }
-            }
+            throw new ArgumentException("All tags in the list must be of the same type.", nameof(tags));
         }
 
         return identifier switch
