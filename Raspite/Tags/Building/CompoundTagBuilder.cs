@@ -1,11 +1,15 @@
+using System.Collections.Frozen;
+
 namespace Raspite.Tags.Building;
 
 public sealed class CompoundTagBuilder
 {
-    private readonly List<ITag> tags;
+    public ITag this[string name] => tags[name];
+
+    private readonly Dictionary<string, ITag> tags;
     private readonly string parentName;
 
-    internal CompoundTagBuilder(List<ITag> initialTags, string name)
+    internal CompoundTagBuilder(Dictionary<string, ITag> initialTags, string name)
     {
         tags = initialTags;
         parentName = name;
@@ -16,26 +20,29 @@ public sealed class CompoundTagBuilder
         return new CompoundTagBuilder([], name);
     }
 
-    public void Add(ITag tag)
+    public CompoundTagBuilder Add(ITag tag, bool overwriteExisting = false)
     {
-        tags.Add(tag);
+        if (overwriteExisting)
+        {
+            tags[tag.Name] = tag;
+        }
+        else
+        {
+            tags.Add(tag.Name, tag);
+        }
+
+        return this;
     }
 
     public CompoundTagBuilder Remove(string name)
     {
-        tags.RemoveAll(tag => tag.Name == name);
-        return this;
-    }
-
-    public CompoundTagBuilder RemoveAll(Predicate<ITag> predicate)
-    {
-        tags.RemoveAll(predicate);
+        tags.Remove(name);
         return this;
     }
 
     public CompoundTag Build()
     {
-        return new CompoundTag([.. tags], parentName);
+        return new CompoundTag([.. tags.Values], tags.ToFrozenDictionary(), parentName);
     }
 }
 
@@ -45,132 +52,93 @@ public static class CompoundTagBuilderExtensions
     {
         public CompoundTagBuilder AddByte(byte? value, string name = "")
         {
-            if (value.HasValue)
-            {
-                builder.Add(new ByteTag(value.Value, name));
-            }
-
-            return builder;
+            return value.HasValue
+                ? builder.Add(new ByteTag(value.Value, name))
+                : builder;
         }
 
         public CompoundTagBuilder AddBoolean(bool? value, string name = "")
         {
-            if (value.HasValue)
-            {
-                builder.Add(new ByteTag(value.Value, name));
-            }
-
-            return builder;
+            return value.HasValue
+                ? builder.Add(new ByteTag(value.Value, name))
+                : builder;
         }
 
         public CompoundTagBuilder AddShort(short? value, string name = "")
         {
-            if (value.HasValue)
-            {
-                builder.Add(new ShortTag(value.Value, name));
-            }
-
-            return builder;
+            return value.HasValue
+                ? builder.Add(new ShortTag(value.Value, name))
+                : builder;
         }
 
         public CompoundTagBuilder AddInteger(int? value, string name = "")
         {
-            if (value.HasValue)
-            {
-                builder.Add(new IntegerTag(value.Value, name));
-            }
-
-            return builder;
+            return value.HasValue
+                ? builder.Add(new IntegerTag(value.Value, name))
+                : builder;
         }
 
         public CompoundTagBuilder AddLong(long? value, string name = "")
         {
-            if (value.HasValue)
-            {
-                builder.Add(new LongTag(value.Value, name));
-            }
-
-            return builder;
+            return value.HasValue
+                ? builder.Add(new LongTag(value.Value, name))
+                : builder;
         }
 
         public CompoundTagBuilder AddFloat(float? value, string name = "")
         {
-            if (value.HasValue)
-            {
-                builder.Add(new FloatTag(value.Value, name));
-            }
-
-            return builder;
+            return value.HasValue
+                ? builder.Add(new FloatTag(value.Value, name))
+                : builder;
         }
 
         public CompoundTagBuilder AddDouble(double? value, string name = "")
         {
-            if (value.HasValue)
-            {
-                builder.Add(new DoubleTag(value.Value, name));
-            }
-
-            return builder;
+            return value.HasValue
+                ? builder.Add(new DoubleTag(value.Value, name))
+                : builder;
         }
 
         public CompoundTagBuilder AddString(string? value, string name = "")
         {
-            if (value is not null)
-            {
-                builder.Add(new StringTag(value, name));
-            }
-
-            return builder;
+            return value is not null
+                ? builder.Add(new StringTag(value, name))
+                : builder;
         }
 
         public CompoundTagBuilder AddList<TTag>(ListTag<TTag>? value, string name = "") where TTag : class, ITag
         {
-            if (value is not null)
-            {
-                builder.Add(value);
-            }
-
-            return builder;
+            return value is not null
+                ? builder.Add(value)
+                : builder;
         }
 
         public CompoundTagBuilder AddCompound(CompoundTag? value, string name = "")
         {
-            if (value is not null)
-            {
-                builder.Add(value);
-            }
-
-            return builder;
+            return value is not null
+                ? builder.Add(value)
+                : builder;
         }
 
         public CompoundTagBuilder AddBytes(byte[]? value, string name = "")
         {
-            if (value is not null)
-            {
-                builder.Add(new BytesTag([.. value], name));
-            }
-
-            return builder;
+            return value is not null
+                ? builder.Add(new BytesTag([.. value], name))
+                : builder;
         }
 
         public CompoundTagBuilder AddIntegers(int[]? value, string name = "")
         {
-            if (value is not null)
-            {
-                builder.Add(new IntegersTag([.. value], name));
-            }
-
-            return builder;
+            return value is not null
+                ? builder.Add(new IntegersTag([.. value], name))
+                : builder;
         }
 
         public CompoundTagBuilder AddLongs(long[]? value, string name = "")
         {
-            if (value is not null)
-            {
-                builder.Add(new LongsTag([.. value], name));
-            }
-
-            return builder;
+            return value is not null
+                ? builder.Add(new LongsTag([.. value], name))
+                : builder;
         }
     }
 }
@@ -181,122 +149,102 @@ public static class CompoundTagBuilderListExtensions
     {
         public CompoundTagBuilder AddByteList(ReadOnlySpan<byte?> values, string name = "")
         {
-            builder.Add(ListTagBuilder<ByteTag>.Create(name).AddByteRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<ByteTag>.Create(name).AddByteRange(values).Build());
         }
 
         public CompoundTagBuilder AddByteList(ReadOnlySpan<byte> values, string name = "")
         {
-            builder.Add(ListTagBuilder<ByteTag>.Create(name).AddByteRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<ByteTag>.Create(name).AddByteRange(values).Build());
         }
 
         public CompoundTagBuilder AddBooleanList(ReadOnlySpan<bool?> values, string name = "")
         {
-            builder.Add(ListTagBuilder<ByteTag>.Create(name).AddBooleanRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<ByteTag>.Create(name).AddBooleanRange(values).Build());
         }
 
         public CompoundTagBuilder AddBooleanList(ReadOnlySpan<bool> values, string name = "")
         {
-            builder.Add(ListTagBuilder<ByteTag>.Create(name).AddBooleanRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<ByteTag>.Create(name).AddBooleanRange(values).Build());
         }
 
         public CompoundTagBuilder AddShortList(ReadOnlySpan<short?> values, string name = "")
         {
-            builder.Add(ListTagBuilder<ShortTag>.Create(name).AddShortRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<ShortTag>.Create(name).AddShortRange(values).Build());
         }
 
         public CompoundTagBuilder AddShortList(ReadOnlySpan<short> values, string name = "")
         {
-            builder.Add(ListTagBuilder<ShortTag>.Create(name).AddShortRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<ShortTag>.Create(name).AddShortRange(values).Build());
         }
 
         public CompoundTagBuilder AddIntegerList(ReadOnlySpan<int?> values, string name = "")
         {
-            builder.Add(ListTagBuilder<IntegerTag>.Create(name).AddIntegerRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<IntegerTag>.Create(name).AddIntegerRange(values).Build());
         }
 
         public CompoundTagBuilder AddIntegerList(ReadOnlySpan<int> values, string name = "")
         {
-            builder.Add(ListTagBuilder<IntegerTag>.Create(name).AddIntegerRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<IntegerTag>.Create(name).AddIntegerRange(values).Build());
         }
 
         public CompoundTagBuilder AddLongList(ReadOnlySpan<long?> values, string name = "")
         {
-            builder.Add(ListTagBuilder<LongTag>.Create(name).AddLongRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<LongTag>.Create(name).AddLongRange(values).Build());
         }
 
         public CompoundTagBuilder AddLongList(ReadOnlySpan<long> values, string name = "")
         {
-            builder.Add(ListTagBuilder<LongTag>.Create(name).AddLongRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<LongTag>.Create(name).AddLongRange(values).Build());
         }
 
         public CompoundTagBuilder AddFloatList(ReadOnlySpan<float?> values, string name = "")
         {
-            builder.Add(ListTagBuilder<FloatTag>.Create(name).AddFloatRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<FloatTag>.Create(name).AddFloatRange(values).Build());
         }
 
         public CompoundTagBuilder AddFloatList(ReadOnlySpan<float> values, string name = "")
         {
-            builder.Add(ListTagBuilder<FloatTag>.Create(name).AddFloatRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<FloatTag>.Create(name).AddFloatRange(values).Build());
         }
 
         public CompoundTagBuilder AddDoubleList(ReadOnlySpan<double> values, string name = "")
         {
-            builder.Add(ListTagBuilder<DoubleTag>.Create(name).AddDoubleRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<DoubleTag>.Create(name).AddDoubleRange(values).Build());
         }
 
         public CompoundTagBuilder AddDoubleList(ReadOnlySpan<double?> values, string name = "")
         {
-            builder.Add(ListTagBuilder<DoubleTag>.Create(name).AddDoubleRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<DoubleTag>.Create(name).AddDoubleRange(values).Build());
         }
 
         public CompoundTagBuilder AddStringList(ReadOnlySpan<string?> values, string name = "")
         {
-            builder.Add(ListTagBuilder<StringTag>.Create(name).AddStringRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<StringTag>.Create(name).AddStringRange(values).Build());
         }
 
         public CompoundTagBuilder AddCompoundList(ReadOnlySpan<CompoundTag?> values, string name = "")
         {
-            builder.Add(ListTagBuilder<CompoundTag>.Create(name).AddCompoundRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<CompoundTag>.Create(name).AddCompoundRange(values).Build());
         }
 
         public CompoundTagBuilder AddListList<TTag>(ReadOnlySpan<ListTag<TTag>?> values, string name = "") where TTag : class, ITag
         {
-            builder.Add(ListTagBuilder<ListTag<TTag>>.Create(name).AddListRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<ListTag<TTag>>.Create(name).AddListRange(values).Build());
         }
 
         public CompoundTagBuilder AddBytesList(ReadOnlySpan<byte[]?> values, string name = "")
         {
-            builder.Add(ListTagBuilder<BytesTag>.Create(name).AddBytesRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<BytesTag>.Create(name).AddBytesRange(values).Build());
         }
 
         public CompoundTagBuilder AddIntegersList(ReadOnlySpan<int[]?> values, string name = "")
         {
-            builder.Add(ListTagBuilder<IntegersTag>.Create(name).AddIntegersRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<IntegersTag>.Create(name).AddIntegersRange(values).Build());
         }
 
         public CompoundTagBuilder AddLongsList(ReadOnlySpan<long[]?> values, string name = "")
         {
-            builder.Add(ListTagBuilder<LongsTag>.Create(name).AddLongsRange(values).Build());
-            return builder;
+            return builder.Add(ListTagBuilder<LongsTag>.Create(name).AddLongsRange(values).Build());
         }
     }
 }
