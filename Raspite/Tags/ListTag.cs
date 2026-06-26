@@ -11,7 +11,47 @@ public interface IListTag : ITag
     ImmutableArray<ITag> RawTags { get; }
 }
 
-public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") : Tag<ImmutableArray<TTag>>(value, name), IListTag where TTag : ITag
+public static class ListTag
+{
+    public static IListTag Create(IReadOnlyCollection<ITag> tags, string name = "", bool validate = true)
+    {
+        if (tags.Count == 0)
+        {
+            return new ListTag<EndTag>([], name);
+        }
+
+        var identifier = tags.First().Identifier;
+
+        if (validate && tags.Any(tag => tag.Identifier != identifier))
+        {
+            throw new ArgumentException("All tags in the list must be of the same type.", nameof(tags));
+        }
+
+        return identifier switch
+        {
+            Tag.Byte => Create(tags.Cast<ByteTag>(), name),
+            Tag.Short => Create(tags.Cast<ShortTag>(), name),
+            Tag.Integer => Create(tags.Cast<IntegerTag>(), name),
+            Tag.Long => Create(tags.Cast<LongTag>(), name),
+            Tag.Float => Create(tags.Cast<FloatTag>(), name),
+            Tag.Double => Create(tags.Cast<DoubleTag>(), name),
+            Tag.Bytes => Create(tags.Cast<BytesTag>(), name),
+            Tag.String => Create(tags.Cast<StringTag>(), name),
+            Tag.List => Create(tags.Cast<IListTag>(), name),
+            Tag.Compound => Create(tags.Cast<CompoundTag>(), name),
+            Tag.Integers => Create(tags.Cast<IntegersTag>(), name),
+            Tag.Longs => Create(tags.Cast<LongsTag>(), name),
+            _ => throw new ArgumentOutOfRangeException(nameof(identifier), identifier, "Invalid tag identifier.")
+        };
+    }
+
+    public static ListTag<TTag> Create<TTag>(IEnumerable<TTag> tags, string name = "") where TTag : class, ITag
+    {
+        return new ListTag<TTag>([.. tags], name);
+    }
+}
+
+public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") : Tag<ImmutableArray<TTag>>(value, name), IListTag where TTag : class, ITag
 {
     public override byte Identifier => List;
 
@@ -19,7 +59,7 @@ public sealed class ListTag<TTag>(ImmutableArray<TTag> value, string name = "") 
 
     public int Length { get; } = value.Length;
 
-    public ImmutableArray<ITag> RawTags { get; } = value.CastArray<ITag>();
+    public ImmutableArray<ITag> RawTags { get; } = ImmutableArray<ITag>.CastUp(value);
 
     /// <summary>
     /// Converts this tag to a builder containing all the values this tag contained.

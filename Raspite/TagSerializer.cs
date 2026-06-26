@@ -13,13 +13,13 @@ public static class TagSerializer
     /// Attempts to parse the <see cref="ReadOnlySpan{T}"/> as a <see cref="TTag"/>.
     /// </summary>
     /// <param name="buffer">The <see cref="ReadOnlySpan{T}"/> to parse.</param>
-    /// <param name="tag">The parsed <see cref="ITag"/>.</param>
+    /// <param name="tag">The parsed <see cref="TTag"/>.</param>
     /// <param name="options">The <see cref="TagSerializerOptions"/> to use.</param>
     /// <returns><c>true</c> if the <see cref="ReadOnlySpan{T}"/> was parsed successfully; otherwise, <c>false</c>.</returns>
     /// <typeparam name="TTag">The expected <see cref="TTag"/> type.</typeparam>
     /// <returns><c>true</c> if the <see cref="ReadOnlySpan{T}"/> was parsed successfully; otherwise, <c>false</c>.</returns>
     /// <exception cref="ArgumentException">The expected <see cref="TTag"/> was incorrect.</exception>
-    public static bool TryParse<TTag>(ReadOnlySpan<byte> buffer, [NotNullWhen(true)] out TTag? tag, TagSerializerOptions? options = null) where TTag : Tag
+    public static bool TryParse<TTag>(ReadOnlySpan<byte> buffer, [NotNullWhen(true)] out TTag? tag, TagSerializerOptions? options = null) where TTag : class, ITag
     {
         if (!TryParse(buffer, out var rawTag, options))
         {
@@ -72,7 +72,7 @@ public static class TagSerializer
 
     private static bool TryInstantiate(ref TagReader reader, out ITag tag, byte parent, int maximumDepth, int maximumChildren)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maximumDepth);
 
         tag = EndTag.Instance;
 
@@ -201,7 +201,7 @@ public static class TagSerializer
         }
     }
     
-    private static bool TryReadList<TTag>(ref TagReader reader, byte identifier, int length, string name, int maximumDepth, int maximumChildren, out ITag tag) where TTag : ITag
+    private static bool TryReadList<TTag>(ref TagReader reader, byte identifier, int length, string name, int maximumDepth, int maximumChildren, out ITag tag) where TTag : class, ITag
     {
         var items = ArrayPool<TTag>.Shared.Rent(length);
 
@@ -232,7 +232,7 @@ public static class TagSerializer
 
     private static void Write(ref TagWriter writer, ITag tag, int maximumDepth, int maximumChildren)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(maximumDepth, 0);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maximumDepth);
 
         switch (tag)
         {
