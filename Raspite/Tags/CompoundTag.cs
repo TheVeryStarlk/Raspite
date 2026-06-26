@@ -17,14 +17,19 @@ public sealed class CompoundTag : Tag<ImmutableArray<ITag>>
 
     private readonly FrozenDictionary<string, ITag> cache;
 
-    public CompoundTag(ImmutableArray<ITag> value, string name = "") : base(value, name)
+    public CompoundTag(ImmutableArray<ITag> value, string name = "") : this(value, value.ToFrozenDictionary(tag => tag.Name), name)
     {
-        cache = value.ToFrozenDictionary(tag => tag.Name);
+    }
+
+    internal CompoundTag(ImmutableArray<ITag> value, FrozenDictionary<string, ITag> cache, string name = "") : base(value, name)
+    {
+        this.cache = cache;
     }
 
     public static CompoundTag Create(IEnumerable<ITag> tags, string name = "")
     {
-        return new CompoundTag([.. tags], name);
+        ImmutableArray<ITag> immutableTags = [.. tags];
+        return new CompoundTag(immutableTags, immutableTags.ToFrozenDictionary(tag => tag.Name), name);
     }
 
     public bool ContainsKey(string name)
@@ -44,7 +49,7 @@ public sealed class CompoundTag : Tag<ImmutableArray<ITag>>
     /// <returns></returns>
     public CompoundTagBuilder ToBuilder(string? name = null)
     {
-        return new CompoundTagBuilder([.. Value], name ?? Name);
+        return new CompoundTagBuilder(cache.ToDictionary(), name ?? Name);
     }
 }
 
