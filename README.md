@@ -88,6 +88,17 @@ var tag = new StringTag("Hello, world!");
 TagSerializer.Serialize(buffer, tag);
 ```
 
+### SNBT
+
+Stringified NBT is supported through `SnbtSerializer`, which mirrors `TagSerializer`.
+
+```cs
+var success = SnbtSerializer.TryParse<CompoundTag>("{Name: Steve, Pos: [0.5d, 64d, 0.5d], UUID: [I; 1, 2, 3, 4]}", out var tag);
+
+var compact = SnbtSerializer.Serialize(tag);
+var pretty = SnbtSerializer.Serialize(tag, new SnbtSerializerOptions { Indented = true });
+```
+
 ## Plans
 
 * Implement variable-prefix types.
