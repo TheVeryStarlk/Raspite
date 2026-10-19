@@ -6,7 +6,7 @@ using Raspite.Tags;
 
 namespace Raspite;
 
-public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool network)
+public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool network, bool variableLength)
 {
     /// <summary>
     /// Whether to skip writing the tag's name and identifier.
@@ -129,7 +129,7 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
         Write(Tag.Integers, name);
         WriteInteger(value.Length);
 
-        if (BitConverter.IsLittleEndian == littleEndian)
+        if (!variableLength && BitConverter.IsLittleEndian == littleEndian)
         {
             Write(MemoryMarshal.AsBytes(value));
             return;
@@ -146,7 +146,7 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
         Write(Tag.Longs, name);
         WriteInteger(value.Length);
 
-        if (BitConverter.IsLittleEndian == littleEndian)
+        if (!variableLength && BitConverter.IsLittleEndian == littleEndian)
         {
             Write(MemoryMarshal.AsBytes(value));
             return;
@@ -194,6 +194,13 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
 
     private void WriteInteger(int value)
     {
+        if (variableLength)
+        {
+            // ZigZag encoding keeps small negative numbers small.
+            WriteVariable((uint) ((value << 1) ^ (value >> 31)));
+            return;
+        }
+
         var span = buffer.GetSpan(sizeof(int));
 
         if (littleEndian)
@@ -210,6 +217,12 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
 
     private void WriteLong(long value)
     {
+        if (variableLength)
+        {
+            WriteVariable((ulong) ((value << 1) ^ (value >> 63)));
+            return;
+        }
+
         var span = buffer.GetSpan(sizeof(long));
 
         if (littleEndian)
@@ -224,11 +237,37 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
         buffer.Advance(sizeof(long));
     }
 
+    private void WriteVariable(ulong value)
+    {
+        // A 64-bit number takes at most ten 7-bit groups.
+        var span = buffer.GetSpan(10);
+        var index = 0;
+
+        while (value >= 0x80)
+        {
+            span[index++] = (byte) (value | 0x80);
+            value >>= 7;
+        }
+
+        span[index++] = (byte) value;
+
+        buffer.Advance(index);
+    }
+
     private void WriteString(string value)
     {
         var length = Encoding.UTF8.GetByteCount(value);
 
         ArgumentOutOfRangeException.ThrowIfGreaterThan(length, ushort.MaxValue);
+
+        if (variableLength)
+        {
+            // Unlike integers, string lengths are not ZigZag encoded.
+            WriteVariable((uint) length);
+            buffer.Advance(Encoding.UTF8.GetBytes(value, buffer.GetSpan(length)));
+
+            return;
+        }
 
         var total = sizeof(ushort) + length;
         var span = buffer.GetSpan(total);

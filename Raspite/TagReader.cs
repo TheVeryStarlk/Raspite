@@ -5,7 +5,7 @@ using Raspite.Tags;
 
 namespace Raspite;
 
-public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool network)
+public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool network, bool variableLength)
 {
     public readonly int Remaining => span.Length - position;
 
@@ -164,14 +164,17 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
     {
         value = default;
 
-        if (!TryRead(Tag.Integers, out name) || !TryReadInteger(out var length) || length * sizeof(int) > Remaining)
+        // Variable-length integers take at least a single byte.
+        var size = variableLength ? sizeof(byte) : sizeof(int);
+
+        if (!TryRead(Tag.Integers, out name) || !TryReadInteger(out var length) || length * size > Remaining)
         {
             return false;
         }
 
         ArgumentOutOfRangeException.ThrowIfNegative(length);
 
-        if (BitConverter.IsLittleEndian == littleEndian)
+        if (!variableLength && BitConverter.IsLittleEndian == littleEndian)
         {
             return TryRead(length * sizeof(int), out value);
         }
@@ -197,14 +200,17 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
     {
         value = default;
 
-        if (!TryRead(Tag.Longs, out name) || !TryReadInteger(out var length) || length * sizeof(long) > Remaining)
+        // Variable-length longs take at least a single byte.
+        var size = variableLength ? sizeof(byte) : sizeof(long);
+
+        if (!TryRead(Tag.Longs, out name) || !TryReadInteger(out var length) || length * size > Remaining)
         {
             return false;
         }
 
         ArgumentOutOfRangeException.ThrowIfNegative(length);
 
-        if (BitConverter.IsLittleEndian == littleEndian)
+        if (!variableLength && BitConverter.IsLittleEndian == littleEndian)
         {
             return TryRead(length * sizeof(long), out value);
         }
@@ -277,6 +283,19 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
     {
         value = 0;
 
+        if (variableLength)
+        {
+            if (!TryReadVariable(5, out var variable))
+            {
+                return false;
+            }
+
+            // Undo the ZigZag encoding.
+            value = (int) ((uint) variable >> 1) ^ -(int) (variable & 1);
+
+            return true;
+        }
+
         if (sizeof(int) > Remaining)
         {
             return false;
@@ -292,6 +311,18 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
     {
         value = 0;
 
+        if (variableLength)
+        {
+            if (!TryReadVariable(10, out var variable))
+            {
+                return false;
+            }
+
+            value = (long) (variable >> 1) ^ -(long) (variable & 1);
+
+            return true;
+        }
+
         if (sizeof(long) > Remaining)
         {
             return false;
@@ -303,9 +334,59 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
         return true;
     }
 
+    private bool TryReadVariable(int maximum, out ulong value)
+    {
+        value = 0;
+
+        for (var index = 0; index < maximum; index++)
+        {
+            if (!TryReadByte(out var current))
+            {
+                return false;
+            }
+
+            value |= (ulong) (current & 0x7F) << (index * 7);
+
+            if (current < 0x80)
+            {
+                return true;
+            }
+        }
+
+        throw new ArgumentOutOfRangeException(nameof(value), $"Variable-length number exceeds {maximum} bytes.");
+    }
+
     private bool TryReadString(out string value)
     {
         value = string.Empty;
+
+        if (!TryReadStringLength(out var length) || length > Remaining)
+        {
+            return false;
+        }
+
+        value = Encoding.UTF8.GetString(span[position..(position += length)]);
+
+        return true;
+    }
+
+    private bool TryReadStringLength(out ushort length)
+    {
+        length = 0;
+
+        if (variableLength)
+        {
+            // Unlike integers, string lengths are not ZigZag encoded.
+            if (!TryReadVariable(5, out var variable))
+            {
+                return false;
+            }
+
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(variable, ushort.MaxValue);
+            length = (ushort) variable;
+
+            return true;
+        }
 
         if (sizeof(ushort) > Remaining)
         {
@@ -313,14 +394,7 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
         }
 
         var slice = span[position..(position += sizeof(ushort))];
-        var length = littleEndian ? BinaryPrimitives.ReadUInt16LittleEndian(slice) : BinaryPrimitives.ReadUInt16BigEndian(slice);
-
-        if (length > Remaining)
-        {
-            return false;
-        }
-
-        value = Encoding.UTF8.GetString(span[position..(position += length)]);
+        length = littleEndian ? BinaryPrimitives.ReadUInt16LittleEndian(slice) : BinaryPrimitives.ReadUInt16BigEndian(slice);
 
         return true;
     }

@@ -88,6 +88,11 @@ var tag = new StringTag("Hello, world!");
 TagSerializer.Serialize(buffer, tag);
 ```
 
-## Plans
+### Bedrock
 
-* Implement variable-prefix types.
+Bedrock Edition's networking uses little-endian with variable-length integers, longs and length prefixes.
+
+```cs
+var options = new TagSerializerOptions { LittleEndian = true, VariableLength = true };
+TagSerializer.Serialize(buffer, tag, options);
+```
