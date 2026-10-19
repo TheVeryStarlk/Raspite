@@ -18,6 +18,14 @@ public readonly record struct TagSerializerOptions()
     public bool LittleEndian { get; init; } = false;
 
     /// <summary>
+    /// Whether to serialize/parse integers, longs and length prefixes as variable-length numbers.
+    /// </summary>
+    /// <remarks>
+    /// Necessary for Bedrock Edition networking, alongside <see cref="LittleEndian"/>.
+    /// </remarks>
+    public bool VariableLength { get; init; } = false;
+
+    /// <summary>
     /// The maximum allowed nest depth.
     /// </summary>
     public int MaximumDepth { get; init; } = 512;
