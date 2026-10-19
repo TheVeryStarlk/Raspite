@@ -19,4 +19,22 @@ internal sealed class TagReaderTests
             Assert.That(name, Is.EqualTo("Seen"));
         }
     }
+
+    [Test]
+    public void Reading_VariableLengthIntegerTag_IsCorrect()
+    {
+        using (Assert.EnterMultipleScope())
+        {
+            ReadOnlySpan<byte> correct =
+            [
+                3, 4, 83, 101, 101, 110, 215, 4
+            ];
+
+            var reader = new TagReader(correct, true, false, true);
+
+            Assert.That(reader.TryReadIntegerTag(out var value, out var name), Is.True);
+            Assert.That(value, Is.EqualTo(-300));
+            Assert.That(name, Is.EqualTo("Seen"));
+        }
+    }
 }
