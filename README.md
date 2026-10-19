@@ -29,56 +29,10 @@ var list = ListTagBuilder<StringTag>
 
 ### Parsing
 
-Parsing is as simple as a single line of code, especially when the entire buffer is already present. 
+Parsing is as simple as a single line of code, especially when the entire buffer is already present.
 
 ```cs
 var success = TagSerializer.TryParse<CompoundTag>(source, out var tag);
-```
-
-However, for streaming scenarios it can be easily used like in the example below.
-
-```cs
-async ValueTask<ITag?> ReadTagAsync(PipeReader reader, CancellationToken cancellationToken)
-{
-    while (true)
-    {
-        var result = await reader.ReadAsync(cancellationToken);
-        var buffer = result.Buffer;
-
-        // In the event that no tag is parsed successfully, mark consumed as nothing and examined as the entire buffer.
-        var consumed = buffer.Start;
-        var examined = buffer.End;
-
-        try
-        {
-            var span = result.Buffer.IsSingleSegment ? result.Buffer.FirstSpan : result.Buffer.ToArray();
-
-            if (TagSerializer.TryParse(span, out var tag))
-            {
-                consumed = buffer.Start;
-                examined = consumed;
-
-                return tag;
-            }
-
-            if (result.IsCompleted)
-            {
-                if (buffer.Length > 0)
-                {
-                    throw new InvalidDataException("Incomplete message.");
-                }
-
-                break;
-            }
-        }
-        finally
-        {
-            reader.AdvanceTo(consumed, examined);
-        }
-    }
-
-    return null;
-}
 ```
 
 ### Writing
@@ -90,9 +44,13 @@ TagSerializer.Serialize(buffer, tag);
 
 ### Bedrock
 
-Bedrock Edition's networking uses little-endian with variable-length integers, longs and length prefixes.
+Bedrock edition's networking uses variable-length integers, longs and length prefixes.
 
 ```cs
-var options = new TagSerializerOptions { LittleEndian = true, VariableLength = true };
+var options = new TagSerializerOptions
+{
+    VariableLength = true
+};
+
 TagSerializer.Serialize(buffer, tag, options);
 ```

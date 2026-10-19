@@ -21,7 +21,7 @@ public readonly record struct TagSerializerOptions()
     /// Whether to serialize/parse integers, longs and length prefixes as variable-length numbers.
     /// </summary>
     /// <remarks>
-    /// Necessary for Bedrock Edition networking, alongside <see cref="LittleEndian"/>.
+    /// Necessary for Bedrock edition networking, alongside <see cref="LittleEndian"/>.
     /// </remarks>
     public bool VariableLength { get; init; } = false;
 
