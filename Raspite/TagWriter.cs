@@ -260,6 +260,15 @@ public ref struct TagWriter(IBufferWriter<byte> buffer, bool littleEndian, bool 
 
         ArgumentOutOfRangeException.ThrowIfGreaterThan(length, ushort.MaxValue);
 
+        if (variableLength)
+        {
+            // Unlike integers, string lengths are not ZigZag encoded.
+            WriteVariable((uint) length);
+            buffer.Advance(Encoding.UTF8.GetBytes(value, buffer.GetSpan(length)));
+
+            return;
+        }
+
         var total = sizeof(ushort) + length;
         var span = buffer.GetSpan(total);
 
