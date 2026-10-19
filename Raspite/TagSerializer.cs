@@ -65,7 +65,7 @@ public static class TagSerializer
     {
         options ??= new TagSerializerOptions();
 
-        var writer = new TagWriter(buffer, options.Value.LittleEndian, options.Value.Network);
+        var writer = new TagWriter(buffer, options.Value.LittleEndian, options.Value.Network, options.Value.VariableLength);
 
         Write(ref writer, tag, options.Value.MaximumDepth, options.Value.MaximumChildren);
     }
