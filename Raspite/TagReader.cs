@@ -360,20 +360,41 @@ public ref struct TagReader(ReadOnlySpan<byte> span, bool littleEndian, bool net
     {
         value = string.Empty;
 
+        if (!TryReadStringLength(out var length) || length > Remaining)
+        {
+            return false;
+        }
+
+        value = Encoding.UTF8.GetString(span[position..(position += length)]);
+
+        return true;
+    }
+
+    private bool TryReadStringLength(out ushort length)
+    {
+        length = 0;
+
+        if (variableLength)
+        {
+            // Unlike integers, string lengths are not ZigZag encoded.
+            if (!TryReadVariable(5, out var variable))
+            {
+                return false;
+            }
+
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(variable, ushort.MaxValue);
+            length = (ushort) variable;
+
+            return true;
+        }
+
         if (sizeof(ushort) > Remaining)
         {
             return false;
         }
 
         var slice = span[position..(position += sizeof(ushort))];
-        var length = littleEndian ? BinaryPrimitives.ReadUInt16LittleEndian(slice) : BinaryPrimitives.ReadUInt16BigEndian(slice);
-
-        if (length > Remaining)
-        {
-            return false;
-        }
-
-        value = Encoding.UTF8.GetString(span[position..(position += length)]);
+        length = littleEndian ? BinaryPrimitives.ReadUInt16LittleEndian(slice) : BinaryPrimitives.ReadUInt16BigEndian(slice);
 
         return true;
     }
