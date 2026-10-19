@@ -49,7 +49,7 @@ public static class TagSerializer
 
         tag = EndTag.Instance;
 
-        var reader = new TagReader(buffer, options.Value.LittleEndian, options.Value.Network);
+        var reader = new TagReader(buffer, options.Value.LittleEndian, options.Value.Network, options.Value.VariableLength);
         var success = reader.TryPeek(out var parent) && TryInstantiate(ref reader, out tag, parent, options.Value.MaximumDepth, options.Value.MaximumChildren);
 
         return success;
